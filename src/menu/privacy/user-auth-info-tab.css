@@ -1,0 +1,395 @@
+/* Card container aligns with your system tokens */
+.authinfo-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px var(--shadow);
+    padding: 16px;
+}
+
+/* ===== Header ===== */
+.ai-head {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.ai-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.ai-sub {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/* ===== Grid ===== */
+.ai-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.ai-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.ai-row:last-child {
+    border-bottom: 0;
+}
+
+.ai-key {
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.ai-val {
+    min-width: 0;
+    color: var(--text-primary);
+}
+
+/* ===== Value primitives (ported from ui-* to ai-*) */
+.ai-text {
+    word-break: break-word;
+}
+
+.ai-pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.95em;
+    line-height: 1.4;
+    background: var(--surface, rgba(127, 127, 127, .06));
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.ai-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.ai-muted {
+    color: var(--text-secondary);
+}
+
+/* ===== Arrays & nested ===== */
+.ai-array {
+    display: grid;
+    gap: 6px;
+}
+
+.ai-array-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.ai-bullet {
+    line-height: 1.8;
+}
+
+.ai-inline {
+    flex: 1 1 auto;
+}
+
+.ai-nested-obj {
+    display: grid;
+    gap: 8px;
+}
+
+.ai-nested {
+    margin-top: 8px;
+    display: grid;
+    gap: 8px;
+}
+
+.ai-details {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 6px 10px;
+    background: var(--card-bg);
+}
+
+.ai-summary {
+    cursor: pointer;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* ===== Empty state ===== */
+.ai-empty {
+    padding: 16px;
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    background: color-mix(in oklab, var(--accent-primary) 6%, transparent);
+}
+
+
+/* ===== Email chip ===== */
+.ai-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    white-space: nowrap;
+}
+
+.ai-chip--success {
+    background: color-mix(in oklab, var(--success) 18%, var(--card-bg));
+    border-color: color-mix(in oklab, var(--success) 28%, var(--border-color));
+}
+
+.ai-chip--danger {
+    background: color-mix(in oklab, var(--danger) 18%, var(--card-bg));
+    border-color: color-mix(in oklab, var(--danger) 28%, var(--border-color));
+}
+
+/* ===== Email block ===== */
+.ai-block {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--card-bg);
+}
+
+.ai-block-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ai-emline {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.ai-emlabel {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.ai-emvalue {
+    color: var(--text-primary);
+}
+
+/* ===== Inline actions ===== */
+.ai-block-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ===== Form for email update ===== */
+/* chip */
+.ai-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    white-space: nowrap;
+}
+
+.ai-chip--success {
+    background: color-mix(in oklab, var(--success) 18%, var(--card-bg));
+    border-color: color-mix(in oklab, var(--success) 28%, var(--border-color));
+}
+
+.ai-chip--danger {
+    background: color-mix(in oklab, var(--danger) 18%, var(--card-bg));
+    border-color: color-mix(in oklab, var(--danger) 28%, var(--border-color));
+}
+
+/* email block */
+.ai-block {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--card-bg);
+}
+
+.ai-block-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ai-emline {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.ai-emlabel {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.ai-emvalue {
+    color: var(--text-primary);
+}
+
+.ai-block-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+
+@media (max-width: 720px) {
+    .ai-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+
+/* ===== Responsive ===== */
+@media (max-width: 720px) {
+    .ai-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+}
+
+
+/* ===== Match profile card shell & responsiveness ===== */
+.authinfo-card {
+    /* keep your existing background/border/shadow */
+    max-width: 980px;
+    /* same centering as profile */
+    margin-inline: auto;
+    padding: 16px;
+    /* same as .profile-card */
+}
+
+@media (min-width: 1280px) {
+    .authinfo-card {
+        max-width: 1080px;
+    }
+}
+
+@media (max-width: 480px) {
+    .authinfo-card {
+        padding: 14px;
+    }
+}
+
+/* ===== Make the top "email block" look like a simple inline section ===== */
+/* remove inner box feel so it flows like the profile header actions area */
+.ai-block {
+    margin: 0 0 12px;
+    /* only a small space under the header */
+    padding: 0;
+    /* no inner padding */
+    border: 0;
+    /* no border to avoid card-in-card */
+    background: transparent;
+    /* blend with card */
+    border-radius: 0;
+}
+
+/* line with email + chip should stay tidy */
+.ai-block-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    /* align with profile's tight header area */
+}
+
+/* compact actions like the profile inline actions */
+.ai-block-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* use the same extra-small button size as the profile tab */
+.btn.btn-xxs {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 8px;
+}
+
+/* ===== Header & rows/gaps aligned with profile ===== */
+.ai-head {
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+/* mirrors .pf-head--tight spacing */
+.ai-grid {
+    gap: 12px;
+}
+
+/* same as .pf-grid */
+.ai-row {
+    /* same structure as .pf-row */
+    grid-template-columns: 220px 1fr;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.ai-row:last-child {
+    border-bottom: 0;
+}
+
+/* chips slightly denser on phones (like profile) */
+@media (max-width: 480px) {
+    .ai-chip {
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+}
+
+/* ===== Responsive columns match profile ===== */
+@media (max-width: 900px) {
+    .ai-row {
+        grid-template-columns: 180px 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .ai-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+}

@@ -1,0 +1,66 @@
+# ----------------------------------------
+# Core Node / JS / Vite Project Ignoring
+# ----------------------------------------
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Vite build output
+dist/
+build/
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Editor + OS files
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.cache
+
+# IDE folders
+.vscode/
+.idea/
+*.swp
+
+# ----------------------------------------
+# Backend (Node) inside Vite project
+# Replace `backend` if your folder is named differently
+# ----------------------------------------
+backend/node_modules/
+backend/dist/
+backend/build/
+backend/*.log
+backend/.env
+backend/.env.*
+
+# If backend stores runtime data
+backend/tmp/
+backend/data/
+backend/logs/
+
+# ----------------------------------------
+# Continue.dev rules folder
+# ----------------------------------------
+.continue/
+
+# ----------------------------------------
+# Optional: Ignore specific markdown docs
+# ----------------------------------------
+# Put md filenames here that you want to exclude
+# e.g.
+# docs/private-notes.md
+# private-*.md
+PHASES.md
+DEVELOPMENT.md
+
+# Placeholder (keep commented)
+# ignore-my-md-files/*.md

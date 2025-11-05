@@ -1,0 +1,57 @@
+.emailcard {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 8px 20px var(--shadow);
+}
+
+.emailcard-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.emailcard-field {
+    display: grid;
+    gap: 6px;
+}
+
+.emailcard-label {
+    font-weight: 600;
+}
+
+.emailcard-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text-primary);
+}
+
+.emailcard-input:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.emailcard-hint {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.status-ok {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.status-warn {
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.emailcard-actions,
+.emailcard-footer {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+}

@@ -1,0 +1,377 @@
+/* =========================================================
+   user-profile-tab.css
+ 
+   ========================================================= */
+
+/* ---- Card shell ---- */
+.profile-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px var(--shadow);
+    padding: 16px;
+}
+
+/* ---- Header ---- */
+.pf-head {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.pf-head--tight {
+    margin-bottom: 12px;
+}
+
+.pf-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 22px;
+    background: color-mix(in oklab, var(--accent-primary) 14%, var(--card-bg));
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.pf-titlewrap {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.pf-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.pf-sub {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.pf-email {
+    word-break: break-all;
+}
+
+.pf-statuswrap {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: end;
+}
+
+/* ---- Small inline actions (below header) ---- */
+.pf-inline-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 2px 0 10px;
+    /* small space under header, above grid */
+}
+
+/* tiny link-style button */
+.link-btn {
+    background: transparent;
+    border: 0;
+    padding: 4px 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-primary);
+    cursor: pointer;
+}
+
+.link-btn:hover {
+    text-decoration: underline;
+}
+
+/* compact buttons used in inline actions while editing */
+.btn.btn-xs {
+    padding: 6px 10px;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 8px;
+}
+
+/* ---- Chips (status badges) ---- */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    white-space: nowrap;
+}
+
+.chip--success {
+    background: color-mix(in oklab, var(--success) 18%, var(--card-bg));
+    border-color: color-mix(in oklab, var(--success) 28%, var(--border-color));
+}
+
+.chip--warning {
+    background: color-mix(in oklab, var(--warning) 18%, var(--card-bg));
+    border-color: color-mix(in oklab, var(--warning) 28%, var(--border-color));
+}
+
+.chip--danger {
+    background: color-mix(in oklab, var(--danger) 18%, var(--card-bg));
+    border-color: color-mix(in oklab, var(--danger) 28%, var(--border-color));
+}
+
+.chip--neutral {
+    background: color-mix(in oklab, var(--accent-secondary) 12%, var(--card-bg));
+    border-color: color-mix(in oklab, var(--accent-secondary) 22%, var(--border-color));
+}
+
+/* ---- Details grid (rows) ---- */
+.pf-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.pf-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.pf-row:last-child {
+    border-bottom: 0;
+}
+
+.pf-key {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pf-val {
+    color: var(--text-primary);
+    min-width: 0;
+    word-break: break-word;
+}
+
+.pf-muted {
+    color: var(--text-secondary);
+}
+
+.pf-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ---- Edit form ---- */
+.pf-form {
+    display: grid;
+    gap: 12px;
+}
+
+.pf-form-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+}
+
+.pf-field {
+    display: grid;
+    gap: 6px;
+}
+
+.pf-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ---- Skeleton (loading) ---- */
+.pf-skel {
+    position: relative;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--text-secondary) 8%, transparent);
+    border-radius: 10px;
+    min-height: 14px;
+}
+
+.pf-line.lg {
+    height: 18px;
+    width: 50%;
+}
+
+.pf-line {
+    height: 14px;
+    width: 70%;
+}
+
+.pf-skel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(127, 127, 127, .16), transparent);
+    animation: pf-shimmer 1.2s infinite;
+}
+
+@keyframes pf-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 720px) {
+    .pf-head {
+        grid-template-columns: 56px 1fr;
+        grid-auto-rows: auto;
+    }
+
+    .pf-statuswrap {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+
+    .pf-inline-actions {
+        margin: 0 0 10px;
+    }
+
+    .pf-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .pf-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+/* ---- Card shell (responsive) ---- */
+.profile-card {
+    max-width: 980px;
+    /* center and cap width on large screens */
+    margin-inline: auto;
+    padding: 18px;
+    /* a bit more breathing room */
+}
+
+@media (min-width: 1280px) {
+    .profile-card {
+        max-width: 1080px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-card {
+        padding: 14px;
+    }
+}
+
+/* ---- Inline actions: stacked Save/Cancel ---- */
+.pf-actions {
+    display: flex;
+    flex-direction: column;
+    /* stack vertically */
+    gap: 6px;
+    /* neat spacing */
+    align-items: flex-start;
+    /* align to left edge */
+}
+
+/* smaller buttons just for these actions */
+.btn.btn-xxs {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 8px;
+}
+
+/* make stacked buttons tidy on narrow screens */
+@media (max-width: 420px) {
+    .pf-actions {
+        gap: 8px;
+    }
+}
+
+/* keep the original .pf-inline-actions spacing tight under the header */
+.pf-inline-actions {
+    margin: 0 0 12px;
+}
+
+/* ---- Form spacing / inputs ---- */
+.pf-form {
+    gap: 16px;
+}
+
+.pf-form-grid {
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+}
+
+.pf-field {
+    gap: 8px;
+}
+
+.form-control {
+    min-height: 40px;
+    /* comfortable tap target */
+    padding: 8px 10px;
+}
+
+/* ---- Details grid spacing (read-only) ---- */
+.pf-grid {
+    gap: 12px;
+}
+
+.pf-row {
+    padding: 10px 0;
+}
+
+/* ---- Header tweaks for better wrapping ---- */
+.pf-head {
+    gap: 14px;
+}
+
+.pf-statuswrap {
+    row-gap: 6px;
+}
+
+/* ---- Chips: slightly denser on phones ---- */
+@media (max-width: 480px) {
+    .chip {
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+}
+
+/* ---- Responsive layout improvements ---- */
+@media (max-width: 900px) {
+    .pf-row {
+        grid-template-columns: 180px 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .pf-head {
+        grid-template-columns: 56px 1fr;
+    }
+
+    .pf-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .pf-form-grid {
+        grid-template-columns: 1fr;
+        /* single column on tablets/phones */
+    }
+}

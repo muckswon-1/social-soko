@@ -1,0 +1,124 @@
+/* ===== Shell grid ===== */
+/* Header sits on top across full width. Sidebar + main live in row 2. */
+.soko-shell {
+    display: grid;
+    grid-template-rows: var(--hdr-height, 64px) 1fr;
+    grid-template-columns: var(--sb-width, 240px) 1fr;
+    grid-template-areas:
+        "header header"
+        "sidebar main";
+    min-height: 100vh;
+    background: var(--bg-primary);
+    
+}
+
+.sidebar-expanded {
+    --sb-width: 240px;
+}
+
+.sidebar-collapsed {
+    --sb-width: 72px;
+}
+
+/* ===== Header (top bar, full width, not affected by sidebar) ===== */
+.soko-header {
+    grid-area: header;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 8px 20px var(--shadow);
+}
+
+.hdr-inner {
+    height: var(--hdr-height, 64px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+}
+
+.hdr-brand {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.hdr-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hdr-btn {
+    width: 40px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+
+
+/* ===== Main area ===== */
+.soko-canvas {
+    grid-area: main;
+    max-width: 1100px;
+    width: 100%;
+    margin: 16px;
+    padding: 0 16px 24px;
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+}
+
+/* Make your “card” look consistent */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px var(--shadow);
+    padding: 16px;
+}
+
+/* Minimal forms & utilities */
+.form-grid {
+    display: grid;
+    gap: 12px;
+    max-width: 640px;
+}
+
+.row-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.muted {
+    color: var(--text-secondary);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 960px) {
+    .soko-shell {
+        grid-template-columns: 72px 1fr;
+    }
+
+    .sidebar-expanded {
+        --sb-width: 72px;
+    }
+
+    /* force compact on small */
+    .sb-label {
+        display: none;
+    }
+}
+
+@media (max-width: 560px) {
+    .soko-canvas {
+        margin: 12px auto;
+        padding: 0 12px 20px;
+    }
+}

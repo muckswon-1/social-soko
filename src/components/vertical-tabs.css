@@ -1,0 +1,65 @@
+/* Layout */
+.vtabs {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    
+}
+
+/* Left rail */
+.vtabs-rail {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    position: sticky;
+    top: calc(var(--hdr-height, 64px) + 16px);
+    align-self: start;
+}
+
+/* Tab buttons */
+.vtabs-btn {
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.vtabs-btn.is-active {
+    color: var(--text-primary);
+    background: color-mix(in oklab, var(--accent-primary) 12%, transparent);
+    border-color: var(--border-color);
+}
+
+/* Panels */
+.vtabs-panelwrap {
+    min-width: 0;
+    display: grid;
+}
+
+.vtabs-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px var(--shadow);
+    padding: 16px;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+    .vtabs {
+        grid-template-columns: 1fr;
+    }
+
+    .vtabs-rail {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .vtabs-btn {
+        flex: 0 0 auto;
+    }
+}
