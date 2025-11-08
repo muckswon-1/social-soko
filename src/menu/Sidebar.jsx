@@ -1,11 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router';
-import { useAuth } from '../hooks/useAuth';
+
 import  './sidebar.css'
+import { logout } from '../features/auth/authThunk';
+import { useDispatch } from 'react-redux';
 
 
 const Sidebar = ({expanded, setExpanded}) => {
-    const { logout } = useAuth();
+    const dispatch = useDispatch();
 
     return (
         <>
@@ -27,15 +29,23 @@ const Sidebar = ({expanded, setExpanded}) => {
             <span className="sb-label">Profile</span>
           </NavLink>
 
+           <NavLink to="/dashboard/business" className="sb-link">
+            <span className="sb-ico" aria-hidden>🏘️</span>
+            <span className="sb-label">My Business</span>
+          </NavLink>
+
+          
+
           <NavLink to="/dashboard/privacy-settings" className="sb-link">
             <span className="sb-ico" aria-hidden>🔐</span>
             <span className="sb-label">Privacy and Security</span>
           </NavLink>
+
           {/* add more links as you scale */}
         </nav>
 
         <div className="sb-footer">
-          <button className="sb-link sb-logout" onClick={logout}>
+          <button className="btn sb-link sb-logout" onClick={() => dispatch(logout())}>
             <span className="sb-ico" aria-hidden>⏻</span>
             <span className="sb-label">Logout</span>
           </button>

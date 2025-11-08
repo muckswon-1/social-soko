@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import './password-reset-form.css';
-import { useAuth } from '../../hooks/useAuth';
+import { updatePassword } from '../../features/auth/authThunk';
+import { useDispatch, useSelector } from 'react-redux';
+import { authLoadingSelector } from '../../features/auth/authSlice';
 
 const PasswordResetForm = () => {
   const [formData, setFormData] = useState({
@@ -9,19 +11,22 @@ const PasswordResetForm = () => {
     confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+ 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(5);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { updatePassword } = useAuth();
+ 
+
+  const loading = useSelector(authLoadingSelector);
+  const dispatch = useDispatch();
 
   // Extract token & id from URL
   const urlParams = new URLSearchParams(location.search);
   const token = urlParams.get('token');
-  const id = urlParams.get('id');
+  
 
   const validate = () => {
     const newErrors = {};
@@ -63,11 +68,10 @@ const PasswordResetForm = () => {
       return;
     }
 
-    setLoading(true);
     setError('');
 
     try {
-      const result = await updatePassword(id, token, formData.password);
+      const result = await dispatch(updatePassword( { password:formData.password, token})).unwrap();
 
       if (result.success) {
         setSuccess(true);
@@ -77,9 +81,7 @@ const PasswordResetForm = () => {
       }
     } catch (err) {
       setError(err?.message || 'Failed to reset password. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   // Success countdown → navigate to login

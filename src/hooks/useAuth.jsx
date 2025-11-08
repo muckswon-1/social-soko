@@ -108,23 +108,25 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const updatePassword = useCallback(async (id, token, newPassword) => {
+  const updatePassword = useCallback(async ( token, newPassword) => {
     try {
-      const { data } = await api.post(`/auth/reset-password/${token}/${id}`, { password: newPassword });
+      const { data } = await api.post(`/auth/reset-password/${token}`, { password: newPassword });
+      
+
       return ok({ message: data?.message || 'Password reset successful' });
     } catch (error) {
-      return fail(error, 'Failed to reset password');
+      return fail(error,'Failed to reset password');
     }
   }, []);
 
   const sendSixDigitCode = useCallback(async(email) => {
 
-   
     try {
       const response = await api.post('/auth/send-verification-digits-code', { email });
-     
+
       return ok({message: response?.data?.message || 'Verification Code sent to your email'})
     } catch (error) {
+      console.log('Inside catch sendSixDigitCode')
       return fail(error, 'Could not send verification code.')
     }
   },[]);
@@ -133,7 +135,7 @@ export const AuthProvider = ({ children }) => {
   const resetPasswordWithDigitCode = useCallback(async({ newPassword, digitCodes}) => {
     try {
       const response = await api.post('/auth/reset-password-with-digit-code',{newPassword, digitCodes});
-
+     
       return ok({ message: response.data?.message || 'Password reset successful' });
 
 

@@ -26,26 +26,58 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Business.init({
-    name: DataTypes.STRING,
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {len: [2,255]}
+
+    },
+    user_id: {
+  type: DataTypes.UUID,
+  allowNull: false
+},
     description: DataTypes.TEXT,
     address: DataTypes.STRING,
     city: DataTypes.STRING,
     state: DataTypes.STRING,
     country: DataTypes.STRING,
     postal_code: DataTypes.STRING,
-    phone: DataTypes.STRING,
-    email: DataTypes.STRING,
-    website: DataTypes.STRING,
+    phone:{
+      type: DataTypes.STRING,
+      validate: {len: [5,20]}
+    },
+    email: {
+      type: DataTypes.STRING,
+      unique: true,
+      validate: {isEmail: true}
+    },
+   
+    website: {
+      type: DataTypes.STRING,
+      validate: {isUrl: true}
+    },
+    slug: {
+      type: DataTypes.STRING,
+      unique: true
+    },
     logo_url: DataTypes.STRING,
     is_verified: DataTypes.BOOLEAN,
-    verification_token: DataTypes.STRING,
-    token_expires: DataTypes.DATE,
-    created_at: DataTypes.DATE,
-    updated_at: DataTypes.DATE
+   
   }, {
     sequelize,
     modelName: 'Business',
-    timestamps: false
+    tableName: 'Businesses',
+    timestamps: true,
+    underscored: true,
+     indexes: [
+      { fields: ['user_id'] },
+      { fields: ['city'] },
+      { fields: ['state'] },
+      { fields: ['country'] },
+      { fields: ['postal_code'] },
+      { fields: ['is_verified'] },
+    ],
   });
   return Business;
 };

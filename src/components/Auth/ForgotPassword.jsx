@@ -1,44 +1,51 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { useAuth } from '../../hooks/useAuth';
+import { forgotPassword } from '../../features/auth/authThunk';
 import './forgot-password.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { authLoadingSelector } from '../../features/auth/authSlice';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [emailLinkSentSuccess, setEmailLinkSentSuccess] = useState(false);
   
-  const { forgotPassword } = useAuth();
+  const loading = useSelector(authLoadingSelector);
+  const dispatch = useDispatch();
+  
+  
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-    setMessage('');
+    
 
     try {
-      const result = await forgotPassword(email);
+      const result =  await dispatch(forgotPassword({email})).unwrap();
       
       if (result.success) {
-        setMessage(result.message);
-        // Redirect to login page after 3 seconds
-        setTimeout(() => {
-          navigate('/login');
-        }, 3000);
+        setEmailLinkSentSuccess(true);
+       
       } else {
-        setError(result.error);
+        setEmailLinkSentSuccess(false);
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   return (
-    <div className="auth-form-container">
+   
+    emailLinkSentSuccess ? (
+        <>
+          <p>Password Reset Link Sent to your email.</p>
+          <p> You can now close this window</p>
+          </>
+    ):(
+
+
+     <div className="auth-form-container">
       <form className="auth-form" onSubmit={handleSubmit}>
         <h2>Forgot Password</h2>
         
@@ -46,11 +53,6 @@ const ForgotPassword = () => {
           Enter your email address and we'll send you a link to reset your password.
         </p>
         
-        {message && (
-          <div className="auth-message auth-message-success">
-            {message}
-          </div>
-        )}
         
         {error && (
           <div className="auth-message auth-message-error">
@@ -91,6 +93,8 @@ const ForgotPassword = () => {
         </div>
       </form>
     </div>
+    )
+   
   );
 };
 

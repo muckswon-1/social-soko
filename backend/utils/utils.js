@@ -12,7 +12,6 @@ require('dotenv').config();
  * 
  */
 
-
 const UTILS = {
     
   /**
@@ -172,7 +171,17 @@ timingSafeCompare: (a, b) => {
   if(ab.length !== bb.length) return false;
 
   return crypto.timingSafeEqual(ab, bb);
+},
 
+catchAsync: (fn) => (req, res, next) => {
+  Promise.resolve(fn(req,res,next)).catch(next)
+},
+
+// Helper to throw HTTP-ish errors without adding deps
+httpError: (status, message)  => {
+  const err = new Error(message);
+  err.status = status;
+  return err;
 }
 
 

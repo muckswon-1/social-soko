@@ -1,7 +1,7 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 //import {createBrowserRouter, RouterProvider, Navigate} from 'react-router-dom';
-import { AuthProvider, useAuth } from './hooks/useAuth';
+import { AuthProvider } from './hooks/useAuth';
 
 import LandingPage from './pages/landing-page/LandingPage';
 import Login from './components/Auth/Login';
@@ -24,26 +24,51 @@ import RootRouteError from './RootRouteError';
 import { ProfileProvider } from './hooks/useProfile';
 import Profile from './menu/profile/Profile';
 import RootLayout from './RootLayout';
+import Business from './menu/business/Business';
+import { useDispatch, useSelector } from 'react-redux';
+import { authBootstrapingSelector, authLoadingSelector, authUserSelector } from './features/auth/authSlice';
+import { verifySession } from './features/auth/authThunk';
+
+
+
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  if (loading) return <div className="loading">Loading...</div>;
+  const user = useSelector(authUserSelector);
+const loading = useSelector(authLoadingSelector);
+const bootstrapping = useSelector(authBootstrapingSelector);
+
+ if(bootstrapping) {
+  return <div className='loading'>Checking Session</div>
+ }
+
+  //if (loading) return <div className="loading">Loading...</div>;
   return user ? children : <Navigate to="/login" />;
 };
 
+
 // Public route component
 const PublicRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  if (loading) return <div className="loading">Loading...</div>;
+ const user = useSelector(authUserSelector);
+const bootstrapping = useSelector(authBootstrapingSelector);
+
+  if (bootstrapping) return <div className="loading">Checking Session...</div>;
   return !user ? children : <Navigate to="/dashboard" />;
 };
 
+
+
 const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(verifySession());
+  },[dispatch])
+
   return (
     <Router>
-      <AuthProvider>
-        <ProfileProvider>
+  
+      
           <Routes>
             {/* Public */}
             <Route
@@ -102,15 +127,18 @@ const App = () => {
               path="/dashboard/*"
               element={
                 <ProtectedRoute>
+               
                   <DashboardLayout />
+                 
                 </ProtectedRoute>
               }
             >
               {/* default tab */}
-              {/* <Route index element={<Profile />} /> */}
+               <Route index element={<Profile />} />
               {/* <Route path="profile" element={<Profile />} /> */}
               <Route path="privacy-settings" element={<Privacy />} />
               <Route path='profile' element={<Profile />} />
+              <Route path='business' element={<Business />} />
               {/* Add more tabs later:
                   <Route path="notifications" element={<Notifications />} />
                   <Route path="business" element={<BusinessSettings />} /> */}
@@ -125,8 +153,8 @@ const App = () => {
         
       
       <ToastContainer />
-      </ProfileProvider>
-      </AuthProvider>
+     
+      
     </Router>
 
     

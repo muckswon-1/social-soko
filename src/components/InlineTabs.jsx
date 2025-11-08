@@ -1,13 +1,14 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import './vertical-tabs.css';
+import './inline-tabs.css';
 
 /**
+ * InlineTabs
  * props:
  *  - tabs: [{ id, label, content }]
  *  - defaultId: string
- *  - syncWithQuery?: boolean (optional) – if true, it syncs the active tab to ?tab=<id>
+ *  - syncWithQuery?: boolean (default true)
  */
-const VerticalTabs = ({ tabs = [], defaultId, syncWithQuery = true }) => {
+const InlineTabs = ({ tabs = [], defaultId, syncWithQuery = true }) => {
   const tabMap = useMemo(() => {
     const map = new Map();
     tabs.forEach(t => map.set(t.id, t));
@@ -25,33 +26,32 @@ const VerticalTabs = ({ tabs = [], defaultId, syncWithQuery = true }) => {
 
   const [activeId, setActiveId] = useState(getInitial);
 
+  // ensure valid tab
   useEffect(() => {
     if (!tabMap.has(activeId)) {
       setActiveId(getInitial());
     }
   }, [activeId, tabMap, getInitial]);
 
+  // keep URL synced
   useEffect(() => {
     if (!syncWithQuery) return;
     const q = new URLSearchParams(window.location.search);
-    if (activeId) {
-      q.set('tab', activeId);
-    } else {
-      q.delete('tab');
-    }
+    if (activeId) q.set('tab', activeId);
+    else q.delete('tab');
     const next = `${window.location.pathname}?${q.toString()}`;
     window.history.replaceState({}, '', next);
   }, [activeId, syncWithQuery]);
 
   return (
-    <div className="vtabs">
-      <div className="vtabs-rail" role="tablist" aria-orientation="vertical">
+    <div className="inlinetabs">
+      <div className="inlinetabs-header" role="tablist" aria-orientation="horizontal">
         {tabs.map((t) => {
           const selected = t.id === activeId;
           return (
             <button
               key={t.id}
-              className={`vtabs-btn ${selected ? 'is-active' : ''}`}
+              className={`inlinetabs-btn ${selected ? 'is-active' : ''}`}
               role="tab"
               aria-selected={selected}
               aria-controls={`panel-${t.id}`}
@@ -65,7 +65,7 @@ const VerticalTabs = ({ tabs = [], defaultId, syncWithQuery = true }) => {
         })}
       </div>
 
-      <div className="vtabs-panelwrap">
+      <div className="inlinetabs-panelwrap">
         {tabs.map((t) => {
           const hidden = t.id !== activeId;
           return (
@@ -75,7 +75,7 @@ const VerticalTabs = ({ tabs = [], defaultId, syncWithQuery = true }) => {
               id={`panel-${t.id}`}
               aria-labelledby={`tab-${t.id}`}
               hidden={hidden}
-              className="vtabs-panel"
+              className="inlinetabs-panel"
             >
               {!hidden && t.content}
             </section>
@@ -86,4 +86,4 @@ const VerticalTabs = ({ tabs = [], defaultId, syncWithQuery = true }) => {
   );
 };
 
-export default VerticalTabs;
+export default InlineTabs;

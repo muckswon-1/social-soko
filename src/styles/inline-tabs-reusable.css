@@ -1,0 +1,344 @@
+/* ==========================================================================
+   UI Reusables (theme-consistent, no inner shadows)
+   Uses variables from theme.css:
+   --bg-primary, --bg-secondary, --text-primary, --text-secondary,
+   --accent-primary, --accent-secondary, --border-color, --card-bg,
+   --success, --warning, --danger, --shadow
+   ========================================================================== */
+
+/* --- Cards (no shadow — parent already has elevation) -------------------- */
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+/* Optional density helpers */
+.card--tight {
+    padding: 0.75rem;
+}
+
+.card--cozy {
+    padding: 1rem;
+}
+
+.card--roomy {
+    padding: 1.25rem;
+}
+
+/* --- Section header patterns (title + subtext) --------------------------- */
+
+.section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: .5rem;
+}
+
+.section-titles {
+    min-width: 0;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.section-sub {
+    margin: .35rem 0 0 0;
+    color: var(--text-secondary);
+    font-size: .95rem;
+}
+
+/* Right-side small action area */
+.section-right {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--text-secondary);
+    font-size: .85rem;
+    white-space: nowrap;
+}
+
+/* --- Inline actions (below header or inside forms) ----------------------- */
+
+.inline-actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: .5rem 0 1rem;
+}
+
+/* --- Key/Value display (generic, for profile/auth info etc.) ------------- */
+
+.kv-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: .75rem 1rem;
+}
+
+.kv-row {
+    display: contents;
+    /* allows grid children to align nicely */
+}
+
+.kv-key {
+    color: var(--text-secondary);
+    font-size: .95rem;
+    padding: .4rem 0;
+}
+
+.kv-val {
+    color: var(--text-primary);
+    padding: .4rem 0;
+    word-break: break-word;
+}
+
+.kv-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.kv-muted {
+    color: var(--text-secondary);
+}
+
+/* For long values / preformatted blocks */
+.kv-pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: .92rem;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: .5rem .6rem;
+}
+
+/* Collapsible nested data */
+.kv-details {
+    margin: .25rem 0;
+}
+
+.kv-summary {
+    cursor: pointer;
+    color: var(--accent-primary);
+}
+
+/* --- Chips / status badges ---------------------------------------------- */
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    line-height: 22px;
+    padding: 0 .5rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    font-size: .78rem;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+}
+
+.chip--success {
+    color: var(--success);
+    border-color: var(--success);
+}
+
+.chip--warning {
+    color: var(--warning);
+    border-color: var(--warning);
+}
+
+.chip--danger {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.chip--neutral {
+    /* default */
+}
+
+/* --- Buttons: minimal additions on top of your .btn / .btn-outline ------- */
+
+.btn-xxs {
+    padding: 6px 10px;
+    font-size: .82rem;
+    border-radius: 4px;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.link-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent-primary);
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+}
+
+.link-btn:hover {
+    opacity: .9;
+}
+
+/* --- Form layout helpers (pair with .form-control from theme.css) -------- */
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-grid-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+
+.form-label {
+    color: var(--text-secondary);
+    font-size: .92rem;
+}
+
+.form-hint {
+    color: var(--text-secondary);
+    font-size: .85rem;
+}
+
+.form-error {
+    color: var(--danger);
+    font-size: .88rem;
+}
+
+/* Password input with end-icon/button */
+.input-affix {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: .4rem;
+    align-items: center;
+}
+
+/* --- OTP inputs (used by password/email flows) --------------------------- */
+
+.otp {
+    display: flex;
+    gap: .5rem;
+}
+
+.otp-input {
+    width: 40px;
+    height: 44px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 1.05rem;
+}
+
+.otp-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 30%, transparent);
+}
+
+/* --- Password strength bar ---------------------------------------------- */
+
+.strength {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .5rem;
+}
+
+.strength .bar {
+    width: 36px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border-color);
+}
+
+.strength .bar.on {
+    background: var(--accent-primary);
+}
+
+.strength .label {
+    color: var(--text-secondary);
+    font-size: .85rem;
+}
+
+/* --- Small helpers ------------------------------------------------------- */
+
+.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.muted {
+    color: var(--text-secondary);
+}
+
+.divider {
+    height: 1px;
+    background: var(--border-color);
+    border: 0;
+    margin: 1rem 0;
+}
+
+/* --- Responsive ---------------------------------------------------------- */
+
+@media (max-width: 960px) {
+    .kv-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .5rem;
+    }
+
+    .section-right {
+        margin-left: 0;
+    }
+
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.btn:disabled,
+.btn[disabled] {
+    opacity: 0.5;
+    /* or whatever "disabled" look you want */
+    cursor: not-allowed;
+    pointer-events: none;
+    /* ensures no hover/active behavior */
+}
+.btn:disabled:hover,
+.btn[disabled]:hover {
+    opacity: 0.5;
+    /* or whatever "disabled" look you want */
+    cursor: not-allowed;
+    pointer-events: none;
+    /* ensures no hover/active behavior */
+}

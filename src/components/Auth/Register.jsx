@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { register } from '../../features/auth/authThunk';
 import { Link, useNavigate } from 'react-router';
 import './register.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { authLoadingSelector } from '../../features/auth/authSlice';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,10 +13,12 @@ const Register = () => {
     role: 'customer'
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+
+  const loading = useSelector(authLoadingSelector);
+  const dispatch = useDispatch();
   
-  const { register } = useAuth();
+  
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,23 +32,24 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+   
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
-      setLoading(false);
+     
       return;
     }
 
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters');
-      setLoading(false);
+  
       return;
     }
 
     try {
-      const result = await register(formData.email, formData.password, formData.role);
+      const result = await dispatch(register({email: formData.email, password: formData.password, role: formData.role})).unwrap();
+
       if (result.success) {
         setSuccessMessage(result.message || 'Registration successful! Please login.');
 
@@ -59,9 +64,7 @@ const Register = () => {
     } catch (err) {
       setError('An error occurred during registration');
       console.error('Registration error:', err);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   return (

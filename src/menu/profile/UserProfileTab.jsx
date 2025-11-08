@@ -1,56 +1,37 @@
+// src/menu/profile/UserProfileTab.jsx
 import React, { useMemo, useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useProfile } from "../../hooks/useProfile";
-import { useAuth } from "../../hooks/useAuth";
-import "./user-profile-tab.css";
+import "../../styles/inline-tabs-reusable.css";     
+import "./user-profile-tab.css";           
+import { useSelector } from "react-redux";
+import { authUserSelector } from "../../features/auth/authSlice";
+import Skeleton from "../../components/Skeleton";
+import Row from "../../components/Row";
+import { getInitials } from "../../utils/passwordUtils";
+import { useGetUserProfileQuery, useUpdateUserProfileMutation } from "../../services/profileApi";
 
-const getInitials = (first, last, email) => {
-  const a = (first || "").trim();
-  const b = (last || "").trim();
-  if (a || b) return `${a[0] || ""}${b[0] || ""}`.toUpperCase();
-  const e = (email || "").trim();
-  return e ? e[0].toUpperCase() : "U";
-};
-
-const Chip = ({ children, tone = "neutral" }) => (
-  <span className={`chip chip--${tone}`}>{children}</span>
-);
-
-const Row = ({ label, value, mono = false }) => (
-  <div className="pf-row">
-    <div className="pf-key">{label}</div>
-    <div className={`pf-val ${mono ? "pf-mono" : ""}`}>
-      {value ?? <span className="pf-muted">N/A</span>}
-    </div>
-  </div>
-);
-
-const Skeleton = () => (
-  <div className="profile-card card">
-    <div className="pf-head">
-      <div className="pf-avatar pf-skel" />
-      <div className="pf-titlewrap">
-        <div className="pf-skel pf-line lg" />
-        <div className="pf-skel pf-line" />
-      </div>
-    </div>
-    <div className="pf-grid">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div className="pf-row" key={i}>
-          <div className="pf-skel pf-line" />
-          <div className="pf-skel pf-line" />
-        </div>
-      ))}
-    </div>
-  </div>
-);
 
 const UserProfileTab = () => {
-  const { user } = useAuth();
-  const { profile, loading, fetchUserProfile, updateUserProfile } = useProfile();
+  const user = useSelector(authUserSelector);
+ 
+
+  const {
+    data: profileResponse,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+  } = useGetUserProfileQuery(user?.id,{skip: !user?.id});
+
+ 
+
+  const [updateUserProfile, {isLoading: isUpdating}] = useUpdateUserProfileMutation();
+
+const profile = profileResponse?.data || null;
+const loading = isProfileLoading;
+  
+
 
   const [isEditing, setIsEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
+  //const [saving, setSaving] = useState(false);
 
   const initialForm = useMemo(() => {
     if (!profile) return { first_name: "", last_name: "", phone: "" };
@@ -67,10 +48,13 @@ const UserProfileTab = () => {
   }, [initialForm, isEditing]);
 
   if (loading) return <Skeleton />;
-  if (!profile) return <div className="card">No profile data found.</div>;
+  if (!user?.id) return <div className="card card--cozy">No profile data found.</div>;
+
+  if(isProfileError) {
+    return <div className="card card--cozy">Error fetching profile data.</div>
+  }
 
   const { firstName, lastName, phoneVerified, accountVerified } = profile;
-
   const initials = getInitials(firstName, lastName, user?.email);
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
 
@@ -87,34 +71,28 @@ const UserProfileTab = () => {
   const onSave = async (e) => {
     e?.preventDefault?.();
     if (!user?.id) return;
-
     if (!isDirty) {
       setIsEditing(false);
       return;
     }
 
-    setSaving(true);
-    try {
-      // backend expects phone_number
       const patch = {
         first_name: form.first_name.trim(),
         last_name: form.last_name.trim(),
-        phone_number: form.phone.trim(),
+        phone: form.phone.trim(),
       };
-      const res = await updateUserProfile(user.id, patch);
 
-      if (res?.success) {
+    //setSaving(true);
+    try {
+    
+      await updateUserProfile({userId:user.id, patch}).unwrap();
+     
         toast.success("Profile updated");
-        await fetchUserProfile(user.id);
-        setIsEditing(false);
-      } else {
-        toast.error(res?.message || "Failed to update profile");
-      }
+       setIsEditing(false);
+
     } catch {
       toast.error("Failed to update profile");
-    } finally {
-      setSaving(false);
-    }
+    } 
   };
 
   const onCancel = () => {
@@ -123,109 +101,98 @@ const UserProfileTab = () => {
   };
 
   return (
-     <div className="profile-card card">
+    <div className="card card--cozy">
       {/* Header */}
-      <header className="pf-head pf-head--tight">
+      <header className="section-head">
         <div className="pf-avatar" aria-hidden>
           {initials}
         </div>
 
-        <div className="pf-titlewrap">
-          <h2 className="pf-title">{fullName || "Your Profile"}</h2>
-          <div className="pf-sub">
-            <span className="pf-email">{user?.email}</span>
+        <div className="section-titles">
+          <h2 className="section-title">{fullName || "Your Profile"}</h2>
+          <div className="section-sub">
+            <span className="kv-mono">{user?.email}</span>
           </div>
         </div>
 
-        <div className="pf-statuswrap">
-          <Chip tone={user?.emailVerified ? "success" : "danger"}>
+        <div className="section-right">
+          <span className={`chip ${user?.emailVerified ? "chip--success" : "chip--danger"}`}>
             {user?.emailVerified ? "Email Verified" : "Not Verified"}
-          </Chip>
-          <Chip tone={phoneVerified ? "success" : "warning"}>
+          </span>
+          <span className={`chip ${phoneVerified ? "chip--success" : "chip--warning"}`}>
             {phoneVerified ? "Phone Verified" : "Phone Unverified"}
-          </Chip>
-          <Chip tone={accountVerified ? "success" : "neutral"}>
+          </span>
+          <span className={`chip ${accountVerified ? "chip--success" : "chip--neutral"}`}>
             {accountVerified ? "Account Verified" : "Verification Pending"}
-          </Chip>
+          </span>
         </div>
       </header>
 
-      {/* small inline actions BELOW header */}
-<div className="pf-inline-actions">
-  {!isEditing ? (
-    <button
-      type="button"
-      className="link-btn"
-      onClick={() => setIsEditing(true)}
-    >
-      Edit
-    </button>
-  ) : (
-    <div className="pf-actions"> {/* <-- added wrapper */}
-      <button
-        className="btn btn-xxs"            // <- slightly smaller
-        onClick={onSave}
-        disabled={saving || !isDirty}
-      >
-        {saving ? "Saving…" : "Save"}
-      </button>
-      <button
-        className="btn btn-xxs btn-outline"
-        onClick={onCancel}
-        disabled={saving}
-        type="button"
-      >
-        Cancel
-      </button>
-    </div>
-  )}
-</div>
-
+      {/* Inline actions under header */}
+      <div className="inline-actions">
+        {!isEditing ? (
+          <button type="button" className="link-btn" onClick={() => setIsEditing(true)}>
+            Edit
+          </button>
+        ) : (
+          <>
+            <button className="btn btn-xxs" onClick={onSave} disabled={isUpdating || !isDirty}>
+              {isUpdating ? "Saving…" : "Save"}
+            </button>
+            <button
+              className="btn btn-xxs btn-outline"
+              onClick={onCancel}
+              disabled={isUpdating}
+              type="button"
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </div>
 
       {/* Body */}
       {!isEditing ? (
-        <section className="pf-grid" aria-label="Profile details">
-          <Row label="First Name" value={firstName || <span className="pf-muted">N/A</span>} />
-          <Row label="Last Name" value={lastName || <span className="pf-muted">N/A</span>} />
-          <Row label="Phone" value={profile.phoneNumber || <span className="pf-muted">N/A</span>} />
+        <section className="kv-grid" aria-label="Profile details">
+          <Row label="First Name" value={firstName || <span className="kv-muted">N/A</span>} />
+          <Row label="Last Name" value={lastName || <span className="kv-muted">N/A</span>} />
+          <Row label="Phone" value={profile.phoneNumber || <span className="kv-muted">N/A</span>} />
         </section>
       ) : (
-        <form className="pf-form" onSubmit={onSave}>
-          <div className="pf-form-grid">
-            <label className="pf-field">
-              <span className="pf-label">First Name</span>
-              <input
-                className="form-control"
-                name="first_name"
-                value={form.first_name}
-                onChange={onChange}
-                autoComplete="given-name"
-              />
-            </label>
+        <form className="form-grid-2" onSubmit={onSave}>
+          <label className="form-field">
+            <span className="form-label">First Name</span>
+            <input
+              className="form-control"
+              name="first_name"
+              value={form.first_name}
+              onChange={onChange}
+              autoComplete="given-name"
+            />
+          </label>
 
-            <label className="pf-field">
-              <span className="pf-label">Last Name</span>
-              <input
-                className="form-control"
-                name="last_name"
-                value={form.last_name}
-                onChange={onChange}
-                autoComplete="family-name"
-              />
-            </label>
+          <label className="form-field">
+            <span className="form-label">Last Name</span>
+            <input
+              className="form-control"
+              name="last_name"
+              value={form.last_name}
+              onChange={onChange}
+              autoComplete="family-name"
+            />
+          </label>
 
-            <label className="pf-field">
-              <span className="pf-label">Phone</span>
-              <input
-                className="form-control"
-                name="phone"
-                value={form.phone}
-                onChange={onChange}
-                autoComplete="tel"
-                inputMode="tel"
-              />
-            </label>
-          </div>
+          <label className="form-field" style={{ gridColumn: "1 / -1" }}>
+            <span className="form-label">Phone</span>
+            <input
+              className="form-control"
+              name="phone"
+              value={form.phone}
+              onChange={onChange}
+              autoComplete="tel"
+              inputMode="tel"
+            />
+          </label>
         </form>
       )}
     </div>

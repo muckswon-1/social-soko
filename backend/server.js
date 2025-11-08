@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const UTILS = require('./utils/utils');
 const { securityMiddleWare } = require('./middleware/security');
+const errorHandler = require('errorhandler');
 
 // ROUTE IMPORTS
 const authRoutes = require('./routes/auth');
@@ -16,6 +17,11 @@ const PORT = process.env.SERVER_PORT || 2070;
 
 
 securityMiddleWare(app);
+
+if(process.env.NODE_ENV === "development") {
+  app.use(errorHandler());
+}
+
 app.use(morgan('dev'));
 
 
@@ -31,6 +37,22 @@ UTILS.connectToDatabase().then(() => {
   app.use("/api/v1/profile",profileRoutes);
 
 
+// Fall back error handler for production
+app.use((err, req,res,next) => {
+  console.error(err.stack);
+  const status = err.status || 500;
+  const message = err.message || "Internal Server Error";
+
+  const code = err.code || (status === 401 ? 'UNAUTHORIZED' : status === 404 ? 'NOT_FOUND' : 'SERVER_ERROR')
+
+   res.status(status).json({
+       success: false,
+       error: message,
+       code,
+       ...(process.env.NODE_ENV === "development" && { stack: err.stack })
+      })
+}
+)
 
 
   

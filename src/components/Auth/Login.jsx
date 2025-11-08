@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
 import { useNavigate, Link } from 'react-router';
 import './login.css';
+
+import {login} from '../../features/auth/authThunk'
+import { useDispatch, useSelector } from 'react-redux';
+import { authErrorSelector, authLoadingSelector } from '../../features/auth/authSlice';
+
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,10 +14,15 @@ const Login = () => {
     password: ''
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  
-  const { login } = useAuth();
+  //const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+
+  const loading = useSelector(authLoadingSelector);
+  const dispatch = useDispatch();
+
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,27 +30,22 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
-    if (error) setError('');
+
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-
+  
     try {
-      const result = await login(formData.email, formData.password);
+      //const result = await login(formData.email, formData.password);
+      const result = await dispatch(login({email: formData.email, password: formData.password})).unwrap();
       if (result.success) {
         navigate('/dashboard');
-      } else {
-        setError(result.error || 'Login failed');
       }
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
+     setError(err.error);
       console.error('Login error:', err);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   return (

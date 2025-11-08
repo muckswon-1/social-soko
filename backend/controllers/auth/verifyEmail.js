@@ -1,64 +1,41 @@
-const {User} = require("../../models");
-const { sendTemplatedEmail } = require("../../services/emailService");
+
+const { User } = require("../../models");
+const { sendTemplatedEmail } = require("../../services/email/emailService");
 const verificationTokenService = require("../../services/verificationTokenService");
-const UTILS = require("../../utils/utils");
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
+const UTILS = require("../../utils/utils"); 
+const crypto = require("crypto");
 
-module.exports = async (req, res) => {
-    try {
-        const {token} = req.params;
+module.exports = UTILS.catchAsync(async (req, res) => {
+  const { token } = req.params || {};
 
+  // Validate input
+  if (!token) throw UTILS.httpError(400, "Verification token is required");
 
-        if(!token) {
-            return res.status(400).json({message: "Invalid or expired token"});
-        }
+  // Find user with valid verification token
+  const { valid, user, reason } = await verificationTokenService(token, "email_verification",{inputFormat: 'sha256'});
 
-        //Hash the incoming token the same way we stored it
-        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  if(!valid || !user) throw UTILS.httpError(400, reason);
 
 
-        //Find user with valid verify token
-       const {user} = await verificationTokenService(tokenHash,'email_verification');
-       
 
+  // Check if already verified
+  if (user.email_verified) throw UTILS.httpError(400, "Email already verified");
 
-        if(!user) {
-            return res.status(400).json({message: "Invalid or expired token"});
-        }
+  // Update user verification status
+  await User.update(
+    { email_verified_at: new Date(), email_verified: true },
+    { where: { id: user.id } }
+  );
 
-        //Check if user is already verified
-        if(user.email_verified) {
+  // Send confirmation email
+  await sendTemplatedEmail({
+    to: user.email,
+    template: "emailVerificationSuccess",
+    props: { email: user.email },
+  });
 
-            return res.status(400).json({message: "Email already verified"});
-
-        }
-
-    //     // Update user email verification status
-        await User.update(
-            {
-                email_verified_at: new Date(),
-                email_verified: true
-
-            }, 
-            
-            {where: {id: user.id}}
-        );
-
-    //     //send email verification success
-    sendTemplatedEmail({
-        to: user.email,
-        template: "sendEmailVerificationSuccessful",
-        props: {
-            email: user.email
-        }
-    });
-
-     res.status(200).json({message: "Email verified successfully"});
-
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({message: "Internal server error"});
-    }
-} 
+  return res.status(200).json({
+    success: true,
+    message: "Email verified successfully",
+  });
+});

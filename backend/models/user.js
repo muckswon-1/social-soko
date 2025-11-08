@@ -50,20 +50,14 @@ module.exports = (sequelize, DataTypes) => {
 
     last_login_at: DataTypes.DATE,
     email_verified_at: DataTypes.DATE,
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    }
+  
   }, {
     sequelize,
     modelName: 'User',
+    tableName:'Users',
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    underscored: true,
+   
   });
   return User;
 };

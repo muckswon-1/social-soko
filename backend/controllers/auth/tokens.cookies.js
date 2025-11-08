@@ -6,7 +6,7 @@ exports.accessTokenCookieOptions = {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? 'strict' : 'lax',
-    maxAge: 30 * 1000 , 
+    maxAge: 60 * 1000 , 
     path: '/',
 };
 

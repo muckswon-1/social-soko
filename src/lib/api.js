@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 
-const BACKEND_URL = import.meta.env.VITE_API_URL;
+const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
 const api = axios.create({
   baseURL: `${BACKEND_URL}/api/v1`,
   timeout: 20000,
@@ -37,13 +37,24 @@ api.interceptors.response.use((r) => r,
 
   if(!response) return Promise.reject(error); // network timeout
 
+  console.warn('[API error]',
+    config?.method?.toUpperCase(),
+    config?.url,
+    response?.status,
+    response?.data
+  );
+
   // Don't attempt to refresh for public auth endpoints or explcit opt-out
 
   // Could be public routes: verify-email|send-verification-email|forgot-password|reset-password|email-update-with-digit-code|send-verification-digits-code|reset-password-with-digit-code
 
 
   const url = (config && config.url) || '';
-  const isPublicAuth = /^\/auth\/(verify-email| send-verification-email | forgot-password)/.test(url);
+  // const isPublicAuth = /^\/auth\/(verify-email| send-verification-email | forgot-password)/.test(url);
+const isPublicAuth = /^\/auth\/(register|login|forgot-password|send-verification-email|verify-email(?:\/[^/]+)?|reset-password(?:\/.*)?|email-update-with-digit-code|refresh-token)$/.test(url);
+
+
+
 
   console.log(`is ${url} a public auth route?: ${isPublicAuth}`);
 
@@ -64,7 +75,7 @@ api.interceptors.response.use((r) => r,
     config._retry = true;
 
     try {
-      await api.post('/auth/refresh-token'); // uses refresh cookie, sets new access cookie
+      await api.post('/auth/refresh-token', {}, {_skipRefresh: true}); // uses refresh cookie, sets new access cookie
       notifyWaiters();
       return api(config);
     } catch (error) {
@@ -98,7 +109,7 @@ api.interceptors.response.use((r) => r,
 export default api;
 
 // tiny cokie reader if you use CSRF header pattern
-function getCookie(name) {
+export function getCookie(name) {
   const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]*)'));
   return match ? decodeURIComponent(match[2]) : null;
 }

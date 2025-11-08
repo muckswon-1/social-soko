@@ -6,6 +6,6 @@
 
  export  const fail = (err, fallback = 'Request failed') => ({
     success: false,
-    error: err?.response?.data?.message || err?.message || fallback,
+    error: err?.response?.data?.message || err?.response?.data?.error || err?.message || fallback,
   });
  

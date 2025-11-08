@@ -1,60 +1,57 @@
-const {User, VerificationToken} = require("../../models");
-const { sendTemplatedEmail } = require("../../services/emailService");
-const UTILS = require("../../utils/utils");
-const crypto = require('crypto');
 
+const { User, VerificationToken } = require("../../models");
+const { sendTemplatedEmail } = require("../../services/email/emailService");
+const UTILS = require("../../utils/utils"); 
+const crypto = require("crypto");
 
-require('dotenv').config();
+require("dotenv").config();
 
-module.exports = async (req,res) => {
+module.exports = UTILS.catchAsync(async (req, res) => {
+  const { email } = req.body || {};
 
-try {
+  // Validate input
+  if (!email) throw UTILS.httpError(400, "email is required");
 
-      const {email} = req.body;
-     //Find user by email
-     const user = await User.findOne({where: {email}});
-     
-    if(!user) {
-        throw new Error('User is required.')
-    }
+  // Find user by email
+  const user = await User.findOne({ where: { email } });
 
-    //Delete any exisiting email_verification tokens for this user
-    await VerificationToken.destroy({
-      where: {
-        user_id: user.id,
-        token_type: "email_verification"
-      }
-    })
-
-    // Token expiry
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-
-    // Generate reset token
-    const rawToken = UTILS.generateVerifyToken();
-     const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
-
-    //Store token
-      await VerificationToken.create({
-      user_id: user.id,
-      token: hashedToken,
-      expires_at: expiresAt, 
-      token_type: "email_verification"
-    }); 
-
- sendTemplatedEmail({
-  to: user.email,
-  template:"sendVerifyEmail",
-  props: {
-    email: user.email,
-    token: rawToken
+  // For privacy, always return success even if the user doesn't exist
+  if (!user) {
+    return res.status(200).json({
+      success: true,
+      message: "Email verification link sent",
+    });
   }
- });
 
-  res.status(200).json({message: "Email verification link sent"})
+  // Delete any existing email_verification tokens for this user
+  await VerificationToken.destroy({
+    where: { user_id: user.id, token_type: "email_verification" },
+  });
 
-  
-} catch (error) {
-   console.error(error);
-   res.status(500).json({message: "Internal Server Error"})
-}
-}
+  // Prepare new verification token
+  const expiresInMinutes = 60;
+  const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
+
+  const rawToken = UTILS.generateVerifyToken();
+  const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+  // Store hashed token
+  await VerificationToken.create({
+    user_id: user.id,
+    token: hashedToken,
+    expires_at: expiresAt,
+    token_type: "email_verification",
+  });
+
+  // Send verification email with the raw token
+  await sendTemplatedEmail({
+    to: user.email,
+    template: "verifyEmail",
+    props: { email: user.email, token: rawToken, expiresInMinutes },
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Email verification link sent",
+  });
+});

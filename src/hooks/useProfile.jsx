@@ -31,10 +31,9 @@ export const ProfileProvider  = ({children}) => {
     // Fetch user info from backend
     const fetchUserProfile = useCallback(async (userId) => {
         try {
-        const response = await api.get(`/profile/fetch-user-profile/${userId}`);
-      
-        setIfMounted(() => setProfile(response.data), mounted);
-        return ok({profile: response.data})
+        const {data} = await api.get(`/profile/fetch-user-profile/${userId}`);
+        setIfMounted(() => setProfile(data.data), mounted);
+        return ok({profile: data?.data});
         } catch (error) {
             setIfMounted(() => setProfile(null), mounted);
             return fail(error,"Failed to fetch user profile")
@@ -62,7 +61,8 @@ export const ProfileProvider  = ({children}) => {
     useEffect(() => {
         mounted.current = true;
         if(user?.id){
-            fetchUserProfile(user.id)
+            fetchUserProfile(user.id);
+            console.log('Called from here');
         }else {
             setLoading(false);
             navigate('/login')

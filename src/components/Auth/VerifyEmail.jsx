@@ -1,18 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useAuth } from '../../hooks/useAuth';
+import { refreshUser, verifyEmail } from '../../features/auth/authThunk';
+import { useDispatch, useSelector } from 'react-redux';
+import { authLoadingSelector, authUserSelector } from '../../features/auth/authSlice';
 
 
 const VerifyEmail = () => {
-  const [loading, setLoading] = useState(true);
+ 
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const {verifyEmail, refreshUser, user} = useAuth();
   const [successFlag, setSuccessFlag] = useState(false);
 
   const ranRef = useRef(false);
+
+  const loading  = useSelector(authLoadingSelector);
+  const user = useSelector(authUserSelector);
+  const dispatch = useDispatch();
 
   useEffect(() => {
 
@@ -23,7 +28,7 @@ const VerifyEmail = () => {
     
     if (!verifyToken) {
       setError('Invalid verification link. Please request a new verification email.');
-      setLoading(false);
+   
       return;
     }
 
@@ -32,11 +37,15 @@ const VerifyEmail = () => {
     const checkEmailVerified = async () => {
       try {
         
-         const  { success }= await verifyEmail(verifyToken);
+         const  res = await dispatch(verifyEmail({token:verifyToken})).unwrap();
+
+         const success = res?.success;
+
+         console.log(success);
 
          if(success){
               setMessage('Your email has been verified successfully!');
-              //await  refreshUser();
+              dispatch(refreshUser());
 
               setSuccessFlag(true);
 
@@ -46,12 +55,10 @@ const VerifyEmail = () => {
                 }, 3000);
          }
 
-      
       } catch (err) {
+        console.error(err);
         setError('Email verification failed. Please try again or request a new verification email.');
         setMessage('Verification failed');
-      } finally {
-        setLoading(false);
       }
     };
 

@@ -1,10 +1,16 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { useAuth } from '../hooks/useAuth';
+
 import api from '../lib/api';
 import './email-card.css';
+import { useSelector } from 'react-redux';
+import { authUserSelector } from '../features/auth/authSlice';
 
 const EmailCard = () => {
-  const { user, refreshUser, sendVerificationEmail } = useAuth();
+  //const { user, refreshUser, sendVerificationEmail } = useAuth();
+
+  const user = useSelector(authUserSelector);
+
+
 
   const currentEmail = useMemo(() => user?.email || '', [user]);
   const currentVerified = useMemo(

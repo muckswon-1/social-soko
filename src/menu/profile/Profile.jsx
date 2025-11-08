@@ -1,10 +1,9 @@
 import React from 'react';
-import VerticalTabs from '../../components/VerticalTabs';
-import { useAuth } from '../../hooks/useAuth';
 import UserProfile from './UserProfileTab';
+import SettingsShell from '../SettingsShell';
 
 const Profile = () => {
-    const {loading} = useAuth();
+  
 
     const tabs = [
         {
@@ -15,11 +14,14 @@ const Profile = () => {
     ];
 
 
-    if(loading) return <div>Loading...</div>
-
-
     return (
-       <VerticalTabs tabs={tabs} />
+       <SettingsShell
+        title="Profile"
+        description="Manage your profile information"
+        tabs={tabs}
+        defaultId="user-profile-info"
+
+       />
     );
 }
 

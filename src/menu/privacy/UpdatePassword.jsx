@@ -1,29 +1,22 @@
+// src/menu/profile/UpdatePassword.jsx
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import api from '../../lib/api';
 import { toast } from 'react-toastify';
-import './update-password.css';
-import { useAuth } from '../../hooks/useAuth';
+import { sendSixDigitCode, resetPasswordWithDigitCode, logout } from '../../features/auth/authThunk';
+import '../../styles/inline-tabs-reusable.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { authUserSelector } from '../../features/auth/authSlice';
+import { calcStrength } from '../../utils/passwordUtils';
 
-
-//TODO Add resend token
 
 const OTP_LEN = 6;
 
-const calcStrength = (pwd) => {
-  let score = 0;
-  if (pwd.length >= 8) score++;
-  if (pwd.length >= 12) score++;
-  if (/[A-Z]/.test(pwd)) score++;
-  if (/[a-z]/.test(pwd)) score++;
-  if (/\d/.test(pwd)) score++;
-  if (/[^A-Za-z0-9]/.test(pwd)) score++;
-  return Math.min(score, 5); // 0..5
-};
 
 const UpdatePassword = () => {
   // Step management
-  const [stage, setStage] = useState('request'); // 'request' | 'verify'
+  const [stage, setStage] = useState(() => localStorage.getItem("updatePasswordStage") || "verify"); // 'request' | 'verify'
   const [loading, setLoading] = useState(false);
+
+
 
   // Form state
   const [showCurrent, setShowCurrent] = useState(false);
@@ -31,8 +24,10 @@ const UpdatePassword = () => {
   const [newPwd, setNewPwd] = useState('');
   const [confirmPwd, setConfirmPwd] = useState('');
 
+  //const { sendSixDigitCode, resetPasswordWithDigitCode, user } = useAuth();
 
-  const {sendSixDigitCode,resetPasswordWithDigitCode, user} = useAuth();
+  const user = useSelector(authUserSelector);
+  const dispatch = useDispatch();
 
   // OTP
   const [otp, setOtp] = useState(Array(OTP_LEN).fill(''));
@@ -41,7 +36,6 @@ const UpdatePassword = () => {
   const strength = useMemo(() => calcStrength(newPwd), [newPwd]);
 
   const newPwdValid = useMemo(() => {
-    // basic policy (tweak as needed)
     if (newPwd.length < 8) return false;
     if (!/[A-Z]/.test(newPwd)) return false;
     if (!/[a-z]/.test(newPwd)) return false;
@@ -52,64 +46,72 @@ const UpdatePassword = () => {
   const canSendCode = useMemo(() => {
     if (!newPwdValid) return false;
     if (!confirmPwd || newPwd !== confirmPwd) return false;
-    // If you want current password to be mandatory, uncomment:
-    // if (!currentPwd) return false;
+    // If you want current password mandatory, also require currentPwd here.
     return true;
-  }, [newPwdValid, newPwd, confirmPwd /*, currentPwd*/]);
+  }, [newPwdValid, newPwd, confirmPwd]);
 
   const otpString = useMemo(() => otp.join(''), [otp]);
-  const otpValid = useMemo(() => otpString.length === OTP_LEN && /^\d+$/.test(otpString), [otpString]);
+  const otpValid = useMemo(
+    () => otpString.length === OTP_LEN && /^\d+$/.test(otpString),
+    [otpString]
+  );
 
   // --- handlers -------------------------------------------------------------
 
-  const handleSendCode = useCallback(async (e) => {
-    e.preventDefault();
-    if (!canSendCode) return;
-    setLoading(true);
-    try {
-      // placeholder: adjust to your API contract
-      // Suggested payload: { current, next }
-    //   await api.post('/auth/request-password-change', {
-    //     current: currentPwd || undefined,
-    //     next: newPwd,
-    //   });
+  const handleSendCode = useCallback(
+    async (e) => {
+      e.preventDefault();
+      if (!canSendCode) return;
+      setLoading(true);
+      try {
+        await dispatch(sendSixDigitCode({email:user.email})).unwrap();
+        toast.success('Verification code sent to your email');
+        localStorage.setItem("updatePasswordStage", "verify")
+        setStage('verify');
+        setTimeout(() => inputsRef.current?.[0]?.focus(), 50);
+      } catch (err) {
+        toast.error(err?.response?.data?.message || 'Could not send verification code');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [canSendCode, sendSixDigitCode, user?.email]
+  );
 
-      await sendSixDigitCode(user.email);
-      toast.success('Verification code sent to your email');
-      setStage('verify');
-      // focus first OTP box
-      setTimeout(() => inputsRef.current?.[0]?.focus(), 50);
-    } catch (err) {
-      toast.error(err?.response?.data?.message || 'Could not send verification code');
-    } finally {
-      setLoading(false);
-    }
-  }, [canSendCode, currentPwd, newPwd]);
+  const handleConfirmChange = useCallback(
+    async (e) => {
+      e.preventDefault();
+      if (!otpValid) return;
+      setLoading(true);
+      try {
+        const res = await dispatch(resetPasswordWithDigitCode({ password: newPwd, digitCodes: otpString })).unwrap();
+        console.log(res);
+        toast.success('Password updated successfully.');
+        toast.info("Please login again.")
+        // reset form
+        setCurrentPwd('');
+        setNewPwd('');
+        setConfirmPwd('');
+        setOtp(Array(OTP_LEN).fill(''));
+        localStorage.setItem("updatePasswordStage","request")
+        setStage('request');
+        dispatch(logout());
+      } catch (err) {
+        console.log(err);
+        toast.error(err?.error || 'Verification failed');
+        localStorage.removeItem("updatePasswordStage");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [otpValid, otpString, newPwd, resetPasswordWithDigitCode]
+  );
 
-  const handleConfirmChange = useCallback(async (e) => {
-    e.preventDefault();
-    if (!otpValid) return;
-    setLoading(true);
-    try {
-      // placeholder: adjust to your API contract
-      // Suggested payload: { code, next }
-      await resetPasswordWithDigitCode({newPassword:newPwd, digitCodes: otpString})
-      toast.success('Password updated successfully');
-      // reset form to a clean state
-      setCurrentPwd('');
-      setNewPwd('');
-      setConfirmPwd('');
-      setOtp(Array(OTP_LEN).fill(''));
-      setStage('request');
-    } catch (err) {
-      toast.error(err?.response?.data?.message || 'Verification failed');
-    } finally {
-      setLoading(false);
-    }
-  }, [otpValid, otpString, newPwd]);
+  console.log(otpValid)
 
+  // OTP helpers
   const handleOtpChange = (idx, char) => {
-    if (!/^\d?$/.test(char)) return; // only digits
+    if (!/^\d?$/.test(char)) return;
     const next = [...otp];
     next[idx] = char;
     setOtp(next);
@@ -127,7 +129,10 @@ const UpdatePassword = () => {
   };
 
   const handleOtpPaste = (e) => {
-    const text = (e.clipboardData.getData('text') || '').trim().replace(/\D/g, '').slice(0, OTP_LEN);
+    const text = (e.clipboardData.getData('text') || '')
+      .trim()
+      .replace(/\D/g, '')
+      .slice(0, OTP_LEN);
     if (!text) return;
     e.preventDefault();
     const next = Array(OTP_LEN)
@@ -138,8 +143,10 @@ const UpdatePassword = () => {
     inputsRef.current[focusIndex]?.focus();
   };
 
+  // --- UI -------------------------------------------------------------
+
   const StrengthBar = () => (
-    <div className="pwdcard-strength">
+    <div className="strength">
       <div className={`bar ${strength >= 1 ? 'on' : ''}`} />
       <div className={`bar ${strength >= 2 ? 'on' : ''}`} />
       <div className={`bar ${strength >= 3 ? 'on' : ''}`} />
@@ -160,21 +167,25 @@ const UpdatePassword = () => {
   );
 
   return (
-    <div className="pwdcard">
-      <header className="pwdcard-head">
-        <h2 className="pwdcard-title">Update Password</h2>
-        <p className="pwdcard-sub">For your security, we'll email a verification code to confirm this change.</p>
+    <div className="card card--cozy">
+      <header className="section-head">
+        <div className="section-titles">
+          <h2 className="section-title">Update Password</h2>
+          <p className="section-sub">
+            For your security, we'll email a verification code to confirm this change.
+          </p>
+        </div>
       </header>
 
       {stage === 'request' && (
-        <form className="pwdcard-grid" onSubmit={handleSendCode}>
-          <div className="pwdcard-field">
-            <label className="pwdcard-label">
-              Current password <span className="pwdcard-optional">(optional)</span>
+        <form className="form-grid-1" onSubmit={handleSendCode}>
+          <div className="form-field">
+            <label className="form-label">
+              Current password <span className="muted">(optional)</span>
             </label>
-            <div className="pwdcard-inputwrap">
+            <div className="input-affix">
               <input
-                className="pwdcard-input"
+                className="form-control"
                 type={showCurrent ? 'text' : 'password'}
                 autoComplete="current-password"
                 value={currentPwd}
@@ -183,20 +194,22 @@ const UpdatePassword = () => {
               />
               <button
                 type="button"
-                className="pwdcard-eye"
+                className="btn btn-xxs btn-ghost"
                 onClick={() => setShowCurrent((v) => !v)}
                 aria-label={showCurrent ? 'Hide password' : 'Show password'}
               >
                 {showCurrent ? '🙈' : '👁️'}
               </button>
             </div>
-            <div className="pwdcard-hint">If your policy requires it, we can enforce this on the backend.</div>
+            <div className="form-hint">
+              If your policy requires it, we can enforce this on the backend.
+            </div>
           </div>
 
-          <div className="pwdcard-field">
-            <label className="pwdcard-label">New password</label>
+          <div className="form-field">
+            <label className="form-label">New password</label>
             <input
-              className="pwdcard-input"
+              className="form-control"
               type="password"
               autoComplete="new-password"
               value={newPwd}
@@ -206,10 +219,10 @@ const UpdatePassword = () => {
             <StrengthBar />
           </div>
 
-          <div className="pwdcard-field">
-            <label className="pwdcard-label">Confirm new password</label>
+          <div className="form-field">
+            <label className="form-label">Confirm new password</label>
             <input
-              className="pwdcard-input"
+              className="form-control"
               type="password"
               autoComplete="new-password"
               value={confirmPwd}
@@ -217,11 +230,11 @@ const UpdatePassword = () => {
               placeholder="Re-enter new password"
             />
             {confirmPwd && confirmPwd !== newPwd && (
-              <div className="pwdcard-error">Passwords do not match</div>
+              <div className="form-error">Passwords do not match</div>
             )}
           </div>
 
-          <div className="pwdcard-actions">
+          <div className="inline-actions" style={{ justifyContent: 'flex-end' }}>
             <button className="btn" disabled={!canSendCode || loading}>
               {loading ? 'Sending…' : 'Send code'}
             </button>
@@ -230,17 +243,17 @@ const UpdatePassword = () => {
       )}
 
       {stage === 'verify' && (
-        <form className="pwdcard-grid" onSubmit={handleConfirmChange}>
-          <div className="pwdcard-field">
-            <label className="pwdcard-label">Enter 6-digit code</label>
-            <div className="pwdcard-otp" onPaste={handleOtpPaste}>
+        <form className="form-grid-1" onSubmit={handleConfirmChange}>
+          <div className="form-field">
+            <label className="form-label">Enter 6-digit code</label>
+            <div className="otp" onPaste={handleOtpPaste}>
               {Array.from({ length: OTP_LEN }).map((_, i) => (
                 <input
                   key={i}
                   inputMode="numeric"
                   pattern="\d*"
                   maxLength={1}
-                  className="pwdcard-otp-input"
+                  className="otp-input"
                   value={otp[i]}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
@@ -248,19 +261,25 @@ const UpdatePassword = () => {
                 />
               ))}
             </div>
-            <div className="pwdcard-hint">We sent the code to your registered email address.</div>
+            <div className="form-hint">We sent the code to your registered email address.</div>
           </div>
 
-          <div className="pwdcard-actions">
+          <div className="inline-actions" style={{ justifyContent: 'space-between' }}>
             <button
               className="btn btn-ghost"
               type="button"
-              onClick={() => setStage('request')}
+              onClick={() => {
+                localStorage.setItem("updatePasswordStage","request")
+                setStage('request')
+
+              }}
               disabled={loading}
             >
               Back
             </button>
-            <button className="btn" disabled={!otpValid || loading}>
+            <button
+             type='submit'
+            className="btn" disabled={!otpValid || loading}>
               {loading ? 'Confirming…' : 'Confirm change'}
             </button>
           </div>

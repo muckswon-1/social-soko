@@ -1,16 +1,24 @@
+// src/menu/profile/UpdateEmail.jsx
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../hooks/useAuth';
-import './update-email.css';
+
+import '../../styles/inline-tabs-reusable.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { authUserSelector } from '../../features/auth/authSlice';
+import { logout, sendSixDigitCode, updateEmailWithDigitCode } from '../../features/auth/authThunk';
+
+
 
 const OTP_LEN = 6;
-const emailRe =
-  /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
 const UpdateEmail = () => {
-  const { user, sendSixDigitCode, updateEmailWithDigitCode } = useAuth();
 
-  const [stage, setStage] = useState('request'); // 'request' | 'verify'
+
+  const user = useSelector(authUserSelector);
+  const dispatch = useDispatch();
+
+  const [stage, setStage] = useState(() => localStorage.getItem("updateEmailStage") || 'request'); // 'request' | 'verify'
   const [loading, setLoading] = useState(false);
 
   const [newEmail, setNewEmail] = useState('');
@@ -29,20 +37,14 @@ const UpdateEmail = () => {
   const canSend = emailValid && emailsMatch && newEmail !== user?.email;
 
   const otpString = useMemo(() => otp.join(''), [otp]);
-  const otpValid = useMemo(
-    () => otpString.length === OTP_LEN && /^\d+$/.test(otpString),
-    [otpString]
-  );
+  const otpValid = useMemo(() => otpString.length === OTP_LEN && /^\d+$/.test(otpString), [otpString]);
 
   // countdown helper
   const startCountdown = useCallback((sec = 60) => {
     setResendIn(sec);
     const id = setInterval(() => {
       setResendIn((t) => {
-        if (t <= 1) {
-          clearInterval(id);
-          return 0;
-        }
+        if (t <= 1) { clearInterval(id); return 0; }
         return t - 1;
       });
     }, 1000);
@@ -53,41 +55,41 @@ const UpdateEmail = () => {
     if (!canSend) return;
     setLoading(true);
     try {
-      // Send email to email on account for security
-      const res = await sendSixDigitCode(user.email);
-
+      // Send to the account email (server sends code and handles the flow)
+      const res = await dispatch(sendSixDigitCode({email:user.email})).unwrap();
       if (!res?.success) throw new Error(res?.error || 'Failed to send code');
-      toast.success('Verification code sent to the new email');
-      setStage('verify');
+      console.log(res.success);
+      toast.success('Verification code sent');
+      localStorage.setItem("updateEmailStage",'verify');
+      setStage("verify");
       startCountdown(60);
       setTimeout(() => inputsRef.current?.[0]?.focus(), 40);
     } catch (err) {
       toast.error(err?.message || 'Could not send verification code');
+      localStorage.removeItem("updateEmailStage");
     } finally {
       setLoading(false);
     }
-  }, [canSend, newEmail, sendSixDigitCode, startCountdown]);
+  }, [canSend, user?.email, sendSixDigitCode, startCountdown]);
 
   const handleConfirmChange = useCallback(async (e) => {
     e.preventDefault();
     if (!otpValid) return;
     setLoading(true);
     try {
-      const res = await updateEmailWithDigitCode({
-        newEmail: newEmail.trim(),
+      const res = await dispatch(updateEmailWithDigitCode({
+        email: newEmail.trim(),
         digitCodes: otpString,
-      });
-
-      console.log(res);
-      
+      })).unwrap();
       if (!res?.success) throw new Error(res?.error || 'Update failed');
 
-      toast.success('Email updated successfully');
-      // Optional: notify old email is handled server-side
+      toast.success('Email updated successfully. Please login');
       setOtp(Array(OTP_LEN).fill(''));
+      localStorage.removeItem("updateEmailStage");
       setStage('request');
       setResendIn(0);
       setConfirmEmail('');
+       dispatch(logout());
       // keep newEmail so the user sees what they changed to
     } catch (err) {
       toast.error(err?.message || 'Verification failed');
@@ -123,7 +125,7 @@ const UpdateEmail = () => {
   const resend = async () => {
     if (!canResend || !emailValid) return;
     try {
-      const res = await sendSixDigitCode(newEmail.trim());
+      const res = await dispatch(sendSixDigitCode(newEmail.trim())).unwrap();
       if (!res?.success) throw new Error(res?.error || 'Resend failed');
       toast.info('Code resent');
       startCountdown(60);
@@ -132,22 +134,26 @@ const UpdateEmail = () => {
     }
   };
 
+  console.log(stage);
+
   return (
-    <div className="emailupdate">
-      <header className="emailupdate-head">
-        <h2 className="emailupdate-title">Update Email</h2>
-        <p className="emailupdate-sub">
-          We’ll send a 6-digit code to the <b>new address</b> to confirm you own it.
-          Your current email is <span className="emailupdate-current">{user?.email}</span>.
-        </p>
+    <div className="card card--cozy">
+      <header className="section-head">
+        <div className="section-titles">
+          <h2 className="section-title">Update Email</h2>
+          <p className="section-sub">
+            We'll send a 6-digit code to the <b>new address</b> to confirm you own it.
+            Your current email is <span className="kv-mono">{user?.email}</span>.
+          </p>
+        </div>
       </header>
 
       {stage === 'request' && (
-        <form className="emailupdate-grid" onSubmit={handleSendCode}>
-          <div className="emailupdate-field">
-            <label className="emailupdate-label">New email</label>
+        <form className="form-grid-2" onSubmit={handleSendCode}>
+          <label className="form-field">
+            <span className="form-label">New email</span>
             <input
-              className="emailupdate-input"
+              className="form-control"
               type="email"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
@@ -155,14 +161,14 @@ const UpdateEmail = () => {
               autoComplete="email"
             />
             {!newEmail ? null :
-              !emailValid ? <div className="emailupdate-error">Enter a valid email</div> :
-              (newEmail === user?.email) ? <div className="emailupdate-error">This is your current email</div> : null}
-          </div>
+              !emailValid ? <div className="form-error">Enter a valid email</div> :
+              (newEmail === user?.email) ? <div className="form-error">This is your current email</div> : null}
+          </label>
 
-          <div className="emailupdate-field">
-            <label className="emailupdate-label">Confirm new email</label>
+          <label className="form-field">
+            <span className="form-label">Confirm new email</span>
             <input
-              className="emailupdate-input"
+              className="form-control"
               type="email"
               value={confirmEmail}
               onChange={(e) => setConfirmEmail(e.target.value)}
@@ -170,11 +176,11 @@ const UpdateEmail = () => {
               autoComplete="email"
             />
             {confirmEmail && !emailsMatch && (
-              <div className="emailupdate-error">Emails do not match</div>
+              <div className="form-error">Emails do not match</div>
             )}
-          </div>
+          </label>
 
-          <div className="emailupdate-actions">
+          <div className="inline-actions" style={{ gridColumn: '1 / -1', justifyContent: 'flex-end' }}>
             <button className="btn" disabled={!canSend || loading}>
               {loading ? 'Sending…' : 'Send code'}
             </button>
@@ -183,17 +189,17 @@ const UpdateEmail = () => {
       )}
 
       {stage === 'verify' && (
-        <form className="emailupdate-grid" onSubmit={handleConfirmChange}>
-          <div className="emailupdate-field">
-            <label className="emailupdate-label">Enter 6-digit code</label>
-            <div className="emailupdate-otp" onPaste={onOtpPaste}>
+        <form className="form-grid-1" onSubmit={handleConfirmChange}>
+          <div className="form-field">
+            <span className="form-label">Enter 6-digit code</span>
+            <div className="otp" onPaste={onOtpPaste}>
               {Array.from({ length: OTP_LEN }).map((_, i) => (
                 <input
                   key={i}
                   inputMode="numeric"
                   pattern="\d*"
                   maxLength={1}
-                  className="emailupdate-otp-input"
+                  className="otp-input"
                   value={otp[i]}
                   onChange={(e) => onOtpChange(i, e.target.value)}
                   onKeyDown={(e) => onOtpKeyDown(i, e)}
@@ -201,17 +207,24 @@ const UpdateEmail = () => {
                 />
               ))}
             </div>
-            <div className="emailupdate-hint">
-              Code sent to <b>{newEmail}</b>. {canResend ? (
-                <button type="button" className="linklike" onClick={resend}>Resend code</button>
+            <div className="form-hint">
+              Code sent to <b>{user.email}</b>.{' '}
+              {canResend ? (
+                <button type="button" className="link-btn" onClick={resend}>Resend code</button>
               ) : (
                 <>Resend in {resendIn}s</>
               )}
             </div>
           </div>
 
-          <div className="emailupdate-actions">
-            <button className="btn btn-ghost" type="button" onClick={() => setStage('request')} disabled={loading}>
+          <div className="inline-actions" style={{ justifyContent: 'space-between' }}>
+            <button className="btn btn-ghost" type="button" onClick={() => {
+              setStage('request');
+              localStorage.removeItem("updateEmailStage");
+            
+            }
+              
+              } disabled={loading}>
               Back
             </button>
             <button className="btn" disabled={!otpValid || loading}>
