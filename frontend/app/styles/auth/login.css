@@ -1,0 +1,191 @@
+/* ==========================
+   Auth Page Layout
+   ========================== */
+
+.page-auth {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+}
+
+.page-auth .main-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================
+   Auth Card
+   ========================== */
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background-color: var(--card-bg-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+}
+
+.auth-title {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.auth-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: var(--spacing-md);
+    color: rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .auth-subtitle {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* ==========================
+   Error / Feedback
+   ========================== */
+
+.auth-error {
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    background-color: rgba(255, 204, 0, 0.08);
+    /* yellow tint */
+    border: 1px solid var(--action-bg-color);
+    font-size: 0.88rem;
+}
+
+/* ==========================
+   Form & Fields
+   ========================== */
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.form-input {
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    font-size: 0.95rem;
+    outline: none;
+    background-color: var(--color-white);
+    color: var(--text-color);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+/* Focus */
+.form-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.14);
+}
+
+
+
+/* HTML5 / custom validity styling */
+
+.form-input:invalid:not(:focus) {
+    border-color: #e60000;
+    box-shadow: 0 0 0 1px rgba(230, 0, 0, 0.12);
+}
+
+/* .form-input:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: #e60000;
+    box-shadow: 0 0 0 1px rgba(230, 0, 0, 0.12);
+} */
+
+/* Valid state */
+.form-input:valid {
+    border-color: rgba(0, 180, 0, 0.4);
+}
+
+/* Hint */
+.field-hint {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .auth-card {
+    background-color: var(--card-bg-color);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .form-input {
+    background-color: #02040a;
+    border-color: rgba(255, 255, 255, 0.18);
+    color: var(--color-white);
+}
+
+[data-theme="dark"] .form-input:focus {
+    box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.18);
+}
+
+[data-theme="dark"] .form-input:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: #ff4d4d;
+}
+
+/* ==========================
+   Submit Button
+   ========================== */
+
+.auth-button {
+    width: 100%;
+    margin-top: var(--spacing-sm);
+}
+
+/* ==========================
+   Footer Links
+   ========================== */
+
+.auth-footer-links {
+    margin-top: var(--spacing-md);
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.auth-link {
+    color: var(--accent-color);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.auth-link:hover {
+    opacity: 0.85;
+}
+
+/* ==========================
+   Responsive
+   ========================== */
+
+@media (max-width: 600px) {
+    .auth-card {
+        padding: var(--spacing-md);
+        margin: var(--spacing-lg) auto;
+    }
+
+    .auth-title {
+        font-size: 1.6rem;
+    }
+}

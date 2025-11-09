@@ -1,0 +1,83 @@
+/* ==========================
+   Dashboard Shell
+   ========================== */
+
+.dashboard-shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: var(--spacing-md);
+    min-height: calc(100vh - 120px);
+    /* header + padding approximation */
+    margin-top: calc(-1 * var(--spacing-xl) / 2);
+    /* pull up a bit inside main-content */
+}
+
+/* Collapsed variant (controlled via state) */
+.dashboard-shell.sidebar-collapsed {
+    grid-template-columns: 80px minmax(0, 1fr);
+}
+
+/* ==========================
+   Sidebar Region
+   ========================== */
+
+.dashboard-sidebar {
+    position: sticky;
+    top: 72px;
+    /* below global header */
+    align-self: flex-start;
+    height: calc(100vh - 96px);
+    /* Sidebar component itself will handle its internals */
+}
+
+/* ==========================
+   Main Canvas Region
+   ========================== */
+
+.dashboard-main {
+    display: flex;
+    flex-direction: column;
+}
+
+/* This is the “canvas” all dashboard pages render into */
+.dashboard-main-inner {
+    flex: 1;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    background-color: var(--card-bg-color);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Optional: allow child pages to add their own top nav / tabs */
+.dashboard-main-inner>.dashboard-header,
+.dashboard-main-inner>.dashboard-tabs {
+    margin-bottom: var(--spacing-sm);
+}
+
+/* ==========================
+   Responsive
+   ========================== */
+
+@media (max-width: 900px) {
+
+    .dashboard-shell,
+    .dashboard-shell.sidebar-collapsed {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        margin-top: 0;
+    }
+
+    .dashboard-sidebar {
+        position: static;
+        height: auto;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .dashboard-main-inner {
+        padding: var(--spacing-md);
+        border-radius: var(--radius-md);
+    }
+}

@@ -1,0 +1,165 @@
+/* Root wrapper for landing */
+
+.page-landing {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Align main content and make page feel full */
+
+.page-landing-main {
+    width: 100%;
+    padding-top: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+}
+
+/* ==========================
+   Hero
+   ========================== */
+
+.hero-landing {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(250px, 2fr);
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* Left column */
+
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.hero-eyebrow {
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 4vw, 3.2rem);
+    line-height: 1.1;
+}
+
+.hero-text {
+    max-width: 32rem;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+/* Hero actions */
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+/* Trust signals */
+
+.trust-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.trust-pill {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* Right column – simple “hero aside” */
+
+.hero-aside {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.hero-aside-title {
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+}
+
+.hero-aside-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* ==========================
+   Features
+   ========================== */
+
+.features-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.feature-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.feature-icon {
+    font-size: 1.4rem;
+}
+
+.feature-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.feature-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* ==========================
+   Footer
+   ========================== */
+
+.landing-footer {
+    padding: var(--spacing-lg) var(--spacing-lg);
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+/* ==========================
+   Responsive
+   ========================== */
+
+@media (max-width: 900px) {
+    .hero-landing {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-aside {
+        order: -1;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
