@@ -32,7 +32,7 @@ const sendBussinessCreatedSuccessful = ({email}) => {
 
 
 module.exports = {
-    busisinessCreated: sendBussinessCreatedSuccessful
+    businessCreated: sendBussinessCreatedSuccessful
 }
 
     

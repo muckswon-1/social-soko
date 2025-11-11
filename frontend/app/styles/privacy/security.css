@@ -1,0 +1,84 @@
+/* Security / privacy cards inside layout-canvas-inner */
+
+.security-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* OTP inputs */
+
+.otp {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+.otp-input {
+  width: 2.2rem;
+  height: 2.4rem;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background-color: var(--color-white);
+  outline: none;
+  transition: all 0.18s ease;
+}
+
+.otp-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.16);
+}
+
+/* Password strength meter */
+
+.strength {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.strength .bar {
+  width: 16px;
+  height: 4px;
+  border-radius: 999px;
+  background-color: rgba(0, 0, 0, 0.12);
+  transition: background-color 0.2s ease;
+}
+
+.strength .bar.on {
+  background-color: var(--accent-color);
+}
+
+.strength .label {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Dark mode */
+
+[data-theme="dark"] .otp-input {
+  background-color: #02040a;
+  border-color: rgba(255, 255, 255, 0.22);
+  color: var(--color-white);
+}
+
+[data-theme="dark"] .otp-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.18);
+}
+
+[data-theme="dark"] .strength .bar {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+[data-theme="dark"] .strength .bar.on {
+  background-color: var(--accent-color);
+}
+
+[data-theme="dark"] .strength .label {
+  color: rgba(255, 255, 255, 0.7);
+}

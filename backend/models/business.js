@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
    
     website: {
       type: DataTypes.STRING,
-      validate: {isUrl: true}
+     
     },
     slug: {
       type: DataTypes.STRING,

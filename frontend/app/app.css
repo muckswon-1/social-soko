@@ -18,8 +18,9 @@
   --accent-color: var(--color-blue);
 
   /* Typography */
-  --font-primary: "Nunito", system-ui, -apple-system, BlinkMacSystemFont,
-    -system-ui, sans-serif;
+  --font-primary:
+    "Nunito", system-ui, -apple-system, BlinkMacSystemFont, -system-ui,
+    sans-serif;
   --font-display: "Saira", system-ui, sans-serif;
 
   /* Radius */
@@ -65,10 +66,14 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font-primary);
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 .app-container {
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -77,9 +82,8 @@ body {
 /* Generic main wrapper used in pages */
 .main-content {
   flex: 1;
-  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  padding: var(--spacing-xl) var(--spacing-lg);
 }
 
 /* ==========================
@@ -120,7 +124,9 @@ body {
   color: var(--text-color);
   padding-bottom: 2px;
   border-bottom: 2px solid transparent;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 /* Hover effect */
@@ -165,8 +171,11 @@ body {
   border: none;
   cursor: pointer;
   text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease,
-    box-shadow 0.2s ease, transform 0.05s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.05s ease;
 }
 
 /* Primary: solid yellow action */

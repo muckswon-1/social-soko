@@ -10,9 +10,9 @@ const createBusiness = UTILS.catchAsync(async (req, res) => {
   if (!userId) throw createError(400, 'User ID is required');
 
 
-  const { newBusiness } = req.body || {};
-  if (!newBusiness || !newBusiness.name) {
-    throw createError(400, 'Missing newBusiness payload or name');
+  const { businessData } = req.body || {};
+  if (!businessData || !businessData.name) {
+    throw createError(400, 'Missing businessData payload or name');
   }
 
   // Check user exists
@@ -22,18 +22,18 @@ const createBusiness = UTILS.catchAsync(async (req, res) => {
   // Create business
   const business = await Business.create({
     user_id: userId,
-    name: newBusiness.name,
-    description: newBusiness.description || '',
-    address: newBusiness.address || '',
-    city: newBusiness.city || '',
-    state: newBusiness.state || '',
-    country: newBusiness.country || '',
-    postal_code: newBusiness.postal_code || '',
-    phone: newBusiness.phone || '',
-    email: newBusiness.email || '',
-    website: newBusiness.website || '',
-    slug: newBusiness.slug || '',
-    logo_url: newBusiness.logo_url || '',
+    name: businessData.name,
+    description: businessData.description || '',
+    address: businessData.address || '',
+    city: businessData.city || '',
+    state: businessData.state || '',
+    country: businessData.country || '',
+    postal_code: businessData.postal_code || '',
+    phone: businessData.phone || '',
+    email: businessData.email || '',
+    website: businessData.website || '',
+    slug: businessData.slug || '',
+    logo_url: businessData.logo_url || '',
   });
 
   // Send email (await so failures hit the error middleware)

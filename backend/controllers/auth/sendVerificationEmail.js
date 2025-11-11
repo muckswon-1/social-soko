@@ -34,7 +34,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
 
   const rawToken = UTILS.generateVerifyToken();
   const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
-
+ 
   // Store hashed token
   await VerificationToken.create({
     user_id: user.id,

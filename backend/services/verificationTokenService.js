@@ -12,16 +12,16 @@ module.exports = async (providedToken, tokenType, opts = {}) =>  {
     return  {valid: false, reason:'Token and token type are required'}
   }
 
-  let lookupToken = providedToken;
+  let hashedToken;
 
   if(inputFormat === 'sha256') {
-    lookupToken = crypto.createHash('sha256').update(providedToken).digest('hex');
-    console.log(lookupToken);
+    hashedToken = crypto.createHash('sha256').update(providedToken).digest('hex');
+
   }
 
   // Find token record
   const tokenRecord = await VerificationToken.findOne({
-    where: {token: lookupToken, token_type: tokenType},
+    where: {token: hashedToken, token_type: tokenType},
     include: [{model: User, as: 'user'}]
   });
 
@@ -47,7 +47,7 @@ module.exports = async (providedToken, tokenType, opts = {}) =>  {
   //   throw new Error('Invalid token')
   // }
 
-  const a = Buffer.from(String(lookupToken));
+  const a = Buffer.from(String(hashedToken));
   const b = Buffer.from(String(tokenRecord.token));
 
   const sameLength = a.length === b.length;

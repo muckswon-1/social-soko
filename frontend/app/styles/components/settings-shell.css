@@ -1,0 +1,81 @@
+/* Settings Shell sits inside .dashboard-main-inner */
+
+.settings-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--card-bg-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+/* Header */
+
+.settings-shell__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  padding-bottom: var(--spacing-sm);
+}
+
+.settings-shell__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.settings-shell__title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.settings-shell__description {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.settings-shell__right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Tabs / body */
+
+.settings-shell__body {
+  margin-top: var(--spacing-sm);
+}
+
+/* Dark mode */
+
+[data-theme="dark"] .settings-shell {
+  background-color: var(--card-bg-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .settings-shell__description {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .settings-shell__header {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .settings-shell {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+  }
+
+  .settings-shell__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

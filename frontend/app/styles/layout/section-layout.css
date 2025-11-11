@@ -1,0 +1,171 @@
+/* ==========================
+   Inner Section Layout
+   Used inside .layout-canvas-inner
+   ========================== */
+
+.section-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Header: title + subtitle */
+.section-layout__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.section-layout__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.section-layout__title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.section-layout__subtitle {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+/* Optional right-side slot if needed in other sections */
+.section-layout__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* ==========================
+   Horizontal Nav Tabs
+   ========================== */
+
+.section-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.section-tabs__link {
+  position: relative;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.05s ease;
+}
+
+.section-tabs__link:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--accent-color);
+}
+
+.section-tabs__link--active {
+  color: var(--color-black);
+  /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12); */
+}
+
+.section-tabs__link--active::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: -3px;
+  height: 2px;
+  border-radius: 999px;
+  background-color: var(--accent-color);
+}
+
+/* ==========================
+   Content Area
+   ========================== */
+
+.section-layout__content {
+  margin-top: var(--spacing-md);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Panels inside content can use these helpers if desired */
+.section-layout__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.section-layout__panel-text {
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+/* ==========================
+   Dark Mode
+   ========================== */
+
+[data-theme="dark"] .section-layout__header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .section-layout__subtitle {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .section-tabs {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .section-tabs__link {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .section-tabs__link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .section-tabs__link--active {
+  background-color: var(--accent-color);
+  color: var(--color-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .section-tabs__link--active::after {
+  background-color: var(--action-bg-color);
+}
+
+[data-theme="dark"] .section-layout__panel-text {
+  color: var(--color-white);
+}
+
+/* ==========================
+   Responsive
+   ========================== */
+
+@media (max-width: 900px) {
+  .section-layout__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .section-layout__title {
+    font-size: 1.2rem;
+  }
+}

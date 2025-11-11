@@ -1,165 +1,163 @@
-/* Root wrapper for landing */
-
-.page-landing {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Align main content and make page feel full */
-
-.page-landing-main {
-    width: 100%;
-    padding-top: var(--spacing-xl);
-    padding-bottom: var(--spacing-xl);
-}
-
 /* ==========================
-   Hero
+   Landing Page Styles
    ========================== */
 
-.hero-landing {
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(250px, 2fr);
-    gap: var(--spacing-xl);
-    margin-bottom: var(--spacing-xl);
+.page-landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  gap: var(--spacing-xl);
 }
 
-/* Left column */
+/* The wrapper inside the app’s main <main> */
+.page-landing-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1280px;
+  gap: var(--spacing-xl);
+}
+
+/* HERO SECTION */
+.hero-landing {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: var(--spacing-xl);
+  background: var(--surface-elevated);
+  gap: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+}
 
 .hero-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
+  flex: 1 1 55%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .hero-eyebrow {
-    font-size: 0.8rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: var(--accent-color);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--accent-color);
 }
 
 .hero-title {
-    font-family: var(--font-display);
-    font-size: clamp(2.4rem, 4vw, 3.2rem);
-    line-height: 1.1;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .hero-text {
-    max-width: 32rem;
-    font-size: 1rem;
-    line-height: 1.7;
+  font-size: 1.125rem;
+  color: var(--text-muted);
 }
-
-/* Hero actions */
 
 .hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: var(--spacing-sm);
 }
 
-/* Trust signals */
-
 .trust-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: var(--spacing-md);
 }
 
 .trust-pill {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: 999px;
-    font-size: 0.78rem;
-    background-color: rgba(0, 0, 0, 0.02);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--surface-accent);
+  font-size: 0.85rem;
+  color: var(--accent-color);
 }
 
-/* Right column – simple “hero aside” */
-
+/* Sidebar section */
 .hero-aside {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md);
-    border-radius: var(--radius-md);
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  flex: 1 1 35%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .hero-aside-title {
-    font-weight: 700;
-    margin-bottom: var(--spacing-xs);
+  font-size: 1.125rem;
+  font-weight: 600;
 }
 
 .hero-aside-text {
-    font-size: 0.9rem;
-    line-height: 1.6;
+  color: var(--text-muted);
+  font-size: 0.95rem;
 }
 
-/* ==========================
-   Features
-   ========================== */
-
+/* FEATURES */
 .features-section {
-    margin-bottom: var(--spacing-xl);
+  width: 100%;
 }
 
 .features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-md);
 }
 
 .feature-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
+  text-align: center;
+  padding: var(--spacing-lg);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 .feature-icon {
-    font-size: 1.4rem;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .feature-title {
-    font-weight: 700;
-    font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
 }
 
 .feature-text {
-    font-size: 0.9rem;
-    line-height: 1.6;
+  color: var(--text-muted);
+  font-size: 0.95rem;
 }
 
-/* ==========================
-   Footer
-   ========================== */
-
+/* FOOTER */
 .landing-footer {
-    padding: var(--spacing-lg) var(--spacing-lg);
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-color);
-    opacity: 0.7;
+  width: 100%;
+  text-align: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-/* ==========================
-   Responsive
-   ========================== */
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero-landing {
+    flex-direction: column;
+    padding: var(--spacing-lg);
+  }
 
-@media (max-width: 900px) {
-    .hero-landing {
-        grid-template-columns: 1fr;
-    }
+  .hero-title {
+    font-size: 2rem;
+  }
 
-    .hero-aside {
-        order: -1;
-    }
-
-    .features-grid {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
+  .hero-aside {
+    margin-top: var(--spacing-md);
+  }
 }

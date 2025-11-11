@@ -1,0 +1,60 @@
+/* Verify Email specific visuals */
+
+.ve-card {
+  text-align: center;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.ve-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 3px solid rgba(0, 0, 0, 0.12);
+  border-top-color: var(--accent-color);
+  animation: ve-spin 0.7s linear infinite;
+  margin-bottom: var(--spacing-sm);
+}
+
+@keyframes ve-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ve-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-bottom: var(--spacing-xs);
+}
+
+.ve-icon--success {
+  background-color: var(--action-bg-color);
+  color: var(--text-color);
+}
+
+.ve-icon--error {
+  background-color: rgba(198, 40, 40, 0.12);
+  color: #c62828;
+}
+
+.ve-actions {
+  justify-content: center;
+  margin-top: var(--spacing-sm);
+  gap: var(--spacing-sm);
+}
+
+[data-theme="dark"] .ve-spinner {
+  border-color: rgba(255, 255, 255, 0.18);
+  border-top-color: var(--accent-color);
+}
+
+[data-theme="dark"] .ve-icon--error {
+  background-color: rgba(255, 82, 82, 0.14);
+  color: #ff8a80;
+}

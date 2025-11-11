@@ -54,6 +54,11 @@ module.exports = {
       logo_url: {
         type: Sequelize.STRING
       },
+      slug: {
+        type: Sequelize.STRING,
+        unique: true
+
+      },
       is_verified: {
         type: Sequelize.BOOLEAN,
         defaultValue: false

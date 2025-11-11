@@ -1,20 +1,27 @@
 /* ==========================
-   Dashboard Shell
+   Dashboard Layout
    ========================== */
 
-.dashboard-shell {
-    display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
-    gap: var(--spacing-md);
-    min-height: calc(100vh - 120px);
-    /* header + padding approximation */
-    margin-top: calc(-1 * var(--spacing-xl) / 2);
-    /* pull up a bit inside main-content */
+/* When the dashboard shell is present, let main-content go full width */
+.main-content:has(> .dashboard-shell) {
+  max-width: 100%;
+  padding: 0;
 }
 
-/* Collapsed variant (controlled via state) */
+/* Root shell placed directly under .main-content */
+.dashboard-shell {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  min-height: calc(100vh - 64px);
+  /* below header */
+  align-items: stretch;
+}
+
+/* Collapsed sidebar */
 .dashboard-shell.sidebar-collapsed {
-    grid-template-columns: 80px minmax(0, 1fr);
+  grid-template-columns: 80px minmax(0, 1fr);
 }
 
 /* ==========================
@@ -22,12 +29,9 @@
    ========================== */
 
 .dashboard-sidebar {
-    position: sticky;
-    top: 72px;
-    /* below global header */
-    align-self: flex-start;
-    height: calc(100vh - 96px);
-    /* Sidebar component itself will handle its internals */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ==========================
@@ -35,49 +39,110 @@
    ========================== */
 
 .dashboard-main {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
-/* This is the “canvas” all dashboard pages render into */
+/* App-like content surface */
 .dashboard-main-inner {
-    flex: 1;
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-lg);
-    background-color: var(--card-bg-color);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
+  flex: 1;
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  background-color: var(--card-bg-color);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+  gap: var(--spacing-md);
+  box-sizing: border-box;
 }
 
-/* Optional: allow child pages to add their own top nav / tabs */
-.dashboard-main-inner>.dashboard-header,
-.dashboard-main-inner>.dashboard-tabs {
-    margin-bottom: var(--spacing-sm);
+/* Allow child routes to add local header / tabs */
+.dashboard-main-inner > .dashboard-header {
+  margin-bottom: var(--spacing-sm);
+}
+
+.dashboard-main-inner > .dashboard-tabs {
+  margin-bottom: var(--spacing-md);
+}
+
+/* ==========================
+   Empty State Helpers
+   ========================== */
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 0.95rem;
+  width: 1000px;
+}
+
+.empty-state-inner {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  background-color: rgba(0, 0, 0, 0.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+}
+
+/* Inline/compact empty state variant if needed */
+.empty-state--inline {
+  flex: 0;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* ==========================
+   Dark Mode
+   ========================== */
+
+[data-theme="dark"] .dashboard-main-inner {
+  background-color: var(--card-bg-color);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .empty-state {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .empty-state-inner {
+  background-color: rgba(255, 255, 255, 0.03);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
 }
 
 /* ==========================
    Responsive
    ========================== */
 
+@media (max-width: 1024px) {
+  .dashboard-shell,
+  .dashboard-shell.sidebar-collapsed {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .dashboard-main-inner {
+    padding: var(--spacing-md);
+  }
+}
+
 @media (max-width: 900px) {
+  .dashboard-shell,
+  .dashboard-shell.sidebar-collapsed {
+    grid-template-columns: 1fr;
+    min-height: calc(100vh - 64px);
+  }
 
-    .dashboard-shell,
-    .dashboard-shell.sidebar-collapsed {
-        grid-template-columns: 1fr;
-        min-height: auto;
-        margin-top: 0;
-    }
+  .dashboard-sidebar {
+    height: auto;
+  }
 
-    .dashboard-sidebar {
-        position: static;
-        height: auto;
-        margin-bottom: var(--spacing-md);
-    }
-
-    .dashboard-main-inner {
-        padding: var(--spacing-md);
-        border-radius: var(--radius-md);
-    }
+  .dashboard-main-inner {
+    border-radius: var(--radius-md);
+  }
 }

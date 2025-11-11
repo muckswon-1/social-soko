@@ -1,0 +1,49 @@
+/* ==========================
+   Create / Update Business Section
+   Uses shared form system from forms.css
+   ========================== */
+
+/* Main card container */
+.create-business-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Section header tweaks (optional, builds on .section-head) */
+.create-business-card .section-head {
+  margin-bottom: var(--spacing-xs);
+}
+
+.create-business-card .section-sub {
+  max-width: 40rem;
+}
+
+/* Actions row at bottom of the grid form */
+.create-business-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+/* Make buttons feel consistent inside this layout */
+.create-business-actions .btn {
+  min-width: 120px;
+}
+
+/* Responsive:
+   On small screens stack actions and make primary full-width
+*/
+@media (max-width: 768px) {
+  .create-business-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .create-business-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

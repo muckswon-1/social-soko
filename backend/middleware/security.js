@@ -26,7 +26,8 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
      /^\/api\/v1\/auth\/forgot-password$/,
     // match /api/v1/auth/verify-email and /api/v1/auth/verify-email/<token>
     /^\/api\/v1\/auth\/verify-email(?:\/[^\/\s]+)?$/,
-    /^\/api\/v1\/auth\/reset-password(?:\/[^\/\s]+)?$/
+    /^\/api\/v1\/auth\/reset-password(?:\/[^\/\s]+)?$/,
+    /^\/api\/v1\/auth\/send-verification-email(?:\/[^\/\s]+)?$/
   ];
 
   const isExempt = exemptEndpoints.some((re) => re.test(req.path));
