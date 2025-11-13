@@ -1,6 +1,5 @@
-
 const { User } = require("../../models");
-const UTILS = require("../../utils/utils"); 
+const UTILS = require("../../utils/utils");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   // verifyAccessToken middleware has already validated JWT and set req.user

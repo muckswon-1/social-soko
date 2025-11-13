@@ -1,7 +1,6 @@
-
 const { User, VerificationToken } = require("../../models");
 const { sendTemplatedEmail } = require("../../services/email/emailService");
-const UTILS = require("../../utils/utils"); 
+const UTILS = require("../../utils/utils");
 const crypto = require("crypto");
 
 require("dotenv").config();
@@ -33,8 +32,11 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
 
   const rawToken = UTILS.generateVerifyToken();
-  const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
- 
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(rawToken)
+    .digest("hex");
+
   // Store hashed token
   await VerificationToken.create({
     user_id: user.id,

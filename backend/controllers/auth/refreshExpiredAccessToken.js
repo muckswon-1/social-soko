@@ -1,4 +1,3 @@
-
 const UTILS = require("../../utils/utils"); // provides catchAsync + httpError
 const jwt = require("jsonwebtoken");
 const {

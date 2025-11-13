@@ -24,14 +24,15 @@ export function meta() {
 
 export default function BusinessOverview() {
   const user = useSelector(authUserSelector);
+  const userId = user?.id || null;
   const navigate = useNavigate();
 
   const {
     data,
     isLoading,
     isError,
-  } = useGetBusinessQuery(user?.id, {
-    skip: !user?.id,
+  } = useGetBusinessQuery(userId, {
+    skip: !userId
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -90,7 +91,7 @@ export default function BusinessOverview() {
   // Editing mode → show existing form; it already looks good
   if (isEditing || isLoading) {
     return (
-      <BusinessEditForm isEditing={isEditing} setIsEditing={setIsEditing}/>
+      <BusinessEditForm setIsEditing={setIsEditing}/>
     
     );
   }

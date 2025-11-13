@@ -68,12 +68,11 @@ export const refreshUser = createAsyncThunk(
 
 export const register = createAsyncThunk(
   "auth/register",
-  async ({ email, password, role }, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
       const { data, status } = await apiClient.post("/auth/register", {
         email,
         password,
-        role,
       });
 
       const created = status === 201 && (data?.id || data?.user?.id);

@@ -23,11 +23,11 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
     /^\/api\/v1\/auth\/refresh-token$/,
     /^\/api\/v1\/auth\/logout$/,
     /^\/api\/v1\/auth\/login$/,
-     /^\/api\/v1\/auth\/forgot-password$/,
+    /^\/api\/v1\/auth\/forgot-password$/,
     // match /api/v1/auth/verify-email and /api/v1/auth/verify-email/<token>
     /^\/api\/v1\/auth\/verify-email(?:\/[^\/\s]+)?$/,
     /^\/api\/v1\/auth\/reset-password(?:\/[^\/\s]+)?$/,
-    /^\/api\/v1\/auth\/send-verification-email(?:\/[^\/\s]+)?$/
+    /^\/api\/v1\/auth\/send-verification-email(?:\/[^\/\s]+)?$/,
   ];
 
   const isExempt = exemptEndpoints.some((re) => re.test(req.path));
@@ -36,10 +36,11 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
   // Only protect unsafe methods
   if (["GET", "HEAD", "OPTIONS"].includes(method)) return next();
 
-
   const cookieToken = req.cookies?.["XSRF-TOKEN"];
   const headerToken =
-    req.headers["x-xsrf-token"] || req.headers["x-csrf-token"] || req.headers["x-csrf_token"];
+    req.headers["x-xsrf-token"] ||
+    req.headers["x-csrf-token"] ||
+    req.headers["x-csrf_token"];
 
   const flag = UTILS.timingSafeCompare(headerToken, cookieToken);
 
@@ -82,7 +83,7 @@ function securityMiddleWare(app) {
     helmet({
       crossOriginResourcePolicy: false,
       contentSecurityPolicy: false,
-    })
+    }),
   );
 
   // CORS for SPA
@@ -90,7 +91,7 @@ function securityMiddleWare(app) {
     cors({
       origin: FRONTEND_URL,
       credentials: true,
-    })
+    }),
   );
 
   // Prevent HTTP parameter pollution
@@ -111,12 +112,9 @@ function securityMiddleWare(app) {
 
 /*-----------------------  Access Token Verifier ---------------------*/
 const verifyAccessToken = UTILS.catchAsync(async (req, res, next) => {
-
   try {
-
     const token = req.cookies?.access_token;
-   if (!token) throw UTILS.httpError(401, "Not authenticated");
-
+    if (!token) throw UTILS.httpError(401, "Not authenticated");
 
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     req.user = decoded; // attach user to request

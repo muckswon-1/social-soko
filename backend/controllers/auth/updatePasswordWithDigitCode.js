@@ -1,13 +1,12 @@
 // controllers/user/updatePassword.js
-const { User } = require("../../models");
+
 const { sendTemplatedEmail } = require("../../services/email/emailService");
 const verificationTokenService = require("../../services/verificationTokenService");
 const bcrypt = require("bcrypt");
-const UTILS = require("../../utils/utils"); 
+const UTILS = require("../../utils/utils");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   const { password, digitCodes } = req.body || {};
-
 
   // Validate input
   if (!digitCodes) throw UTILS.httpError(400, "digitCodes is required");
@@ -16,19 +15,23 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   }
 
   // Verify code and get user
-  const { valid, user, reason } = await verificationTokenService(digitCodes, "verification_digits");
+  const { valid, user, reason } = await verificationTokenService(
+    digitCodes,
+    "verification_digits",
+  );
 
-  if(!valid || !user) throw UTILS.httpError(400, reason);
+ 
 
+  if (!valid || !user) throw UTILS.httpError(400, reason);
 
   // Update password
   const hashedPassword = await bcrypt.hash(password, 10);
-  await User.update({ password: hashedPassword }, { where: { id: user.id } });
+  await user.update({ password: hashedPassword }, { where: { id: user.id }, individualHooks: true });
 
   // Send confirmation email
   await sendTemplatedEmail({
     to: user.email,
-    template: "passwordResetSuccess", 
+    template: "passwordResetSuccess",
     props: { email: user.email },
   });
 

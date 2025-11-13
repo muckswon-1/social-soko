@@ -3,48 +3,15 @@ import {
   isRouteErrorResponse,
   Link,
   Outlet,
-  useFetcher,
-  useLoaderData,
-  useLocation,
   useNavigate,
-  useNavigation,
 } from "react-router";
 
 import canvasStyles from "../../styles/layout/canvas-layout.css?url";
 import errorBoundaryStyles from "../../styles/error/error-boundary.css?url";
 import Sidebar from "../components/Sidebar";
-import { useDispatch, useSelector } from "react-redux";
-import { authUserSelector } from "../../features/auth/authSlice";
+import { useDispatch } from "react-redux";
 import { verifySession } from "../../features/auth/authThunk";
-import { prefsCookie } from "../../utils/prefs-cookie";
-
-export async function loader({request}) {
-  const cookieHeader = request.headers.get("Cookie");
-  const prefs = await prefsCookie.parse(cookieHeader);
-
-  const isSidebarCollapsed = prefs?.isCollapsed|| false;
-
-  return Response.json({ isSidebarCollapsed });
-}
-
-
-export async function action({request}) {
-  const cookieHeader = request.headers.get("Cookie");
-  const prefs = await prefsCookie.parse(cookieHeader);
-  const formData = await request.formData();
-
-  prefs.isCollapsed = formData.get("isCollapsed") === "true";
-  
-  return Response.json({
-   success: true,
-   headers: {
-    "Set-Cookie": await prefsCookie.serialize(prefs)
-   }
-  })
-}
-
-
-
+import { useCookieState } from "../../states/useCookieState";
 
 
 export function links() {
@@ -54,59 +21,16 @@ export function links() {
   ];
 }
 
-export default function DashboardLayout(loaderData) {
-  //const [expanded, setExpanded] = useState(true); // true = wide sidebar, false = collapsed
-console.log(loaderData);
-
-  const fetcher = useFetcher();
-  
-
-  
-
-  // const expanded = fetcher.formData
-  //   ? fetcher.formData.get("expanded") === "true"
-  //   : sidebarExpanded;
-
-
-  const isCollapsed = loaderData?.isSidebarCollapsed;
-
+export default function DashboardLayout() {
+  const [expanded, setExpanded] = useCookieState("sidebarExpanded", true); // true = wide sidebar, false = collapsed
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const   navigation = useNavigation();
+ 
 
-  console.log(navigation);
-
-
-   const handleToggle = () => {
-      // fetcher.submit(
-      //   {
-      //     expanded: (!optimisticExpanded).toString(),
-      //     from: "sidebar",
-      //   },
-      //   {
-      //     method: "post",
-      //   },
-      // );
-
-      console.log('is collapsed before: ', isCollapsed);
-      console.log('is collapsed after: ', isCollapsed);
-
-      fetcher.submit(
-        {
-             isCollapsed: (!isCollapsed).toString(),
-             from: "dashboard"
-        },
-        {
-        method: "post",
-        action: "dashboard"
-      } 
-    )
-
-    
+   const handleToggle = () => { 
+    setExpanded((prev) => !prev);
     };
-
-
 
 
    useEffect(() => {
@@ -137,12 +61,12 @@ console.log(loaderData);
         <aside
           className={
             "layout-sidebar " +
-            (!isCollapsed
+            (expanded
               ? "layout-sidebar--expanded"
               : "layout-sidebar--collapsed")
           }
         >
-          <Sidebar handleToggle={handleToggle} isCollapsed={isCollapsed} />
+          <Sidebar handleToggle={handleToggle} expanded={expanded} />
         </aside>
 
         <section className="layout-canvas">

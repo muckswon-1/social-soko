@@ -1,4 +1,4 @@
-    // ---------- helpers ----------
+// ---------- helpers ----------
 export function escapeHtml(str = "") {
   return String(str)
     .replaceAll("&", "&amp;")
@@ -16,5 +16,6 @@ export const Comp = {
     </a>
   `,
   p: (text) => `<p>${text}</p>`,
-  link: (href, label) => `<a href="${href}" target="_blank">${escapeHtml(label)}</a>`,
+  link: (href, label) =>
+    `<a href="${href}" target="_blank">${escapeHtml(label)}</a>`,
 };

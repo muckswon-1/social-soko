@@ -28,6 +28,7 @@ export function links() {
 
 export default function Profile() {
   const user = useSelector(authUserSelector);
+   const [isEditing, setIsEditing] = useState(false);
 
   const {
     data: profileResponse,
@@ -37,21 +38,25 @@ export default function Profile() {
 
   const [updateUserProfile, { isLoading: isUpdating }] =
     useUpdateUserProfileMutation();
-
-  const profile = profileResponse?.data || null;
+  const profile = profileResponse?.user || null;
   const loading = isProfileLoading;
 
-  const [isEditing, setIsEditing] = useState(false);
+
+
+
+   const {first_name, last_name, account_verified, phone, email_verified, email, phone_verifed} = profile || {};
+   const emptyForm = () => (
+     {
+      first_name: "",
+      last_name: "",
+      phone: ""
+     }
+   );
 
   const initialForm = useMemo(() => {
-    if (!profile) {
-      return { first_name: "", last_name: "", phone: "" };
-    }
-    return {
-      first_name: profile.firstName || "",
-      last_name: profile.lastName || "",
-      phone: profile.phoneNumber || "",
-    };
+    if (!profile) return emptyForm();
+    
+    return { first_name, last_name , phone };
   }, [profile]);
 
   const [form, setForm] = useState(initialForm);
@@ -62,34 +67,11 @@ export default function Profile() {
     }
   }, [initialForm, isEditing]);
 
-  if (loading) return <Skeleton />;
 
-  if (!user?.id) {
-    return (
-      <div className="layout-empty">
-        <div className="layout-empty__inner">
-          No profile data found. Please sign in to view your profile.
-        </div>
-      </div>
-    );
-  }
 
-  if (isProfileError || !profile) {
-    return (
-      <>
-        <title>Social Soko | Error</title>
-        <div className="layout-empty">
-          <div className="layout-empty__inner">
-            Error fetching profile data. Please try again later.
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  const { firstName, lastName, phoneVerified, accountVerified } = profile;
-  const initials = getInitials(`${firstName} ${lastName}`);
-  const fullName = [firstName, lastName].filter(Boolean).join(" ");
+ 
+  const initials = getInitials(`${first_name} ${last_name}`);
+  const fullName = [first_name, last_name].filter(Boolean).join(" ");
 
   const isDirty =
     form.first_name !== (initialForm.first_name || "") ||
@@ -129,6 +111,34 @@ export default function Profile() {
     setIsEditing(false);
   };
 
+
+  if (loading) return <Skeleton />;
+
+  if (!user?.id) {
+    return (
+      <div className="layout-empty">
+        <div className="layout-empty__inner">
+          No profile data found. Please sign in to view your profile.
+        </div>
+      </div>
+    );
+  }
+
+  if (isProfileError || !profile) {
+    return (
+      <>
+        <title>Social Soko | Error</title>
+        <div className="layout-empty">
+          <div className="layout-empty__inner">
+            Error fetching profile data. Please try again later.
+          </div>
+        </div>
+      </>
+    );
+  }
+
+
+
   return (
     <>
       <title>Social Soko | Profile</title>
@@ -142,31 +152,31 @@ export default function Profile() {
           <div className="section-titles">
             <h2 className="section-title">{fullName || "Your Profile"}</h2>
             <div className="section-sub">
-              <span className="kv-mono">{user?.email}</span>
+              <span className="kv-mono">{email}</span>
             </div>
           </div>
 
           <div className="section-right profile-chips">
             <span
               className={`chip ${
-                user?.emailVerified ? "chip--success" : "chip--danger"
+                email_verified ? "chip--success" : "chip--danger"
               }`}
             >
-              {user?.emailVerified ? "Email Verified" : "Not Verified"}
+              {email_verified ? "Email Verified" : "Not Verified"}
             </span>
             <span
               className={`chip ${
-                phoneVerified ? "chip--success" : "chip--warning"
+                phone_verifed? "chip--success" : "chip--warning"
               }`}
             >
-              {phoneVerified ? "Phone Verified" : "Phone Unverified"}
+              {phone_verifed ? "Phone Verified" : "Phone Unverified"}
             </span>
             <span
               className={`chip ${
-                accountVerified ? "chip--success" : "chip--neutral"
+                account_verified ? "chip--success" : "chip--neutral"
               }`}
             >
-              {accountVerified ? "Account Verified" : "Verification Pending"}
+              {account_verified ? "Account Verified" : "Verification Pending"}
             </span>
           </div>
         </header>
@@ -208,16 +218,16 @@ export default function Profile() {
           <section className="kv-grid" aria-label="Profile details">
             <Row
               label="First Name"
-              value={firstName || <span className="kv-muted">N/A</span>}
+              value={first_name || <span className="kv-muted">N/A</span>}
             />
             <Row
               label="Last Name"
-              value={lastName || <span className="kv-muted">N/A</span>}
+              value={last_name || <span className="kv-muted">N/A</span>}
             />
             <Row
               label="Phone"
               value={
-                profile.phoneNumber || <span className="kv-muted">N/A</span>
+                phone || <span className="kv-muted">N/A</span>
               }
             />
           </section>

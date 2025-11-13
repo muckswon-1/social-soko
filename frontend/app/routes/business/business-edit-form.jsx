@@ -31,7 +31,7 @@ const emptyForm = (email = "") => ({
   logo_url: "",
 });
 
-export default function BusinessEditForm({isEditing, setIsEditing}) {
+export default function BusinessEditForm({setIsEditing}) {
   const user = useSelector(authUserSelector);
   const {data} = useGetBusinessQuery(user?.id, {skip: !user?.id});
   const business = data?.business || {}
@@ -113,7 +113,7 @@ export default function BusinessEditForm({isEditing, setIsEditing}) {
 
     try {
        if(business?.id) {
-         await updateBusiness({id: business?.id, businessData: form}).unwrap();
+         await updateBusiness({id: business?.id, userId: user?.id, businessData: form}).unwrap();
          toast.success("Business updated successfully");
          setIsEditing(false);
        }

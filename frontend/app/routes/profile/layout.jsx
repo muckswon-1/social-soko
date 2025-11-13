@@ -1,6 +1,8 @@
 import styles from "../../styles/layout/section-layout.css?url";
 import errorStyles from "../../styles/error/error-boundary.css?url";
 import SectionLayout from "../components/SectionLayout";
+import { isRouteErrorResponse, Link } from "react-router";
+
 
 
 export function links() {

@@ -1,16 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  Form,
-  useActionData,
-  useNavigation,
-  redirect,
+
   Link,
+  useNavigate,
 } from "react-router";
 
-import { store } from "../../store";
-import { register as registerThunk } from "../../features/auth/authThunk";
+
+import { register } from "../../features/auth/authThunk";
+
 
 import styles from "../../styles/auth/auth.css?url";
+import formStyles from "../../styles/forms/forms.css?url";
+import { validateRegisterForm } from "../../utils/formValidation";
+import { useDispatch, useSelector } from "react-redux";
+import { authLoadingSelector } from "../../features/auth/authSlice";
+import { toast } from "react-toastify";
 
 export function links() {
   return [
@@ -18,6 +22,13 @@ export function links() {
       rel: "stylesheet",
       href: styles,
     },
+    {
+      rel: "stylesheet",
+      href: formStyles,
+
+    },
+
+
   ];
 }
 
@@ -25,61 +36,67 @@ export function meta() {
   return [{ title: "Social Soko | Register" }];
 }
 
-export async function action({ request }) {
-  const formData = await request.formData();
-  const email = formData.get("email")?.trim();
-  const password = formData.get("password")?.trim();
-  const confirmPassword = formData.get("confirmPassword")?.trim();
-  const role = formData.get("role") || "customer";
-
-  if (!email || !password || !confirmPassword) {
-    return {
-      error: "Please fill in all required fields.",
-    };
-  }
-
-  if (password !== confirmPassword) {
-    return {
-      error: "Passwords do not match.",
-    };
-  }
-
-  if (password.length < 6) {
-    return {
-      error: "Password must be at least 6 characters.",
-    };
-  }
-
-  try {
-    const result = await store
-      .dispatch(
-        registerThunk({
-          email,
-          password,
-          role,
-        }),
-      )
-      .unwrap();
-
-    if (result?.success) {
-      return redirect("/login?registered=1");
-    }
-
-    return {
-      error: result?.error || "Registration failed. Please try again.",
-    };
-  } catch (err) {
-    return {
-      error: err?.message || "An error occurred during registration.",
-    };
-  }
-}
 
 export default function Register() {
-  const actionData = useActionData();
-  const navigation = useNavigation();
-  const isSubmitting = navigation.state === "submitting";
 
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    confirmPassword: ""
+  });
+
+  const [errors, setErrors] = useState({});
+  const [error, setError] = useState("");
+
+  const loading = useSelector(authLoadingSelector);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) =>({...prev,[name]: value}));
+
+    if(errors[name]){
+      setErrors((prev) =>({...prev, [name]: ""}));
+    }
+
+    if(error) setError("")
+    
+  }
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const fieldErrors = validateRegisterForm(formData);
+
+    if(Object.keys(fieldErrors).length > 0){
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setError("");
+
+    try {
+      const result = await dispatch(register({email: formData.email, password: formData.password})).unwrap();
+
+      if(result?.success) {
+        toast.success("Registration successful. You can now login.")
+        navigate('/login', {replace: true});
+      }
+
+     
+
+    } catch (error) {
+      console.error('Error in register: ', error);
+      setError(error?.error || "An error occurred during registration")
+    }
+
+  }
+
+
+
+ 
   return (
     <div className="page page-auth">
       <main className="main-content">
@@ -89,11 +106,11 @@ export default function Register() {
             Join Social Soko and start building trusted B2B connections.
           </p>
 
-          {actionData?.error && (
-            <div className="auth-error">{actionData.error}</div>
+          {error && (
+            <div className="auth-error">{error}</div>
           )}
 
-          <Form method="post" className="auth-form" noValidate>
+          <form onSubmit={handleSubmit} className="auth-form" >
             <div className="form-group">
               <label htmlFor="email" className="form-label">
                 Email
@@ -102,10 +119,14 @@ export default function Register() {
                 id="email"
                 name="email"
                 type="email"
+                onChange={handleChange}
                 required
                 className="form-input"
                 autoComplete="email"
               />
+                    {errors.email && (
+                <div className="form-error">{errors.email}</div>
+              )}
             </div>
 
             <div className="form-group">
@@ -116,10 +137,14 @@ export default function Register() {
                 id="password"
                 name="password"
                 type="password"
+                onChange={handleChange}
                 required
                 className="form-input"
                 autoComplete="new-password"
               />
+               {errors.password && (
+                <div className="form-error">{errors.password}</div>
+              )}
             </div>
 
             <div className="form-group">
@@ -130,13 +155,17 @@ export default function Register() {
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
+                onChange={handleChange}
                 required
                 className="form-input"
                 autoComplete="new-password"
               />
+                   {errors.confirmPassword && (
+                <div className="form-error">{errors.confirmPassword}</div>
+              )}
             </div>
 
-            <div className="form-group">
+            {/* <div className="form-group">
               <label htmlFor="role" className="form-label">
                 Role
               </label>
@@ -150,16 +179,16 @@ export default function Register() {
                 <option value="business">Business Owner</option>
                 <option value="admin">Admin</option>
               </select>
-            </div>
+            </div> */}
 
             <button
               type="submit"
               className="btn btn-primary auth-button"
-              disabled={isSubmitting}
+              disabled={loading}
             >
-              {isSubmitting ? "Registering..." : "Register"}
+              {loading ? "Registering..." : "Register"}
             </button>
-          </Form>
+          </form>
 
           <div className="auth-footer-links">
             <p>

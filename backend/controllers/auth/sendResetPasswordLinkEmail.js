@@ -1,7 +1,6 @@
-
 const db = require("../../models");
 const { sendTemplatedEmail } = require("../../services/email/emailService");
-const UTILS = require("../../utils/utils"); 
+const UTILS = require("../../utils/utils");
 const { User, VerificationToken } = db;
 const crypto = require("crypto");
 
@@ -31,7 +30,10 @@ module.exports = UTILS.catchAsync(async (req, res) => {
 
   // Generate secure reset token
   const resetToken = UTILS.generateVerifyToken();
-  const tokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour expiry
 
   // Store hashed token

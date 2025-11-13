@@ -1,4 +1,3 @@
-
 const { User, VerificationToken } = require("../../models");
 const { sendTemplatedEmail } = require("../../services/email/emailService");
 const UTILS = require("../../utils/utils"); // provides catchAsync + httpError

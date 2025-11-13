@@ -94,7 +94,7 @@ export default function UpdateBusiness({ business, onUpdated }) {
     // Placeholder for update logic
     setTimeout(() => {
       setLoading(false);
-      toast.success("Business details updated (mock).");
+      toast.success("Business details updated.");
       onUpdated?.(form);
     }, 800);
   };

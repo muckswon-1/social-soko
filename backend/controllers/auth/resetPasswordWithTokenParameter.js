@@ -1,10 +1,8 @@
-
-const { User } = require("../../models");
-const UTILS = require("../../utils/utils"); 
+const UTILS = require("../../utils/utils");
 const bcrypt = require("bcrypt");
 const verifyTokenService = require("../../services/verificationTokenService");
 const { sendTemplatedEmail } = require("../../services/email/emailService");
-const crypto = require("crypto");
+
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   const { token } = req.params || {};
@@ -20,15 +18,23 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   //TODO: Check if the new password is equal to any of the last five passwords
 
   // Verify token & get user
-  const { valid, user, reason } = await verifyTokenService(token, "reset_password",{inputFormat: 'sha256'});
+  const { valid, user, reason } = await verifyTokenService(
+    token,
+    "reset_password",
+    { inputFormat: "sha256" },
+  );
 
-  if(!valid || !user) throw UTILS.httpError(400, reason);
+  if (!valid || !user) throw UTILS.httpError(400, reason);
 
-  if(user.password === password) throw UTILS.httpError(400, "New password must be different from the current password");
+  if (user.password === password)
+    throw UTILS.httpError(
+      400,
+      "New password must be different from the current password",
+    );
 
   // Hash and update password
   const hashedPassword = await bcrypt.hash(password, 10);
-  await User.update({ password: hashedPassword }, { where: { id: user.id } });
+  await user.update({ password: hashedPassword }, { where: { id: user.id }, individualHooks: true });
 
   // Notify user
   await sendTemplatedEmail({

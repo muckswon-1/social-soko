@@ -6,9 +6,11 @@ import sharedFormStyles from "../../styles/forms/forms.css?url";
 import businessStyles from "../../styles/business/create-business.css?url";
 import { authUserSelector } from "../../features/auth/authSlice";
 import { useCreateBusinessMutation } from "../../services/businessApi";
+import { emailRe, urlRe } from "../../utils/formValidation";
+import { useNavigate } from "react-router";
 
-const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-const urlRe = /^(https?:\/\/)?([a-z0-9\-]+\.)+[a-z]{2,}(\/[^\s]*)?$/i;
+
+
 
 const slugify = (s = "") =>
   s
@@ -50,6 +52,7 @@ const getEmptyForm = (email = "") => (
 
 export default function CreateBusiness() {
   const user = useSelector(authUserSelector);
+  const navigate = useNavigate();
 
   const [createBusiness, {isLoading: loading}] = useCreateBusinessMutation();
 
@@ -108,6 +111,7 @@ export default function CreateBusiness() {
         if (data?.success) {
           toast.success(data?.message || "Business created");
           resetForm();
+          navigate('/dashboard/business',{replace: true})
         } else {
           toast.error(data?.message || "Creation failed");
         }
@@ -216,7 +220,7 @@ export default function CreateBusiness() {
         <div className="section-titles">
           <h2 className="section-title">Create Business</h2>
           <p className="section-sub">
-            Set up your business profile. We’ll use this to power your public
+            Set up your business profile. We'll use this to power your public
             presence and connections.
           </p>
         </div>

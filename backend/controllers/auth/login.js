@@ -1,4 +1,3 @@
-
 const { User } = require("../../models");
 const UTILS = require("../../utils/utils"); // provides catchAsync + httpError
 const {
@@ -18,12 +17,14 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   if (!password) throw UTILS.httpError(400, "password is required");
 
   // Find user
-  const user = await User.findOne({ where: { email } });
+  const user = await User.scope("withPassword").findOne({where: {email}});
   if (!user) throw UTILS.httpError(400, "Invalid username or password");
+
 
   // Check password
   const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) throw UTILS.httpError(400, "Invalid username or password");
+  if (!isPasswordValid)
+    throw UTILS.httpError(400, "Invalid username or password");
 
   // Generate tokens + user payload
   const accessToken = UTILS.generateAccessToken(user);

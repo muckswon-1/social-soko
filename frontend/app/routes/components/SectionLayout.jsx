@@ -24,6 +24,7 @@ const SectionLayout = ({ sectionMeta }) => {
               <NavLink
                 key={index}
                 to={sectionLinks.to}
+                end
                 className={({ isActive }) =>
                   "section-tabs__link" +
                   (isActive ? " section-tabs__link--active" : "")
@@ -34,36 +35,6 @@ const SectionLayout = ({ sectionMeta }) => {
             ))
           : null}
 
-        {/* <NavLink
-          end
-          to="/dashboard/business"
-          className={({ isActive }) =>
-            "section-tabs__link" +
-            (isActive ? " section-tabs__link--active" : "")
-          }
-        >
-          My Business
-        </NavLink>
-
-        <NavLink
-          to="/dashboard/business/create-business"
-          className={({ isActive }) =>
-            "section-tabs__link" +
-            (isActive ? " section-tabs__link--active" : "")
-          }
-        >
-          Create Business
-        </NavLink>
-
-        <NavLink
-          to="/dashboard/business/update-business"
-          className={({ isActive }) =>
-            "section-tabs__link" +
-            (isActive ? " section-tabs__link--active" : "")
-          }
-        >
-          Update Business
-        </NavLink> */}
       </nav>
 
       {/* Nested routes render here */}

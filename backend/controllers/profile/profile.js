@@ -1,4 +1,3 @@
-
 const { User } = require("../../models");
 const UTILS = require("../../utils/utils"); // provides catchAsync + httpError
 
@@ -12,8 +11,6 @@ const updateUser = UTILS.catchAsync(async (req, res) => {
 
   const patch = req.body?.patch || {};
 
- 
-  
   const { first_name, last_name, phone } = patch;
 
   // Ensure at least one field to update
@@ -21,18 +18,18 @@ const updateUser = UTILS.catchAsync(async (req, res) => {
     first_name !== undefined || last_name !== undefined || phone !== undefined;
   if (!hasUpdates) throw UTILS.httpError(400, "No fields provided to update");
 
+
+
   await user.update({
     ...(first_name !== undefined && { first_name }),
     ...(last_name !== undefined && { last_name }),
     ...(phone !== undefined && { phone }),
   });
-
-  const data = UTILS.normalizedUserProfileData(user);
-
+  
   return res.status(200).json({
     success: true,
     message: "User information updated successfully",
-    data,
+    user,
   });
 });
 
@@ -44,12 +41,12 @@ const fetchProfile = UTILS.catchAsync(async (req, res) => {
   const user = await User.findOne({ where: { id: userId } });
   if (!user) throw UTILS.httpError(404, "User not found");
 
-  const data = UTILS.normalizedUserProfileData(user);
+  
 
   return res.status(200).json({
     success: true,
     message: "User profile fetched successfully",
-    data,
+    user,
   });
 });
 

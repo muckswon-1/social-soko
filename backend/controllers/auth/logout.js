@@ -1,5 +1,4 @@
-
-const UTILS = require("../../utils/utils"); 
+const UTILS = require("../../utils/utils");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   // Since we're using JWT tokens, we can't invalidate them on the server side.

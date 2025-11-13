@@ -1,6 +1,8 @@
+import { current } from "@reduxjs/toolkit";
 import { apiSlice } from "./apiSlice";
 
 export const profileApi = apiSlice.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     // Fetch User info by ID
     getUserProfile: builder.query({
@@ -9,10 +11,10 @@ export const profileApi = apiSlice.injectEndpoints({
         url: `/profile/fetch-user-profile/${userId}`,
         method: "GET",
       }),
-      providesTags: (result, error, userId) =>
+      providesTags: (result) =>
         result
-          ? [{ type: "Profile", id: userId }]
-          : [{ type: "Profile", id: "LIST" }],
+          ? [{ type: "Profile", id: "CURRENT" }]
+          : [{ type: "Profile", id: "EMPTY" }],
     }),
     updateUserProfile: builder.mutation({
       query: ({ userId, patch }) => ({
@@ -24,48 +26,56 @@ export const profileApi = apiSlice.injectEndpoints({
       async onQueryStarted({ userId, patch }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
           apiSlice.util.updateQueryData("getUserProfile", userId, (draft) => {
-            if (!draft?.data) return;
+          if(!draft) return 
+           
+            const targetProfile = draft?.user;
 
-            if (patch.first_name !== undefined) {
-              draft.data.firstName = patch.first_name;
-            }
-
-            if (patch.last_name !== undefined) {
-              draft.data.lastName = patch.last_name;
-            }
-
-            if (patch.phone !== undefined) {
-              draft.data.phoneNumber = patch.phone;
-            }
+            Object.entries(patch).forEach(([key, value]) => {
+              if(value !== undefined  && targetProfile[key] !== undefined) {
+                targetProfile[key] = value;
+              }
+            });
+            
           }),
         );
+
+      
 
         try {
           // Wait for server to respond
           const { data: response } = await queryFulfilled;
 
-          const serverProfile = response?.data?.data;
+          console.log('Profile data', response);
+
+          const serverProfile = response?.user;
+         
 
           // Sync with server response if it returns updated user
 
           if (serverProfile) {
-            apiSlice.util.updateQueryData("getUserProfile", userId, (draft) => {
-              if (!draft) return;
+            dispatch(
+                apiSlice.util.updateQueryData("getUserProfile", userId, (draft) => {
+              if (!draft) {
+               
+                return ;
+              };
+             
 
-              draft.data = {
-                ...draft.data,
+              draft.user = {
+                ...draft.user,
                 ...serverProfile,
               };
-            });
+            })
+            )
           }
         } catch (error) {
           // Undo optimistic change
           patchResult.undo();
-        }
-      },
+         }
+       },
 
-      invalidatesTags: (result, error, { userId }) => [
-        { type: "Profile", id: userId },
+      invalidatesTags:  [
+        { type: "Profile", id: "CURRENT" },
       ],
     }),
   }),

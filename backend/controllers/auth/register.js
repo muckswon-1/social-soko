@@ -1,4 +1,3 @@
-
 const { User, VerificationToken } = require("../../models");
 const { sendTemplatedEmail } = require("../../services/email/emailService");
 const UTILS = require("../../utils/utils");
@@ -6,7 +5,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
-  const { email, password, role } = req.body || {};
+  const { email, password } = req.body || {};
 
   // Validate input
   if (!email) throw UTILS.httpError(400, "email is required");
@@ -14,7 +13,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   if (String(password).length < 8) {
     throw UTILS.httpError(400, "Password must be at least 8 characters");
   }
-  if (!role) throw UTILS.httpError(400, "role is required");
+
 
   // Check if user already exists
   const existingUser = await User.findOne({ where: { email } });
@@ -27,12 +26,15 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   const user = await User.create({
     email,
     password: hashedPassword,
-    role,
+  
   });
 
   // Generate email verification token
   const verificationToken = UTILS.generateVerifyToken();
-  const tokenHash = crypto.createHash("sha256").update(verificationToken).digest("hex");
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(verificationToken)
+    .digest("hex");
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
 
   // Store verification token
@@ -46,8 +48,12 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   // Send emails
   await sendTemplatedEmail({
     to: user.email,
-    template: " verifyEmail",
-    props: { email: user.email, token: verificationToken, expiresInMinutes: 60 },
+    template: " verify",
+    props: {
+      email: user.email,
+      token: verificationToken,
+      expiresInMinutes: 60,
+    },
   });
 
   await sendTemplatedEmail({

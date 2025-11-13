@@ -61,7 +61,7 @@ apiClient.interceptors.response.use(
     const url = (config && config.url) || "";
     // const isPublicAuth = /^\/auth\/(verify-email| send-verification-email | forgot-password)/.test(url);
     const isPublicAuth =
-      /^\/auth\/(register|login|forgot-password|send-verification-email|verify-email(?:\/[^/]+)?|reset-password(?:\/.*)?|email-update-with-digit-code|refresh-token)$/.test(
+      /^\/auth\/(register|login|forgot-password|verify-email(?:\/[^/]+)?|reset-password(?:\/.*)?|email-update-with-digit-code|refresh-token)$/.test(
         url,
       );
 
