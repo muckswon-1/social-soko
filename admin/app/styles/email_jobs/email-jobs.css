@@ -1,0 +1,320 @@
+/* ==========================
+   Email Jobs – Page Shell
+   ========================== */
+
+.email-jobs-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Top toolbar: filter + actions */
+.email-jobs-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+}
+
+.email-jobs-toolbar-left,
+.email-jobs-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+/* Filter select */
+.email-jobs-filter-label {
+    display: inline-flex;
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+    font-size: var(--font-size-xs);
+    color: var(--muted-text-color);
+}
+
+.email-jobs-filter {
+    min-width: 160px;
+}
+
+/* Refresh button uses .btn + .btn-primary from app.css via .btn-admin */
+.btn-admin {
+    composes: btn btn-primary;
+}
+
+/* if your build doesn't support composes, just alias via selector */
+.btn-admin {
+    @supports not (composes: btn) {
+        background-color: var(--accent-color);
+        color: var(--color-white);
+        border-radius: var(--radius-sm);
+        padding: 0.4rem 0.9rem;
+        border: 1px solid transparent;
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        transition:
+            background-color var(--transition-fast),
+            box-shadow var(--transition-fast),
+            transform var(--transition-fast);
+        box-shadow: var(--shadow-sm);
+    }
+
+    @supports not (composes: btn) {
+        /* hover defined here only if we don't use .btn */
+    }
+}
+
+.btn-admin:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Secondary style (outline) for Retry */
+.btn-admin--secondary {
+    background-color: transparent;
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-admin--secondary:hover:not(:disabled) {
+    background-color: var(--accent-soft-bg);
+}
+
+/* ==========================
+   Card + Table Container
+   ========================== */
+
+.email-jobs-card {
+    background: linear-gradient(135deg,
+            rgba(248, 113, 113, 0.08),
+            rgba(248, 250, 252, 1));
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--card-border-color);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Use shared empty state, but allow tighter variant */
+.email-jobs-card .empty-state {
+    width: 100%;
+}
+
+/* Meta row above table */
+.email-jobs-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    font-size: var(--font-size-xs);
+    color: var(--muted-text-color);
+}
+
+/* Wrap table for horizontal scroll on small screens */
+.email-jobs-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Email jobs table builds on the shared .table base */
+.email-jobs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+    background-color: var(--card-bg-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.email-jobs-table thead {
+    background-color: rgba(15, 23, 42, 0.04);
+}
+
+.email-jobs-table th,
+.email-jobs-table td {
+    padding: 0.45rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.email-jobs-table th {
+    font-weight: 600;
+    color: var(--muted-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: var(--font-size-xs);
+}
+
+.email-jobs-table tbody tr:hover {
+    background-color: rgba(254, 242, 242, 0.9);
+    /* soft red tint */
+}
+
+/* Monospaced cells (to, template) */
+.email-jobs-cell--mono {
+    font-family: var(--font-mono);
+}
+
+/* Error column: narrower text, darker color */
+.email-jobs-cell--error {
+    max-width: 260px;
+    font-size: var(--font-size-xs);
+    color: var(--danger-color);
+}
+
+/* Actions column */
+.email-jobs-actions-cell {
+    white-space: nowrap;
+}
+
+.email-jobs-actions-placeholder {
+    opacity: 0.6;
+}
+
+/* Error preformatted text in error state */
+.email-jobs-error-pre {
+    margin-top: var(--spacing-sm);
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    background-color: rgba(15, 23, 42, 0.04);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+}
+
+/* ==========================
+   Status Pills
+   ========================== */
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.12rem 0.55rem;
+    border-radius: 999px;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Light mode pill colors */
+.status-pill--pending {
+    background-color: rgba(250, 204, 21, 0.2);
+    color: #92400e;
+}
+
+.status-pill--processing {
+    background-color: rgba(59, 130, 246, 0.16);
+    color: #1d4ed8;
+}
+
+.status-pill--sent {
+    background-color: rgba(34, 197, 94, 0.18);
+    color: #166534;
+}
+
+.status-pill--failed {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #991b1b;
+}
+
+.status-pill--unknown {
+    background-color: rgba(148, 163, 184, 0.18);
+    color: #475569;
+}
+
+/* ==========================
+   Dark Mode
+   ========================== */
+
+[data-theme="dark"] .email-jobs-card {
+    background: radial-gradient(circle at top, #4a0008, #020617);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(248, 113, 113, 0.35);
+}
+
+[data-theme="dark"] .email-jobs-table {
+    background-color: rgba(15, 23, 42, 0.96);
+}
+
+[data-theme="dark"] .email-jobs-table thead {
+    background-color: rgba(248, 113, 113, 0.16);
+}
+
+[data-theme="dark"] .email-jobs-table th,
+[data-theme="dark"] .email-jobs-table td {
+    border-bottom-color: rgba(148, 163, 184, 0.4);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .email-jobs-table tbody tr:hover {
+    background-color: rgba(127, 29, 29, 0.55);
+}
+
+/* In dark mode, we rely on app.css where --accent-color is purple,
+   so .btn-admin automatically becomes purple via btn-primary */
+[data-theme="dark"] .btn-admin--secondary {
+    border-color: rgba(196, 181, 253, 0.9);
+    color: #e9d5ff;
+}
+
+/* Dark mode status pills tuned for contrast on dark red / purple */
+[data-theme="dark"] .status-pill--pending {
+    background-color: rgba(250, 204, 21, 0.16);
+    color: #facc15;
+}
+
+[data-theme="dark"] .status-pill--processing {
+    background-color: rgba(129, 140, 248, 0.22);
+    color: #a5b4fc;
+}
+
+[data-theme="dark"] .status-pill--sent {
+    background-color: rgba(34, 197, 94, 0.22);
+    color: #bbf7d0;
+}
+
+[data-theme="dark"] .status-pill--failed {
+    background-color: rgba(248, 113, 113, 0.24);
+    color: #fecaca;
+}
+
+[data-theme="dark"] .status-pill--unknown {
+    background-color: rgba(148, 163, 184, 0.24);
+    color: #e5e7eb;
+}
+
+/* ==========================
+   Responsive
+   ========================== */
+
+@media (max-width: 768px) {
+    .email-jobs-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .email-jobs-toolbar-left,
+    .email-jobs-toolbar-right {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .email-jobs-filter {
+        width: 100%;
+    }
+
+    .email-jobs-meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

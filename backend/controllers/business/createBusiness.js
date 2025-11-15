@@ -1,6 +1,6 @@
 // controllers/business/createBusiness.js
 const createError = require("http-errors");
-const { User, Business } = require("../../models");
+const { User, Business, EmailJob } = require("../../models");
 const { sendTemplatedEmail } = require("../../services/email/emailService");
 const UTILS = require("../../utils/utils");
 
@@ -45,18 +45,29 @@ module.exports = UTILS.catchAsync(async (req, res) => {
 
 
   // Send email (await so failures hit the error middleware)
-  await sendTemplatedEmail({
-    to: existingUser.email,
-    template: "businessCreated",
-    props: { email: existingUser.email },
-  }).catch((err) => {
-    console.error("Failed to send email:", err);
-    // Don't throw here, just log the error
-    // This is a non-critical failure
-    // The business was created, but the email failed to send
-    // You may want to log this to a monitoring service
-    // or add it to a retry queue
-  });
+  // await sendTemplatedEmail({
+  //   to: existingUser.email,
+  //   template: "businessCreated",
+  //   props: { email: existingUser.email },
+  // }).catch((err) => {
+  //   console.error("Failed to send email:", err);
+  //   // Don't throw here, just log the error
+  //   // This is a non-critical failure
+  //   // The business was created, but the email failed to send
+  //   // You may want to log this to a monitoring service
+  //   // or add it to a retry queue
+  // });
+
+  try {
+    await EmailJob.create({
+      to: existingUser.email,
+      template: "businessCreated",
+      payload: { email: existingUser.email },
+
+    })
+  } catch (error) {
+    console.log("[EmailJob]: Could not create email job")
+  }
 
   return res.status(201).json({
     success: true,

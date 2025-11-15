@@ -26,6 +26,10 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   if (!isPasswordValid)
     throw UTILS.httpError(400, "Invalid username or password");
 
+  await user.update({
+    last_login_at: new Date(),
+  })
+
   // Generate tokens + user payload
   const accessToken = UTILS.generateAccessToken(user);
   const refreshToken = UTILS.generateRefreshToken(user);

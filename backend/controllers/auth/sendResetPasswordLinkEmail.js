@@ -1,7 +1,6 @@
-const db = require("../../models");
-const { sendTemplatedEmail } = require("../../services/email/emailService");
+
 const UTILS = require("../../utils/utils");
-const { User, VerificationToken } = db;
+const { User, VerificationToken, EmailJob } = require("../../models");
 const crypto = require("crypto");
 
 require("dotenv").config();
@@ -45,15 +44,23 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   });
 
   // Send password reset email
-  await sendTemplatedEmail({
-    to: user.email,
-    template: "passwordReset",
-    props: {
-      email: user.email,
-      token: resetToken,
-      expiresInMinutes: 60,
-    },
-  });
+
+  try {
+    await EmailJob.create(
+      {
+        to: user.email,
+        template: "passwordReset",
+        payload: {
+          email: user.email,
+          token: resetToken,
+          expiresInMinutes: 60,
+
+      }
+    }
+    )
+  } catch (error) {
+    
+  }
 
   return res.status(200).json({
     success: true,

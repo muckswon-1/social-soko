@@ -12,7 +12,11 @@ const express = require("express");
 require("dotenv").config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
+const ADMIN_FRONTEND_URL = process.env.ADMIN_FRONTEND_URL;
 
+
+console.log(FRONTEND_URL);
+console.log(ADMIN_FRONTEND_URL);
 /*-----------------------  CSRF Double-Submit Middleware ---------------------*/
 const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
   const method = String(req.method || "").toUpperCase();
@@ -28,6 +32,12 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
     /^\/api\/v1\/auth\/verify-email(?:\/[^\/\s]+)?$/,
     /^\/api\/v1\/auth\/reset-password(?:\/[^\/\s]+)?$/,
     /^\/api\/v1\/auth\/send-verification-email(?:\/[^\/\s]+)?$/,
+     /^\/api\/v1\/admin\/generate-parameter-verify-email-token(?:\/[^\/\s]+)?$/,
+      /^\/api\/v1\/admin\/email-jobs\/retry(?:\/[^\/\s]+)?$/,
+     
+     
+
+
   ];
 
   const isExempt = exemptEndpoints.some((re) => re.test(req.path));
@@ -89,7 +99,7 @@ function securityMiddleWare(app) {
   // CORS for SPA
   app.use(
     cors({
-      origin: FRONTEND_URL,
+      origin: [FRONTEND_URL, ADMIN_FRONTEND_URL],
       credentials: true,
     }),
   );

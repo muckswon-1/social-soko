@@ -75,12 +75,14 @@ export const register = createAsyncThunk(
         password,
       });
 
-      const created = status === 201 && (data?.id || data?.user?.id);
+     const created = status === 201 && (data?.id);
+    
 
       if (!created) return rejectWithValue(fail("Registration Failed"));
 
       return ok({ message: "Account created successfully." });
     } catch (error) {
+      console.log(error);
       return rejectWithValue(fail(error, "Registration Failed"));
     }
   },

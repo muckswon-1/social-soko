@@ -1,9 +1,8 @@
-// controllers/user/updatePassword.js
 
-const { sendTemplatedEmail } = require("../../services/email/emailService");
 const verificationTokenService = require("../../services/verificationTokenService");
 const bcrypt = require("bcrypt");
 const UTILS = require("../../utils/utils");
+const {EmailJob} = require("../../models");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   const { password, digitCodes } = req.body || {};
@@ -29,11 +28,16 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   await user.update({ password: hashedPassword }, { where: { id: user.id }, individualHooks: true });
 
   // Send confirmation email
-  await sendTemplatedEmail({
-    to: user.email,
-    template: "passwordResetSuccess",
-    props: { email: user.email },
-  });
+ 
+  try {
+    await EmailJob.create({
+      to: user.email,
+      template: "passwordResetSuccess",
+      payload: { email: user.email },
+    })
+  } catch (error) {
+    console.error("[EmailJob]: Could not create email job")
+  }
 
   return res.status(200).json({
     success: true,

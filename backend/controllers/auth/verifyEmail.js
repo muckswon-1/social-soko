@@ -1,5 +1,5 @@
 
-const { sendTemplatedEmail } = require("../../services/email/emailService");
+const {EmailJob} = require("../../models");
 const verificationTokenService = require("../../services/verificationTokenService");
 const UTILS = require("../../utils/utils");
 
@@ -30,14 +30,16 @@ module.exports = UTILS.catchAsync(async (req, res) => {
 
   await user.save();
 
- 
 
-  // Send confirmation email
-  await sendTemplatedEmail({
-    to: user.email,
-    template: "emailVerificationSuccess",
-    props: { email: user.email },
-  });
+  try {
+    await EmailJob.create({
+      to: user.email,
+      template: "emailVerificationSuccess",
+      payload: { email: user.email },
+    })
+  } catch (error) {
+      console.log("[EmailJob]: Could not create email job");
+  }
 
   return res.status(200).json({
     success: true,

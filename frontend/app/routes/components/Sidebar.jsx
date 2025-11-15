@@ -12,8 +12,6 @@ export default function Sidebar({handleToggle, expanded}) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  console.log('expanded',expanded);
-
   const handleLogout = async () => {
    try {
       await dispatch(logout()).unwrap();

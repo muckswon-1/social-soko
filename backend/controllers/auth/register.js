@@ -1,5 +1,4 @@
-const { User, VerificationToken } = require("../../models");
-const { sendTemplatedEmail } = require("../../services/email/emailService");
+const { User, VerificationToken, EmailJob } = require("../../models");
 const UTILS = require("../../utils/utils");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
@@ -45,26 +44,41 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     token_type: "email_verification",
   });
 
-  // Send emails
-  await sendTemplatedEmail({
-    to: user.email,
-    template: " verify",
-    props: {
-      email: user.email,
-      token: verificationToken,
-      expiresInMinutes: 60,
-    },
-  });
 
-  await sendTemplatedEmail({
-    to: user.email,
-    template: "welcome",
-    props: { email: user.email },
-  });
+  // Schedule jos to send emails
+  try {
+    await EmailJob.bulkCreate([
+      {
+        user_id: user.id,
+        to: user.email,
+        template: "verifyEmail",
+        payload: {
+          email: user.email,
+          token: verificationToken,
+          expiresInMinutes: 60
+        },
+        status: "pending"
+      },
+       {
+        user_id: user.id,
+        to: user.email,
+        template: "welcome",
+        payload: {
+          email: user.email,
+        },
+        status: "pending"
+      }
+    ])
+
+    
+  } catch (error) {
+    console.error("[EmailJob] Failed to enqueue sign up emails for user")
+  }
+
 
   return res.status(201).json({
     success: true,
     message: "User created successfully",
-    data: { id: user.id },
+    id: user.id,
   });
 });

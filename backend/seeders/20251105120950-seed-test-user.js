@@ -29,14 +29,14 @@ module.exports = {
         last_name: "Won",
         email_verified: true,
         phone_verified: true,
-        email_verifed_at: new Date(),
-        phone_verified_at: new Date(),
+        email_verified_at: new Date(),
         created_at: new Date(),
         updated_at: new Date(),
         role: "business",
         phone: "08012345678",
         
       },
+      
     ]);
   },
 

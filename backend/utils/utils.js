@@ -186,6 +186,19 @@ const UTILS = {
     err.status = status;
     return err;
   },
+
+  pagination: (rawPage, rawLimit) => {
+
+    const page = Math.max(parseInt(rawPage,10) || 1,1);
+    const limit = Math.max(Math.min(parseInt(rawLimit,10) || 50, 200), 1);
+
+    const offset = (page - 1) * limit;
+
+    return {
+      page, limit, offset
+    }
+  }
+
 };
 
 module.exports = UTILS;

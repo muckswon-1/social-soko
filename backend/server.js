@@ -8,6 +8,7 @@ const errorHandler = require("errorhandler");
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profile");
 const businessRoutes = require("./routes/business");
+const adminRouter = require("./admin/routes");
 
 require("dotenv").config();
 
@@ -32,6 +33,10 @@ UTILS.connectToDatabase().then(() => {
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/profile", profileRoutes);
   app.use("/api/v1/business", businessRoutes);
+
+
+  //Admin routes
+  app.use("/api/v1/admin",adminRouter);
 
   // Fall back error handler for production
   app.use((err, req, res, next) => {
