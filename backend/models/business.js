@@ -69,7 +69,26 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       logo_url: DataTypes.STRING,
-      is_verified: DataTypes.BOOLEAN,
+      verification_status: {
+        type: DataTypes.ENUM("pending","requested", "verified", "rejected"),
+        defaultValue: "pending",
+      },
+      verification_requested_at: {
+        type: DataTypes.DATE,
+        allowNull: true
+      },
+      verified_at: {
+        type: DataTypes.DATE,
+        allowNull: true
+      },
+      verification_rejected_at: {
+        type: DataTypes.DATE,
+        allowNull: true
+      },
+      verification_rejected_reason: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
     },
     {
       sequelize,
@@ -83,7 +102,7 @@ module.exports = (sequelize, DataTypes) => {
         { fields: ["state"] },
         { fields: ["country"] },
         { fields: ["postal_code"] },
-        { fields: ["is_verified"] },
+        { fields: ["verification_status"] },
       ],
     },
   );

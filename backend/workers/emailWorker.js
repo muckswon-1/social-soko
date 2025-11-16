@@ -5,7 +5,7 @@ const { sendTemplatedEmail } = require("../services/email/emailService");
 
 const MAX_ATTEMPTS = 5;
 const BATCH_SIZE = 20;
-const INTERVAL_MS = 60_000;
+const INTERVAL_MS = 20_000;
 
 const  runEmailJobsOnce = async () => {
     const now = new Date();

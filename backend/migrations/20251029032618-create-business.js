@@ -58,9 +58,28 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true,
       },
-      is_verified: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
+      verification_status: {
+        type: Sequelize.ENUM,
+        values: ["pending","requested", "verified", "rejected"],
+        defaultValue: "pending",
+        allowNull: false,
+      },
+
+      verification_requested_at: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      verified_at: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      verification_rejected_at: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      verification_rejected_reason: {
+        type: Sequelize.TEXT,
+        allowNull: true
       },
 
       created_at: {
@@ -79,7 +98,7 @@ module.exports = {
     await queryInterface.addIndex("Businesses", ["state"]);
     await queryInterface.addIndex("Businesses", ["country"]);
     await queryInterface.addIndex("Businesses", ["postal_code"]);
-    await queryInterface.addIndex("Businesses", ["is_verified"]);
+    await queryInterface.addIndex("Businesses", ["verification_status"]);
   },
 
   async down(queryInterface, Sequelize) {

@@ -12,6 +12,6 @@ const adminBaseQuery = fetchBaseQuery({
 export const adminApiSlice = createApi({
     reducerPath: "adminApi",
     baseQuery: adminBaseQuery,
-    tagTypes: ["EmailJob","User","AdminVerifyToken","Business"],
+    tagTypes: ["EmailJob","User","AdminVerifyToken","Business","AdminVerifyBusiness"],
     endpoints:() => ({})
 })

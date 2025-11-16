@@ -32,8 +32,11 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
     /^\/api\/v1\/auth\/verify-email(?:\/[^\/\s]+)?$/,
     /^\/api\/v1\/auth\/reset-password(?:\/[^\/\s]+)?$/,
     /^\/api\/v1\/auth\/send-verification-email(?:\/[^\/\s]+)?$/,
+
+
      /^\/api\/v1\/admin\/generate-parameter-verify-email-token(?:\/[^\/\s]+)?$/,
       /^\/api\/v1\/admin\/email-jobs\/retry(?:\/[^\/\s]+)?$/,
+      /^\/api\/v1\/admin\/verify-business(?:\/[^\/\s]+)?$/,
      
      
 

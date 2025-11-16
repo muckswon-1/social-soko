@@ -85,6 +85,18 @@ export const businessApi = apiSlice.injectEndpoints({
 
      invalidatesTags:[{ type: "Business", id: "CURRENT" }],
     }),
+
+    requestBusinessVerification: builder.mutation({
+      query: ({id, userId}) => ({
+        url: `business/request-business-verification/${id}/${userId}`,
+        method: "POST",
+        body: { },
+      }),
+      invalidatesTags: [{type: "Business", id: "CURRENT"}]
+
+    })
+
+
   }),
 });
 
@@ -92,4 +104,5 @@ export const {
   useGetBusinessQuery,
   useCreateBusinessMutation,
   useUpdateBusinessMutation,
+  useRequestBusinessVerificationMutation
 } = businessApi;

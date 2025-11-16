@@ -2,44 +2,45 @@ import React, { useMemo, useState } from "react";
 import "../../styles/users/users.css";
 import { useListUsersQuery } from "../../services/adminUserApi";
 import VerifyEmailTokenModal from "../components/VerifyEmailParameterToken";
+// Leaving this import in case your modal uses it internally
 import { useGenerateVerifyEmailTokenMutation } from "../../services/adminVerifyTokensApi";
 
 /**
- * Presentational Users List
+ * Admin Users List
  *
- * Props (for when you wire data in later):
- * - users: array of user objects
- * - meta: { page, limit, totalItems, totalPages } (optional)
- * - isLoading: boolean
- * - isError: boolean
- * - error: any
- * - onRefresh?: () => void
- * - onPageChange?: (page: number) => void
- * - onSelectUser?: (user) => void   // e.g. to insert into JSON editor
+ * Now includes:
+ * - Admin actions modal per user (Generate verify token, Suspend, etc.)
  */
 export default function Users({
- 
   onRefresh,
   onPageChange,
   onSelectUser,
 }) {
   const [localSearch, setLocalSearch] = useState("");
   const [tokenEmail, setTokenEmail] = useState(null);
+  const [adminUser, setAdminUser] = useState(null); // user selected for admin actions
 
-  const {data, isLoading, isError, error, refetch, isFetching,} = useListUsersQuery({page: 1, limit: 50},{
-    refetchOnMountOrArgChange: true
-  });
-  
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useListUsersQuery(
+    { page: 1, limit: 50 },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const users = data?.items || [];
-  const meta = data?.meta || {}
+  const meta = data?.meta || {};
 
-   const total = meta.totalItems ?? meta.total;
+  const total = meta.totalItems ?? meta.total;
   const page = meta.page ?? 1;
   const totalPages = meta.totalPages ?? 1;
-  const limit = meta.limit  || 0;
-
-
+  const limit = meta.limit || 0;
 
   const handleSearchChange = (e) => {
     setLocalSearch(e.target.value);
@@ -63,10 +64,6 @@ export default function Users({
     });
   }, [users, localSearch]);
 
-
-
-
-
   const handlePrevPage = () => {
     if (!onPageChange) return;
     if (page > 1) onPageChange(page - 1);
@@ -76,6 +73,36 @@ export default function Users({
     if (!onPageChange) return;
     if (page < totalPages) onPageChange(page + 1);
   };
+
+  const handleOpenAdminActions = (user) => {
+    setAdminUser(user);
+  };
+
+  const handleCloseAdminActions = () => {
+    setAdminUser(null);
+  };
+
+  const handleGenerateVerifyToken = () => {
+    if (!adminUser?.email) return;
+    setTokenEmail(adminUser.email);
+    // leave the admin modal open or close it; up to you
+    // here I'll keep it open so you can see the context
+  };
+
+  // Placeholder handlers for future RTK mutations
+  const handleSuspendUser = () => {
+    if (!adminUser) return;
+    // TODO: wire to suspend mutation later
+    console.log("[AdminAction] Suspend user:", adminUser.id);
+  };
+
+  const handleUnsuspendUser = () => {
+    if (!adminUser) return;
+    // TODO: wire to unsuspend mutation later
+    console.log("[AdminAction] Unsuspend user:", adminUser.id);
+  };
+
+  const resolvedOnRefresh = onRefresh || refetch;
 
   return (
     <div className="users-page">
@@ -98,10 +125,10 @@ export default function Users({
           <button
             type="button"
             className="btn btn-admin users-refresh-btn"
-            onClick={refetch}
-            disabled={isLoading}
+            onClick={resolvedOnRefresh}
+            disabled={isLoading || isFetching}
           >
-            {isLoading ? "Refreshing…" : "Refresh"}
+            {isLoading || isFetching ? "Refreshing…" : "Refresh"}
           </button>
         </div>
       </div>
@@ -127,7 +154,7 @@ export default function Users({
                 <button
                   type="button"
                   className="btn btn-admin users-refresh-inline"
-                  onClick={refetch}
+                  onClick={resolvedOnRefresh}
                 >
                   Retry
                 </button>
@@ -182,8 +209,10 @@ export default function Users({
                       ? new Date(createdAt).toLocaleString()
                       : "—";
 
-                    const isVerified =   typeof user.email_verified === "boolean"   ? user.email_verified : null;
-                      
+                    const isVerified =
+                      typeof user.email_verified === "boolean"
+                        ? user.email_verified
+                        : null;
 
                     return (
                       <tr key={user.id}>
@@ -215,19 +244,20 @@ export default function Users({
                               Use in JSON
                             </button>
                           )}
-                            {
-                              isVerified === false && (
-                              <button
-                                type="button"
-                                className="btn btn-ghost users-select-btn"
-                                onClick={() => setTokenEmail(user.email)}
 
-                              > Generate Verify Token</button>)
-                            }
+                          <button
+                            type="button"
+                            className="btn btn-ghost users-select-btn"
+                            onClick={() => handleOpenAdminActions(user)}
+                          >
+                            Admin
+                          </button>
 
-                            {!onSelectUser && isVerified !== false && ( <span className="users-actions-placeholder">
-                              —
-                            </span>)}
+                          {!onSelectUser && (
+                            <span className="users-actions-placeholder">
+                              {/* placeholder just to keep layout consistent */}
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
@@ -261,20 +291,126 @@ export default function Users({
             )}
           </>
         )}
-
-    
       </div>
 
-          {tokenEmail && (
-          <VerifyEmailTokenModal
-            email={tokenEmail}
-            onClose={() => setTokenEmail(null)}
-          />
-        )
-      }
+      {/* Existing verify-email modal (unchanged) */}
+      {tokenEmail && (
+        <VerifyEmailTokenModal
+          email={tokenEmail}
+          onClose={() => setTokenEmail(null)}
+        />
+      )}
 
-      
+      {/* New Admin Actions modal */}
+      {adminUser && (
+        <div
+          className="users-modal-backdrop"
+          onClick={handleCloseAdminActions}
+        >
+          <div
+            className="users-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <header className="users-modal-header">
+              <div>
+                <h2 className="users-modal-title">
+                  Admin actions
+                </h2>
+                <p className="users-modal-subtitle">
+                  {adminUser.email}{" "}
+                  {adminUser.first_name || adminUser.last_name
+                    ? `· ${(adminUser.first_name || adminUser.firstName || "")} ${
+                        adminUser.last_name || adminUser.lastName || ""
+                      }`.trim()
+                    : ""}
+                </p>
+              </div>
+              <div>
+                {typeof adminUser.email_verified === "boolean" && (
+                  <span
+                    className={
+                      adminUser.email_verified
+                        ? "users-pill users-pill--verified"
+                        : "users-pill users-pill--unverified"
+                    }
+                  >
+                    {adminUser.email_verified ? "Verified" : "Unverified"}
+                  </span>
+                )}
+              </div>
+            </header>
+
+            <div className="users-modal-body">
+              {/* Quick info */}
+              <section className="users-detail-section">
+                <div className="users-detail-section-title">
+                  Overview
+                </div>
+                <div className="users-detail-text">
+                  <div>
+                    <strong>User ID:</strong>{" "}
+                    <span className="users-cell-mono">
+                      {adminUser.id}
+                    </span>
+                  </div>
+                  <div>
+                    <strong>Created:</strong>{" "}
+                    {adminUser.created_at || adminUser.createdAt
+                      ? new Date(
+                          adminUser.created_at || adminUser.createdAt
+                        ).toLocaleString()
+                      : "—"}
+                  </div>
+                </div>
+              </section>
+
+              {/* Actions */}
+              <section className="users-detail-section">
+                <div className="users-detail-section-title">
+                  Actions
+                </div>
+                <div className="users-detail-text users-actions-grid">
+                  {adminUser.email_verified === false && (
+                    <button
+                      type="button"
+                      className="btn btn-admin btn-sm"
+                      onClick={handleGenerateVerifyToken}
+                    >
+                      Generate email verify param token
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={handleSuspendUser}
+                  >
+                    Suspend account (TODO)
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={handleUnsuspendUser}
+                  >
+                    Unsuspend account (TODO)
+                  </button>
+                </div>
+              </section>
+            </div>
+
+            <footer className="users-modal-footer">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={handleCloseAdminActions}
+              >
+                Close
+              </button>
+            </footer>
+          </div>
+        </div>
+      )}
     </div>
-
   );
 }

@@ -5,6 +5,7 @@ const retryEmailJob = require('../controllers/emailJobs/retryEmailJob');
 const fetchUsers = require('../controllers/users/fetchUsers');
 const { adminGenerateVerifyEmailParamsToken } = require('../controllers/verification');
 const fetchAllBusiness = require('../controllers/business/fetchAllBusiness');
+const adminVerifyBusiness = require('../controllers/business/adminVerifyBusiness');
 
 const adminRouter = express.Router();
 
@@ -23,6 +24,7 @@ adminRouter.post("/generate-parameter-verify-email-token", adminGenerateVerifyEm
 
 //Business Routes
 adminRouter.get("/fetch-businesses", fetchAllBusiness);
+adminRouter.post("/verify-business/:id", adminVerifyBusiness);
 
 
 module.exports = adminRouter;

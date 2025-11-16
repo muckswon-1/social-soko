@@ -197,7 +197,37 @@ const UTILS = {
     return {
       page, limit, offset
     }
+  },
+
+  checkBusinessVerificationEligibility: (business, ownerUser) => {
+    const reasons = [];
+
+    if(!business.phone || !business.phone.toString().trim()) {
+      reasons.push("Business phone number is missing")
+    }
+
+    if(!business.address || !business.address.toString().trim()) {
+      reasons.push("Business address is missing")
+    }
+
+    if(!ownerUser) {
+      reasons.push("Business owner user not found")
+    }else if (!ownerUser.email_verified) {
+      reasons.push("Business owner email is not verified")
+
+    }
+
+    return {
+      eligible: reasons.length === 0,
+      reasons
+      
+    }
+
+  
+
   }
+
+  
 
 };
 

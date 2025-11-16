@@ -165,6 +165,122 @@
     gap: var(--spacing-sm);
 }
 
+
+/* ========== Verification status bar ========== */
+
+.business-verification-bar {
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.02);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.business-verification-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.business-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Status variants */
+.business-status-pill--verified {
+    background-color: rgba(22, 163, 74, 0.12);
+    color: rgb(22, 163, 74);
+}
+
+.business-status-pill--pending {
+    background-color: rgba(148, 163, 184, 0.15);
+    color: rgba(15, 23, 42, 0.75);
+}
+
+.business-status-pill--requested {
+    background-color: rgba(59, 130, 246, 0.12);
+    color: rgb(37, 99, 235);
+}
+
+.business-status-pill--rejected {
+    background-color: rgba(220, 38, 38, 0.12);
+    color: rgb(220, 38, 38);
+}
+
+.business-verification-text {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.6);
+    max-width: 520px;
+}
+
+.business-verification-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.business-verification-note {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* Feedback messages under the bar */
+.business-verification-feedback {
+    margin-top: -0.5rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.business-verification-feedback--success {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgb(22, 163, 74);
+}
+
+.business-verification-feedback--error {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgb(220, 38, 38);
+}
+
+.business-verification-feedback--error-detail {
+    opacity: 0.85;
+}
+
+/* ========== Responsive tweaks for verification bar ========== */
+
+@media (max-width: 900px) {
+    .business-verification-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .business-verification-actions {
+        align-items: flex-start;
+    }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .business-verification-bar {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .business-verification-text,
+[data-theme="dark"] .business-verification-note {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+
 /* ========== Responsive ========== */
 
 @media (max-width: 900px) {

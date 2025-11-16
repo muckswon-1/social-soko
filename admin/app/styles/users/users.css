@@ -176,6 +176,102 @@
     min-width: 80px;
 }
 
+
+/* --- Admin actions modal --- */
+
+.users-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 60;
+}
+
+.users-modal {
+    background-color: var(--card-bg-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    max-width: 560px;
+    width: 100%;
+    max-height: 90vh;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    overflow: hidden;
+}
+
+.users-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.users-modal-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+
+.users-modal-subtitle {
+    font-size: var(--font-size-xs);
+    color: var(--muted-text-color);
+    margin-top: 0.2rem;
+}
+
+.users-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding-right: 0.25rem;
+}
+
+.users-detail-section {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle-color);
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.users-detail-section-title {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted-text-color);
+}
+
+.users-detail-text {
+    font-size: var(--font-size-sm);
+}
+
+/* Grid for action buttons inside modal */
+.users-actions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.users-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+/* Dark mode for modal */
+[data-theme="dark"] .users-modal {
+    background-color: var(--card-bg-color);
+}
+
+
+
 /* Dark mode */
 [data-theme="dark"] .users-card {
     background-color: var(--card-bg-color);

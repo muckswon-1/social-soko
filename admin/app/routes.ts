@@ -4,9 +4,10 @@ export default [
     index("./routes/admin.jsx"),
     ...prefix("admin",[
         layout("./routes/dashboard/layout.jsx",[
+            index("./routes/dashboard/index.jsx"),
             route("email-jobs","./routes/email_jobs/list-email-jobs.jsx"),
             route("users","./routes/users/users.jsx"),
-            route("businesses", "./routes/businesses/list-businesses.jsx");
+            route("businesses", "./routes/businesses/list-businesses.jsx")
         ])
     ])
 

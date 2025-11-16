@@ -1,25 +1,25 @@
+// src/components/admin/Businesses.jsx
 import React, { useMemo, useState } from "react";
 import "../../styles/businesses/businesses.css";
 import { useListBusinessesQuery } from "../../services/adminBusinessApi";
+import BusinessListAdminModal from "../components/BusinessListAdminModal";
+import { businessFilter } from "../../utils/emailListHelpers";
+import { renderStatusPill } from "../components/StatusPill";
+
 
 /**
  * Admin Businesses List
  *
- * Mirrors Users list, but for businesses:
  * - Uses RTK: useListBusinessesQuery({ page, limit })
- * - Table: Name, Email, Contact, Verified, Actions
- * - "Details" opens a modal with full business info and space for future actions (e.g., Verify)
+ * - Table: Name, Email, Contact, Status, Actions
+ * - "Admin" opens a modal with full business info and admin actions.
  */
 export default function Businesses({
-  onRefresh,
   onPageChange,
-  onVerifyBusiness, // optional, for when you wire verification later
 }) {
   const [localSearch, setLocalSearch] = useState("");
   const [selectedBusiness, setSelectedBusiness] = useState(null);
 
-  // For now: same as Users – fixed page=1, limit=50
-  // You can later pass page from props or local state.
   const {
     data,
     isLoading,
@@ -31,6 +31,7 @@ export default function Businesses({
     { page: 1, limit: 50 },
     {
       refetchOnMountOrArgChange: true,
+      pollingInterval: 60000,
     }
   );
 
@@ -46,25 +47,7 @@ export default function Businesses({
     setLocalSearch(e.target.value);
   };
 
-  const filteredBusinesses = useMemo(() => {
-    if (!localSearch.trim()) return businesses;
-
-    const term = localSearch.toLowerCase();
-
-    return businesses.filter((b) => {
-      const name = b.name || "";
-      const email = b.email || "";
-      const phone = b.phone || "";
-      const contactName = b.contact_name || b.contactName || "";
-
-      return (
-        name.toLowerCase().includes(term) ||
-        email.toLowerCase().includes(term) ||
-        phone.toLowerCase().includes(term) ||
-        contactName.toLowerCase().includes(term)
-      );
-    });
-  }, [businesses, localSearch]);
+  const filteredBusinesses = useMemo(() => businessFilter(businesses, localSearch), [businesses, localSearch]);
 
   const handlePrevPage = () => {
     if (!onPageChange) return;
@@ -76,53 +59,25 @@ export default function Businesses({
     if (page < totalPages) onPageChange(page + 1);
   };
 
-  const resolveVerified = (b) => {
-    if (typeof b.is_verified === "boolean") return b.is_verified;
-    if (typeof b.verified === "boolean") return b.verified;
-    if (typeof b.business_verified === "boolean") return b.business_verified;
-    return null;
-  };
+  /**
+   * Resolve verification status as a string.
+   *
+   * Priority:
+   * - verification_status (string enum)
+   * - verified (string enum: "pending", "requested", "verified", "rejected")
+   * - boolean flags (is_verified, business_verified)
+   */
+ 
 
-  const renderVerifiedPill = (b) => {
-    const isVerified = resolveVerified(b);
-
-    if (isVerified === true) {
-      return (
-        <span className="businesses-pill businesses-pill--verified">
-          Verified
-        </span>
-      );
-    }
-
-    if (isVerified === false) {
-      return (
-        <span className="businesses-pill businesses-pill--unverified">
-          Unverified
-        </span>
-      );
-    }
-
-    return (
-      <span className="businesses-pill businesses-pill--unknown">—</span>
-    );
-  };
-
-  const handleOpenDetails = (business) => {
+  const handleOpenAdminModal = (business) => {
     setSelectedBusiness(business);
   };
 
-  const handleCloseDetails = () => {
+  const handleCloseAdminModal = () => {
     setSelectedBusiness(null);
   };
 
-  const handleVerifyClick = () => {
-    if (selectedBusiness && onVerifyBusiness) {
-      onVerifyBusiness(selectedBusiness);
-    }
-  };
-
   const handleRefreshClick = () => {
-    if (onRefresh) onRefresh();
     refetch();
   };
 
@@ -209,7 +164,7 @@ export default function Businesses({
                     <th>Name</th>
                     <th>Email</th>
                     <th>Contact</th>
-                    <th>Verified</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -231,14 +186,14 @@ export default function Businesses({
                             {phone}
                           </div>
                         </td>
-                        <td>{renderVerifiedPill(b)}</td>
+                        <td>{renderStatusPill(b)}</td>
                         <td className="businesses-actions-cell">
                           <button
                             type="button"
                             className="btn btn-ghost businesses-action-btn"
-                            onClick={() => handleOpenDetails(b)}
+                            onClick={() => handleOpenAdminModal(b)}
                           >
-                            Details
+                            Admin
                           </button>
                         </td>
                       </tr>
@@ -275,157 +230,16 @@ export default function Businesses({
         )}
       </div>
 
-      {/* Details Modal */}
+      {/* Admin modal */}
       {selectedBusiness && (
-        <div
-          className="businesses-modal-backdrop"
-          onClick={handleCloseDetails}
-        >
-          <div
-            className="businesses-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="businesses-modal-header">
-              <div>
-                <div className="businesses-modal-title">
-                  {selectedBusiness.name || "Business details"}
-                </div>
-                <div className="businesses-modal-subtitle">
-                  {selectedBusiness.email || "No email"} ·{" "}
-                  {selectedBusiness.phone || "No phone"}
-                </div>
-              </div>
-              <div>{renderVerifiedPill(selectedBusiness)}</div>
-            </div>
-
-            <div className="businesses-modal-body">
-              {/* Description */}
-              {(selectedBusiness.description ||
-                selectedBusiness.website ||
-                selectedBusiness.slug) && (
-                <div className="businesses-detail-section">
-                  <div className="businesses-detail-section-title">
-                    Overview
-                  </div>
-                  {selectedBusiness.description && (
-                    <div className="businesses-detail-text">
-                      {selectedBusiness.description}
-                    </div>
-                  )}
-                  {selectedBusiness.website && (
-                    <div className="businesses-detail-text">
-                      <strong>Website:</strong>{" "}
-                      <span className="businesses-cell-mono">
-                        {selectedBusiness.website}
-                      </span>
-                    </div>
-                  )}
-                  {selectedBusiness.slug && (
-                    <div className="businesses-detail-text">
-                      <strong>Slug:</strong>{" "}
-                      <span className="businesses-cell-mono">
-                        {selectedBusiness.slug}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Address */}
-              {(selectedBusiness.address ||
-                selectedBusiness.city ||
-                selectedBusiness.state ||
-                selectedBusiness.postal_code ||
-                selectedBusiness.country) && (
-                <div className="businesses-detail-section">
-                  <div className="businesses-detail-section-title">
-                    Address
-                  </div>
-                  <div className="businesses-detail-text">
-                    {selectedBusiness.address && (
-                      <div>{selectedBusiness.address}</div>
-                    )}
-                    <div>
-                      {[selectedBusiness.city, selectedBusiness.state]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </div>
-                    <div>
-                      {[selectedBusiness.postal_code, selectedBusiness.country]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Timestamps */}
-              <div className="businesses-detail-section">
-                <div className="businesses-detail-section-title">
-                  System
-                </div>
-                <div className="businesses-detail-text">
-                  <div>
-                    <strong>Created:</strong>{" "}
-                    {selectedBusiness.createdAt
-                      ? new Date(
-                          selectedBusiness.createdAt
-                        ).toLocaleString()
-                      : "—"}
-                  </div>
-                  <div>
-                    <strong>Updated:</strong>{" "}
-                    {selectedBusiness.updatedAt
-                      ? new Date(
-                          selectedBusiness.updatedAt
-                        ).toLocaleString()
-                      : "—"}
-                  </div>
-                  {selectedBusiness.user_id && (
-                    <div>
-                      <strong>Owner User ID:</strong>{" "}
-                      <span className="businesses-cell-mono">
-                        {selectedBusiness.user_id}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Future actions (Verify, etc.) */}
-              <div className="businesses-detail-section">
-                <div className="businesses-detail-section-title">
-                  Admin Actions
-                </div>
-                <div className="businesses-detail-text">
-                  <p>
-                    Use this area to verify, suspend, or update this
-                    business record.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="businesses-modal-footer">
-              {onVerifyBusiness && resolveVerified(selectedBusiness) === false && (
-                <button
-                  type="button"
-                  className="btn btn-admin"
-                  onClick={handleVerifyClick}
-                >
-                  Verify Business
-                </button>
-              )}
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={handleCloseDetails}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+        <BusinessListAdminModal
+          business={selectedBusiness}
+          onClose={handleCloseAdminModal}
+          onBusinessUpdated={() => {
+            // After verify / admin action, refresh list
+            refetch();
+          }}
+        />
       )}
     </div>
   );
