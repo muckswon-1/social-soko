@@ -54,7 +54,9 @@ export default function CreateBusiness() {
   const user = useSelector(authUserSelector);
   const navigate = useNavigate();
 
-  const [createBusiness, {isLoading: loading}] = useCreateBusinessMutation();
+  const [createBusiness, {isLoading: loading, isError, error}] = useCreateBusinessMutation();
+
+  let errorMessage = error?.message || "";
 
   const [autoSlug, setAutoSlug] = useState(true);
  
@@ -93,6 +95,7 @@ export default function CreateBusiness() {
 
   const resetForm = () => {
     setForm(getEmptyForm());
+    errorMessage = "";
   };
 
   const submit = useCallback(
@@ -247,6 +250,7 @@ export default function CreateBusiness() {
         <label className="form-field">
           <span className="form-label">
             Slug {autoSlug && <span className="muted">(auto)</span>}
+            <div className="form-error">{errorMessage}</div>
           </span>
           <div className="input-affix">
             <input
@@ -278,7 +282,7 @@ export default function CreateBusiness() {
 
         {/* Email */}
         <label className="form-field">
-          <span className="form-label">Contact Email</span>
+          <span className="form-label">Business Email</span>
           <input
             className="form-control"
             name="email"
@@ -420,7 +424,7 @@ export default function CreateBusiness() {
           <button
             type="button"
             className="btn btn-ghost"
-            onClick={resetForm}
+            onClick={() => resetForm()}
             disabled={loading}
           >
             Reset

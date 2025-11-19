@@ -8,7 +8,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
         throw UTILS.httpError(400, "Business id or user id is required");
     }
 
-    const user = User.findByPk(userId);
+    const user =  await User.findByPk(userId);
 
     if(!user) {
        throw UTILS.httpError(404, "User not found");

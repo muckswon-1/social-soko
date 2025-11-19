@@ -12,6 +12,7 @@ import Sidebar from "../components/Sidebar";
 import { useDispatch } from "react-redux";
 // import { verifySession } from "../../features/auth/authThunk";
 import { useCookieState } from "../../states/useCookieState";
+import { requireAuthenticatedAmin } from "../../utils/auth.server";
 
 
 
@@ -21,6 +22,14 @@ export function links() {
     { rel: "stylesheet", href: errorBoundaryStyles },
   ];
 }
+
+export  async function loader({request}) {
+  const user = await requireAuthenticatedAmin(request);
+
+  return Response.json({user})
+
+}
+
 
 export default function DashboardLayout() {
   const [expanded, setExpanded] = useCookieState("sidebarExpanded", true); // true = wide sidebar, false = collapsed
@@ -32,27 +41,6 @@ export default function DashboardLayout() {
    const handleToggle = () => { 
     setExpanded((prev) => !prev);
     };
-
-
-//    useEffect(() => {
-//       const validSession = async () => {
-        
-//         try {
-//           const { success } = await dispatch(verifySession()).unwrap();
-  
-//           if (!success) {
-//             navigate("/login", { replace: true });
-//           }
-        
-//         } catch (error) {
-//            console.error(error);
-//             navigate("/login", { replace: true });
-//         }
-//       };
-  
-//       validSession();
-
-//     }, [dispatch, navigate]);
 
 
   return (

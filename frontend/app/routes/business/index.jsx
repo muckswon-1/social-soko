@@ -34,7 +34,7 @@ export default function BusinessOverview() {
   const userId = user?.id || null;
   const navigate = useNavigate();
 
-  const { data, isLoading, isError } = useGetBusinessQuery(userId, {
+  const { data, isLoading, isError, error } = useGetBusinessQuery(userId, {
     skip: !userId,
     refetchOnMountOrArgChange: true,
   });
@@ -61,21 +61,13 @@ export default function BusinessOverview() {
     );
   }
 
-  // API error
-  if (isError) {
-    return (
-      <div className="layout-empty">
-        <div className="layout-empty__inner">
-          We couldn&apos;t load your business details. Please try again later.
-        </div>
-      </div>
-    );
-  }
+
 
   const business = data?.business || data?.data || null;
 
+
   // No business created yet → soft empty state
-  if (!business && !isLoading && !isEditing) {
+  if (error?.status === 403 && user.role !== "business" && !business && !isLoading && !isEditing) {
     return (
       <div className="card card--cozy business-card">
         <header className="business-header">
@@ -102,6 +94,17 @@ export default function BusinessOverview() {
             </button>
           </div>
         </header>
+      </div>
+    );
+  }
+
+    // API error
+  if (isError) {
+    return (
+      <div className="layout-empty">
+        <div className="layout-empty__inner">
+          We couldn&apos;t load your business details. Please try again later.
+        </div>
       </div>
     );
   }

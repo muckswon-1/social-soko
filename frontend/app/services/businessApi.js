@@ -9,10 +9,20 @@ export const businessApi = apiSlice.injectEndpoints({
         url: `/business/fetch-business/${userId}`,
         method: "GET",
       }),
-      providesTags: (result) =>
-        result
-          ? [{ type: "Business", id: "CURRENT" }]
-          : [{ type: "Business", userId: "EMPTY" }],
+      providesTags: (result) =>result ? [{ type: "Business", id: "CURRENT" }] : [{ type: "Business", userId: "EMPTY" }],
+      transformErrorResponse:(response, meta, args) => {
+       
+        const {data, status} = response;
+
+        if(status === 403) {
+          // if its 403 it means user has not created an account and thier role is customer
+
+          // allow a user to create business
+          return { status, message: "You are not authorized to access this resource"}
+        }
+
+        return response;
+      }
     }),
     createBusiness: builder.mutation({
       query: ({ userId, businessData }) => ({
@@ -20,6 +30,28 @@ export const businessApi = apiSlice.injectEndpoints({
         method: "POST",
         body: { businessData },
       }),
+      transformErrorResponse: (response, meta, args) => {
+       
+        const status = response?.status || 500;
+        const data = response?.data || {}
+
+        if(status && status === 400){
+          return {
+            message: data?.error || "There was a problem creating your business. Try again later"
+          }
+        }
+
+        if(status && status === 403) {
+          return {
+            status: 403,
+            message: "You are not authorized to access this resource. Contact support."
+          }
+        }
+
+        return "There was a server error. Contact support"
+
+
+      },
 
       invalidatesTags: [{type: "Business", id: "CURRENT"}],
     }),

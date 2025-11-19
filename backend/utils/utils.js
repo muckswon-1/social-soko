@@ -5,7 +5,8 @@ const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
 const digitsCodegenerator = require("node-code-generator");
 
-require("dotenv").config();
+
+
 
 /**
  * Utility methods for Social Soko API
@@ -47,7 +48,7 @@ const UTILS = {
         role: user.role,
       },
       process.env.JWT_ACCESS_SECRET,
-      { expiresIn: "10m" },
+      { expiresIn: "1h" },
     );
   },
 
@@ -64,7 +65,7 @@ const UTILS = {
         role: user.role,
       },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "30d" },
     );
   },
 
@@ -225,9 +226,23 @@ const UTILS = {
 
   
 
-  }
+  },
 
-  
+
+  // Get server uptime in hours eg 22.5
+  getServerUptime: () => {
+    const uptimeInSeconds = process.uptime();
+    const uptimeInHours = uptimeInSeconds / 3600;
+
+    return uptimeInHours;
+  },
+
+
+  // get current timestamp
+  getCurrentTimestamp: () => {
+    return Math.floor(Date.now() / 1000);
+
+  }
 
 };
 

@@ -8,15 +8,13 @@ const cors = require("cors");
 const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const express = require("express");
+const { ROLES } = require("../constants/roles");
 
 require("dotenv").config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
 const ADMIN_FRONTEND_URL = process.env.ADMIN_FRONTEND_URL;
 
-
-console.log(FRONTEND_URL);
-console.log(ADMIN_FRONTEND_URL);
 /*-----------------------  CSRF Double-Submit Middleware ---------------------*/
 const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
   const method = String(req.method || "").toUpperCase();
@@ -32,15 +30,6 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
     /^\/api\/v1\/auth\/verify-email(?:\/[^\/\s]+)?$/,
     /^\/api\/v1\/auth\/reset-password(?:\/[^\/\s]+)?$/,
     /^\/api\/v1\/auth\/send-verification-email(?:\/[^\/\s]+)?$/,
-
-
-     /^\/api\/v1\/admin\/generate-parameter-verify-email-token(?:\/[^\/\s]+)?$/,
-      /^\/api\/v1\/admin\/email-jobs\/retry(?:\/[^\/\s]+)?$/,
-      /^\/api\/v1\/admin\/verify-business(?:\/[^\/\s]+)?$/,
-     
-     
-
-
   ];
 
   const isExempt = exemptEndpoints.some((re) => re.test(req.path));
@@ -66,13 +55,16 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
 
 /*-----------------------  Login Rate Limiter ---------------------*/
 // NOTE: express-rate-limit uses `windowMs` (camelCase), not `windowMS`.
-const authRateLimiter = rateLimit({
+const authRateLimiter =  rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
   max: 10,
   message: "Too many login attempts.",
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+
+
 
 const authSlowDown = slowDown({
   windowMs: 10 * 60 * 1000, // 10 minutes
@@ -81,13 +73,14 @@ const authSlowDown = slowDown({
 });
 
 /*-----------------------  Global Rate Limit (optional) ---------------------*/
-const globalRateLimiter = rateLimit({
+const globalRateLimiter =  rateLimit(
+      {
   windowMs: 10 * 60 * 1000, // 10 minutes
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   message: "Too many requests!",
-});
+ });
 
 /*-----------------------  Security Middleware Bootstrap ---------------------*/
 function securityMiddleWare(app) {
@@ -144,6 +137,33 @@ const verifyAccessToken = UTILS.catchAsync(async (req, res, next) => {
   }
 });
 
+
+const requireRole = (...allowedRoles) => UTILS.catchAsync(async (req,res,next) => {
+  try {
+    if(!req.user) {
+      throw UTILS.httpError(401, "Not authenticated");
+    }
+
+    const userRole = req.user.role;
+
+    if(!allowedRoles.includes(userRole)) {
+      throw UTILS.httpError(403, "Insufficient permissions");
+    }
+
+    return next();
+
+  } catch (error) {
+    if(error.status) throw error;
+
+    UTILS.httpError(403,"Forbidden");
+  }
+});
+
+const requireAdmin = requireRole(ROLES.ADMIN);
+
+
+
+
 module.exports = {
   verifyAccessToken,
   securityMiddleWare,
@@ -151,4 +171,6 @@ module.exports = {
   authSlowDown,
   globalRateLimiter,
   csrfGuard,
+  requireAdmin,
+  requireRole
 };

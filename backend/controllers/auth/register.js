@@ -6,6 +6,8 @@ const crypto = require("crypto");
 module.exports = UTILS.catchAsync(async (req, res) => {
   const { email, password } = req.body || {};
 
+  
+
   // Validate input
   if (!email) throw UTILS.httpError(400, "email is required");
   if (!password) throw UTILS.httpError(400, "password is required");
@@ -20,7 +22,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
 
   // Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
-
+ 
   // Create user
   const user = await User.create({
     email,

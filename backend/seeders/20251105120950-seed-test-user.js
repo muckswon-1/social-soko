@@ -16,14 +16,17 @@ module.exports = {
      * }], {});
      */
     const hashedPassword = await bcrypt.hash(
-      process.env.TEST_USER_PASSWORD,
+      process.env.TEST_ALL_PASSWORD,
       10,
     );
-    const testUserEmail = process.env.TEST_USER_EMAIL;
+
+    const testBusinessRoleEmail = process.env.TEST_BUSINESS_ROLE_EMAIL;
+    const testAdminRoleEmail = process.env.TEST_ADMIN_ROLE_EMAIL;
+    const testCustomerRoleEmail = process.env.TEST_CUSTOMER_ROLE_EMAIL;
 
     await queryInterface.bulkInsert("Users", [
       {
-        email: testUserEmail,
+        email: testBusinessRoleEmail,
         password: hashedPassword,
         first_name: "Mucks",
         last_name: "Won",
@@ -36,6 +39,37 @@ module.exports = {
         phone: "08012345678",
         
       },
+
+        {
+        email: testAdminRoleEmail,
+        password: hashedPassword,
+        first_name: "Betty",
+        last_name: "Won",
+        email_verified: true,
+        phone_verified: true,
+        email_verified_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        role: "admin",
+        phone: "0123456789",
+        
+      },
+
+           {
+        email: testCustomerRoleEmail,
+        password: hashedPassword,
+        first_name: "Cyril",
+        last_name: "Mukabwa",
+        email_verified: true,
+        phone_verified: true,
+        email_verified_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        role: "customer",
+        phone: "0123456789",
+        
+      },
+
       
     ]);
 

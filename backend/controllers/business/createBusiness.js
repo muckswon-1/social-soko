@@ -1,8 +1,8 @@
 // controllers/business/createBusiness.js
 const createError = require("http-errors");
 const { User, Business, EmailJob } = require("../../models");
-const { sendTemplatedEmail } = require("../../services/email/emailService");
 const UTILS = require("../../utils/utils");
+const { accessTokenCookieOptions, refreshTokenCookieOptions, CSRFTokenCookieOptions } = require("../auth/tokens.cookies");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -13,9 +13,21 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     throw createError(400, "Missing businessData payload or name");
   }
 
+
   // Check user exists
   const existingUser = await User.findOne({ where: { id: userId } });
   if (!existingUser) throw createError(404, "User not found");
+
+  // Check if slug exisits
+  const existingBusiness = await Business.findOne({
+    where: { slug: businessData.slug },
+    attributes: ["slug"],
+
+  });
+
+  if(existingBusiness) {
+    throw createError(400, "Business slug already exists");
+  }
 
   // Create business
   const business = await Business.create({
@@ -34,29 +46,27 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     logo_url: businessData.logo_url || "",
   });
 
+    console.log("User Before update",existingUser)
+
   //update user from customer role to user role
-   await User.update(
+  await existingUser.update(
 
     { role: "business" },
     { where: { id: userId } }
   );
 
+  
+  const data = UTILS.normalizedUserAuthData(existingUser);
 
-
-
-  // Send email (await so failures hit the error middleware)
-  // await sendTemplatedEmail({
-  //   to: existingUser.email,
-  //   template: "businessCreated",
-  //   props: { email: existingUser.email },
-  // }).catch((err) => {
-  //   console.error("Failed to send email:", err);
-  //   // Don't throw here, just log the error
-  //   // This is a non-critical failure
-  //   // The business was created, but the email failed to send
-  //   // You may want to log this to a monitoring service
-  //   // or add it to a retry queue
-  // });
+  // Generate tokens + user payload
+  const accessToken = UTILS.generateAccessToken(data);
+  const refreshToken = UTILS.generateRefreshToken(data);
+  const csrfToken = UTILS.generateCSRFToken();
+ 
+  // Set cookies
+  res.cookie("access_token", accessToken, accessTokenCookieOptions);
+  res.cookie("refresh_token", refreshToken, refreshTokenCookieOptions);
+  res.cookie("XSRF-TOKEN", csrfToken, CSRFTokenCookieOptions);
 
   try {
     await EmailJob.create({

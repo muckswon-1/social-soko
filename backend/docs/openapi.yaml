@@ -1,0 +1,208 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: "Social Soko "
+  description: A professional social networking platform for businesses. API for social Soko admin and platform operation (auth, users, businesses etc)
+paths:
+  /health:
+    get:
+      summary: Health check point
+      description: Returns the status of the API server.
+      tags:
+        - Health
+      responses:
+        "200":
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uptime:
+                    type: number
+                    example: 123.45
+                  message:
+                    type: string
+                    example: "Server is running"
+                  timestamp:
+                    type: string
+                    example: "2025-11-18T14:22:36.123Z"
+                  time:
+                    type: string
+                    example: "2025-11-18T17:10:06.511Z"
+                  status:
+                    type: string
+                    example: "ok"
+  /auth/login:
+    post:
+      summary: Login with email and password
+      description: >
+
+        This endpoint allows users to log in to the system using their email and password.
+
+        The request body should contain the user's email and password.
+
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schemas:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "admin@api.com"
+                password:
+                  type: string
+                  format: password
+                  example: "superstrongpassword"
+      responses:
+        "200":
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: >
+                HttpOnly cookies containing access and refresh tokens.
+                These are used for subsequent authenticated requests.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccessResponse"
+
+        "400":
+          description: Invalid credentials or bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthErrorResponse"
+        "401":
+          description: Unauthorized - invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthErrorResponse"
+  /auth/register:
+    post:
+      summary: Register a new user account
+      description: >
+        Creates a new user account. Depending on your backend rules, the account
+        may require email verification or admin approval before full access.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccessResponse"
+        "400":
+          description: Validation error or email already in use
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthErrorResponse"
+components:
+  schemas:
+    User:
+      type: object
+      description: A user account in the system
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "47086655-4ca2-4f2e-a350-4d4b6dc2d312"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        first_name:
+          type: string
+          example: "Mucks"
+        last_name:
+          type: string
+          example: "Won"
+        role:
+          type: sting
+          example: "user"
+        phone:
+          type: string
+          example: "07123455676"
+        phone_verified:
+          type: boolean
+          example: false
+        email_verified:
+          type: boolean
+          example: false
+        account_verified:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:34:56.000Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-01-01T12:34:56.000Z"
+    AuthSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Login successful"
+        data:
+          type: object
+          properties:
+            user:
+              $ref: "#/components/schemas/User"
+    AuthErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Invalid username or password"
+        code:
+          type: string
+          example: "SERVER_ERROR"
+        stack:
+          type: string
+    RegisterRequest:
+      type: object
+      description: Payload used to create a new user account.
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "newuser@example.com"
+        password:
+          type: string
+          format: password
+          example: "averystrongpassword"
+
+servers:
+  - url: http://localhost:2070/api/v1
+    description: Local development server

@@ -1,30 +1,20 @@
 const express = require('express');
-const getEmailJobs = require('../controllers/emailJobs/getEmailJobs');
-const getEmailJobById = require('../controllers/emailJobs/getEmailJobById');
-const retryEmailJob = require('../controllers/emailJobs/retryEmailJob');
-const fetchUsers = require('../controllers/users/fetchUsers');
-const { adminGenerateVerifyEmailParamsToken } = require('../controllers/verification');
-const fetchAllBusiness = require('../controllers/business/fetchAllBusiness');
-const adminVerifyBusiness = require('../controllers/business/adminVerifyBusiness');
+const getEmailJobsRoute = require('./emailJobs/getEmailJobsRoute');
+const retryEmailJobRoute = require('./emailJobs/retryEmailJobRoute');
+const fetchUsersRoute = require('./users/fetchUsersRoute');
+const adminGenerateVerifyEmailParamsTokenRoute = require('./verify/adminGenerateVerifyEmailParamsTokenRoute');
+const fetchAllBusinessesRoute = require('./business/fetchAllBusinessesRoute');
+const adminVerifyBussinessRoute = require('./business/adminVerifyBussinessRoute');
 
 const adminRouter = express.Router();
 
 
-// Email Job Routes
-adminRouter.get("/fetch-email-jobs", getEmailJobs);
-adminRouter.get("/email-jobs/:id",getEmailJobById);
-adminRouter.post("/email-jobs/retry/:id", retryEmailJob);
-
-//User routes
-adminRouter.get("/fetch-users", fetchUsers);
-
-
-//verify tokens
-adminRouter.post("/generate-parameter-verify-email-token", adminGenerateVerifyEmailParamsToken);
-
-//Business Routes
-adminRouter.get("/fetch-businesses", fetchAllBusiness);
-adminRouter.post("/verify-business/:id", adminVerifyBusiness);
-
+adminRouter.use(getEmailJobsRoute);
+adminRouter.use(getEmailJobsRoute);
+adminRouter.use(retryEmailJobRoute);
+adminRouter.use(fetchUsersRoute);
+adminRouter.use(adminGenerateVerifyEmailParamsTokenRoute);
+adminRouter.use(fetchAllBusinessesRoute);
+adminRouter.use(adminVerifyBussinessRoute);
 
 module.exports = adminRouter;

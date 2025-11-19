@@ -24,7 +24,7 @@ export default function AdminDashboard() {
     isError: isUsersError,
   } = useListUsersQuery(
     { page: 1, limit: 5 },
-    { refetchOnMountOrArgChange: true, refetchOnFocus:true, pollingInterval: 10 * 60 * 1000 }
+    { refetchOnMountOrArgChange: true, refetchOnFocus:true, pollingInterval: 30 * 1000 }
   );
 
   const {

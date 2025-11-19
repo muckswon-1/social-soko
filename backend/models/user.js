@@ -30,7 +30,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       
       role: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM('admin','business','customer'),
+        allowNull: false,
         defaultValue: "customer",
       },
       first_name: DataTypes.STRING,
@@ -72,7 +73,7 @@ module.exports = (sequelize, DataTypes) => {
       hooks: {
         beforeSave: (user) => {
           if(user.changed("email_verified")) {
-            if(user.email_verifed === true){
+            if(user.email_verified === true){
               user.email_verified_at = new Date();
             } else {
               user.email_verified_at = null;
@@ -80,7 +81,7 @@ module.exports = (sequelize, DataTypes) => {
             }
           }
 
-          // TODO Check if phone is verifed too
+          // TODO Check if phone is verifed too 
           const isVerified = !!user.email_verified;
           user.account_verified = isVerified;
 

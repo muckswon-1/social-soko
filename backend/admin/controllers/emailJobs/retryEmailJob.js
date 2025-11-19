@@ -29,7 +29,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
 
 
 
-    if(typeof template !== undefined) {
+    if(typeof template !== "undefined") {
         job.template = template;
     }
 

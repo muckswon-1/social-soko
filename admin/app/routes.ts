@@ -1,7 +1,8 @@
 import { index, RouteConfig, route, layout, prefix } from "@react-router/dev/routes";
 
 export default [
-    index("./routes/admin.jsx"),
+    index("./routes/_index.jsx"),
+    route("login","./routes/auth/login.jsx"),
     ...prefix("admin",[
         layout("./routes/dashboard/layout.jsx",[
             index("./routes/dashboard/index.jsx"),
