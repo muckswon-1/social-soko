@@ -66,4 +66,6 @@ const fetchProfileRoute = express.Router();
  *         description: Unauthorized — access token missing or invalid
  */
 
-module.exports = fetchProfileRoute.get("/fetch-user-profile/:userId",authRateLimiter, authSlowDown, verifyAccessToken,fetchProfile);
+ fetchProfileRoute.get("/fetch-user-profile/:userId",authRateLimiter, authSlowDown, verifyAccessToken,fetchProfile);
+ 
+ module.exports = fetchProfileRoute;

@@ -46,6 +46,7 @@ backend/.env.*
 backend/tmp/
 backend/data/
 backend/logs/
+backend/migrations_unused
 
 # ----------------------------------------
 # Continue.dev rules folder
@@ -67,3 +68,4 @@ DEVELOPMENT.md
 
 
 .old-social-soko/
+

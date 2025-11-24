@@ -101,4 +101,6 @@ const requestBusinessVerificationRoute = express.Router();
  *         description: Forbidden – user does not have BUSINESS or ADMIN role
  */
 
-module.exports = requestBusinessVerificationRoute.post("/request-business-verification/:id/:userId",authRateLimiter,authSlowDown,verifyAccessToken,requireRole(ROLES.ADMIN,ROLES.BUSINESS),requestBusinessVerification);
+ requestBusinessVerificationRoute.post("/request-business-verification/:id/:userId",authRateLimiter,authSlowDown,verifyAccessToken,requireRole(ROLES.ADMIN,ROLES.BUSINESS),requestBusinessVerification);
+
+ module.exports = requestBusinessVerificationRoute;

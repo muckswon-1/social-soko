@@ -45,8 +45,6 @@ export const profileApi = apiSlice.injectEndpoints({
           // Wait for server to respond
           const { data: response } = await queryFulfilled;
 
-          console.log('Profile data', response);
-
           const serverProfile = response?.user;
          
 
@@ -78,8 +76,35 @@ export const profileApi = apiSlice.injectEndpoints({
         { type: "Profile", id: "CURRENT" },
       ],
     }),
+
+    uploadProfilePicture: builder.mutation({
+      query: ({profileId, file}) => {
+        const formData = new FormData();
+        formData.append("profile_pic", file);
+
+        return {
+          url: `/profile/upload-profile-picture/${profileId}`,
+          method:"POST",
+          body: formData,
+        }
+      },
+      transformResponse: (result) => {
+    
+         const {success,message, profile_pic_url, user_profile} = result;
+        return {
+          success,
+          profile_pic_url,
+          user_profile
+        }
+      },
+      transformErrorResponse: (response) => {
+        const {error} = response.data;
+        return error;
+
+      },
+    })
   }),
 });
 
-export const { useGetUserProfileQuery, useUpdateUserProfileMutation } =
+export const { useGetUserProfileQuery, useUpdateUserProfileMutation, useUploadProfilePictureMutation } =
   profileApi;

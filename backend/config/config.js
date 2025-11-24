@@ -8,7 +8,7 @@ const dotenv = require("dotenv");
 const env = process.env.NODE_ENV || "development";
 const rootDir = path.join(__dirname, "..");
 
-// Prefer .env.development / .env.test etc., then fallback to .env
+// Prefer .env.<env>, then fallback to .env
 const envFile = path.join(rootDir, `.env.${env}`);
 const defaultEnvFile = path.join(rootDir, ".env");
 
@@ -40,33 +40,46 @@ const baseDialectOptions = {
     : false,
 };
 
-module.exports = {
-  development: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME ,
-    host: process.env.DB_HOST ,
-    port: Number(process.env.DB_PORT) ,
-    dialect: "postgres",
-    logging: false,
-    pool: basePool,
-    dialectOptions: baseDialectOptions,
+// ✅ common config used by development + docker
+const devLikeConfig = {
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  dialect: "postgres",
+  logging: false,
+  pool: basePool,
+  dialectOptions: baseDialectOptions,
+  define: {
+    underscored: true,
+    freezeTableName: true,
   },
+  migrationStorageTableName: "sequelize_meta",
+};
+
+module.exports = {
+  // Local development (non-docker)
+  development: devLikeConfig,
+
+  // ✅ Docker environment used inside containers (NODE_ENV=docker)
+  docker: devLikeConfig,
+
   test: {
     username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD ,
-    database: process.env.DB_NAME ,
-    host: process.env.DB_HOST ,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     dialect: "postgres",
     logging: false,
     pool: basePool,
     dialectOptions: baseDialectOptions,
   },
+
   production: {
-    // Either use discrete env vars:
     username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT) || 5432,
@@ -74,8 +87,5 @@ module.exports = {
     logging: false,
     pool: basePool,
     dialectOptions: baseDialectOptions,
-
-    // OR you can switch to:
-    // use_env_variable: "DATABASE_URL",
   },
 };

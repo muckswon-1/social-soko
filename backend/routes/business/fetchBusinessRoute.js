@@ -86,4 +86,6 @@ const fetchBusinessRoute = express.Router();
  *       403:
  *         description: Forbidden (user lacks BUSINESS or ADMIN role)
  */
-module.exports = fetchBusinessRoute.get("/fetch-business/:userId", verifyAccessToken, requireRole(ROLES.BUSINESS, ROLES.ADMIN), fetchBusiness);
+ fetchBusinessRoute.get("/fetch-business/:userId", verifyAccessToken, requireRole(ROLES.BUSINESS, ROLES.ADMIN), fetchBusiness);
+
+ module.exports = fetchBusinessRoute;

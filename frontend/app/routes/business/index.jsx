@@ -8,6 +8,7 @@ import {
 } from "../../services/businessApi";
 import sharedFormStyles from "../../styles/forms/forms.css?url";
 import businessStyles from "../../styles/business/business.css?url";
+import logoUploadStyles from "../../styles/business/logo-upload.css?url";
 import { getInitials } from "../../utils/passwordUtils";
 import BusinessEditForm from "./business-edit-form";
 import { useNavigate } from "react-router";
@@ -17,11 +18,18 @@ import {
   getStatusLabel,
   getStatusPillClass,
 } from "../../utils/businessHelpers";
+import { ImageUp } from "lucide-react";
+
+import BusinessLogoUpload from "./BusinessLogoUpload";
+
+
+const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
 
 export function links() {
   return [
     { rel: "stylesheet", href: sharedFormStyles },
     { rel: "stylesheet", href: businessStyles },
+    { rel: "stylesheet", href: logoUploadStyles },
   ];
 }
 
@@ -34,12 +42,13 @@ export default function BusinessOverview() {
   const userId = user?.id || null;
   const navigate = useNavigate();
 
-  const { data, isLoading, isError, error } = useGetBusinessQuery(userId, {
+  const { data, isLoading, isError, error, refetch } = useGetBusinessQuery(userId, {
     skip: !userId,
     refetchOnMountOrArgChange: true,
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [showLogoEditor, setShowLogoEditor] = useState(false);
 
   const [
     requestVerification,
@@ -61,13 +70,10 @@ export default function BusinessOverview() {
     );
   }
 
-
-
   const business = data?.business || data?.data || null;
 
-
   // No business created yet → soft empty state
-  if (error?.status === 403 && user.role !== "business" && !business && !isLoading && !isEditing) {
+  if (error?.status === 403 && !business && !isLoading && !isEditing) {
     return (
       <div className="card card--cozy business-card">
         <header className="business-header">
@@ -98,7 +104,7 @@ export default function BusinessOverview() {
     );
   }
 
-    // API error
+  // API error
   if (isError) {
     return (
       <div className="layout-empty">
@@ -136,40 +142,53 @@ export default function BusinessOverview() {
 
   const initials = getInitials(name);
 
-  // Normalise verification status
   const verificationStatus = verification_status || "pending";
 
-  // New: cooldown-aware helper
   const { canRequest, daysRemaining } = canRequestBusinessVerification({
     status: verificationStatus.toString().trim(),
     rejectedAt: verification_rejected_at,
     isLoading: isRequesting,
-    cooldownDays: 0.000_694_444, // adjust to 1 / 7 / etc. as you like
+    cooldownDays: 0.000_694_444,
   });
-
 
   const handleRequestVerification = async () => {
     if (!businessId) return;
 
     try {
       await requestVerification({ id: businessId, userId: user.id }).unwrap();
-      // RTK should invalidate & refetch the business; feedback is shown below.
     } catch (e) {
       console.error("Failed to request verification", e);
     }
   };
+
+const showLogoMissingBanner = !logo_url && !showLogoEditor;
+
+  
+const normalizedLogoUrl = `${BACKEND_URL}${logo_url}`;
 
   return (
     <div className="card card--cozy business-card">
       {/* Top header */}
       <header className="business-header">
         <div className="business-header-left">
-          <div className="business-avatar">
-            {logo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo_url} alt={name || "Business logo"} />
-            ) : (
-              initials
+          <div className="business-avatar-wrap">
+            <div className="business-avatar">
+              {logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={normalizedLogoUrl} alt={name || "Business logo"} />
+              ) : (
+                initials
+              )}
+            </div>
+            
+            {logo_url && (
+              <button
+                type="button"
+                className="business-avatar-change"
+                onClick={() => setShowLogoEditor(true)}
+              >
+                Change logo
+              </button>
             )}
           </div>
           <div>
@@ -196,6 +215,50 @@ export default function BusinessOverview() {
         </div>
       </header>
 
+      {/* Logo reminder banner when missing */}
+      {showLogoMissingBanner && (
+        <section className="business-logo-banner">
+          <div className="business-logo-banner__icon">
+            <ImageUp
+              className="business-logo-banner__icon-svg"
+              aria-hidden="true"
+            />
+          </div>
+          <div className="business-logo-banner__content">
+            <div className="business-logo-banner__title">Add your logo</div>
+            <p className="business-logo-banner__text">
+              A clear logo helps buyers and partners recognize your brand at a
+              glance. Upload one now or update it anytime.
+            </p>
+          </div>
+          <div className="business-logo-banner__actions">
+            <button
+              type="button"
+              className="btn btn-xxs"
+              onClick={() => setShowLogoEditor(true)}
+            >
+              Upload logo
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Inline logo upload / replace editor */}
+      {showLogoEditor && businessId && (
+        <section className="business-logo-editor">
+
+         <BusinessLogoUpload 
+         businessId={businessId} 
+         onSkip={() => setShowLogoEditor(false)}
+
+         onDone={() => {
+          setShowLogoEditor(false)
+          refetch();
+         }}
+         />
+        </section>
+      )}
+
       {/* Verification status bar */}
       <section className="business-verification-bar">
         <div className="business-verification-main">
@@ -206,12 +269,11 @@ export default function BusinessOverview() {
             {getStatusDescription(verificationStatus)}
           </p>
 
-          {/* Extra note when rejected & in cooldown window */}
           {verificationStatus === "rejected" &&
             daysRemaining != null &&
             daysRemaining > 0 && (
               <p className="business-verification-note">
-                You&apos;ll be able to request verification again in{" "}
+                You'll be able to request verification again in{" "}
                 <strong>
                   {daysRemaining} day{daysRemaining > 1 ? "s" : ""}
                 </strong>
@@ -340,12 +402,30 @@ export default function BusinessOverview() {
               </dd>
             </div>
             <div>
-              <dt>Logo URL</dt>
+              <dt>Logo</dt>
               <dd>
                 {logo_url ? (
-                  <span className="kv-mono">{logo_url}</span>
+                  <span className="kv-muted">
+                   Set -{" "}
+                    <button
+                      type="button"
+                      className="business-inline-link"
+                      onClick={() => setShowLogoEditor(true)}
+                    >
+                      change logo
+                    </button>
+                  </span>
                 ) : (
-                  <span className="kv-muted">Not set</span>
+                  <span className="kv-muted">
+                    Not set -{" "}
+                    <button
+                      type="button"
+                      className="business-inline-link"
+                      onClick={() => setShowLogoEditor(true)}
+                    >
+                      upload now
+                    </button>
+                  </span>
                 )}
               </dd>
             </div>

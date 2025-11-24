@@ -9,7 +9,7 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.createTable("EmailJobs",{
+    await queryInterface.createTable("email_jobs",{
       id: {
         type: Sequelize.UUID,
          defaultValue: Sequelize.literal("gen_random_uuid()"),
@@ -20,7 +20,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
-          model: "Users",
+          model: "users",
           key: "id"
         },
         onUpdate: "CASCADE",
@@ -65,12 +65,12 @@ module.exports = {
         created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+        defaultValue: Sequelize.fn("NOW"),
       },
       updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+        defaultValue: Sequelize.fn("NOW"),
       },
 
     })
@@ -82,7 +82,7 @@ module.exports = {
      *
      **/
      
-      await queryInterface.dropTable('EmailJobs');
+      await queryInterface.dropTable('email_jobs');
      
   }
 };

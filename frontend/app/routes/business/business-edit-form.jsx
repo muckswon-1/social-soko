@@ -31,20 +31,28 @@ const emptyForm = (email = "") => ({
   logo_url: "",
 });
 
-export default function BusinessEditForm({setIsEditing}) {
+export default function BusinessEditForm({ setIsEditing }) {
   const user = useSelector(authUserSelector);
-  const {data} = useGetBusinessQuery(user?.id, {skip: !user?.id});
-  const business = data?.business || {}
 
-  const [updateBusiness, { isLoading: isUpdating }] = useUpdateBusinessMutation();
+  const {
+    data,
+    isLoading: isBusinessLoading,
+    isError: isBusinessError,
+    error: businessError,
+  } = useGetBusinessQuery(user?.id, { skip: !user?.id });
 
-  const initialValues = business;
+  const business = data?.business || null;
+
+  const [updateBusiness, { isLoading: isUpdating }] =
+    useUpdateBusinessMutation();
+
+  const initialValues = business || null;
 
   const [autoSlug, setAutoSlug] = useState(true);
   const [form, setForm] = useState(() =>
     initialValues
       ? { ...emptyForm(user?.email), ...initialValues }
-      : emptyForm(user?.email)
+      : emptyForm(user?.email),
   );
 
   // keep form in sync if initialValues change (e.g. refetch)
@@ -103,29 +111,65 @@ export default function BusinessEditForm({setIsEditing}) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (!isValid || isUpdating) return;
-    // if (onSave) {
-    //   onSave({
-    //     ...form,
-    //     slug: form.slug ? slugify(form.slug) : "",
-    //   });
-    // }
 
-    try {
-       if(business?.id) {
-         await updateBusiness({id: business?.id, userId: user?.id, businessData: form}).unwrap();
-         toast.success("Business updated successfully");
-         setIsEditing(false);
-       }
-    } catch (error) {
-        console.error(error);
-        toast.error("Failed to update business")
+    if (!business?.id || !user?.id) {
+      toast.error("Business not found or user not authenticated.");
+      return;
     }
 
+    if (!isValid || isUpdating) return;
 
+    const payload = {
+      ...form,
+      slug: form.slug ? slugify(form.slug) : "",
+    };
+
+    try {
+      await updateBusiness({
+        id: business.id,
+        userId: user.id,
+        businessData: payload,
+      }).unwrap();
+
+      toast.success("Business updated successfully");
+      setIsEditing(false);
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error?.data?.message || "Failed to update business. Please try again.",
+      );
+    }
   };
 
+  // basic loading / error states
+  if (!user) {
+    return (
+      <div className="business-edit-empty">
+        <p>You need to be signed in to edit your business.</p>
+      </div>
+    );
+  }
 
+  if (isBusinessLoading && !business) {
+    return (
+      <div className="business-edit-empty">
+        <p>Loading business details…</p>
+      </div>
+    );
+  }
+
+  if (isBusinessError || !business) {
+    return (
+      <div className="business-edit-empty">
+        <p>Could not load your business.</p>
+        {businessError?.data?.message && (
+          <pre className="business-edit-error">
+            {businessError.data.message}
+          </pre>
+        )}
+      </div>
+    );
+  }
 
   return (
     <form className="form-grid-2 business-edit-form" onSubmit={handleSubmit}>
@@ -168,6 +212,11 @@ export default function BusinessEditForm({setIsEditing}) {
         </div>
         {!!form.slug && form.slug !== slugify(form.slug) && (
           <div className="form-hint">Slug will be sanitized on save.</div>
+        )}
+        {!!form.slug && (
+          <div className="form-hint">
+            Public URL preview: <code>/b/{slugify(form.slug)}</code>
+          </div>
         )}
       </label>
 
@@ -215,18 +264,6 @@ export default function BusinessEditForm({setIsEditing}) {
         {form.website && !urlRe.test(form.website) && (
           <div className="form-error">Enter a valid URL</div>
         )}
-      </label>
-
-      <label className="form-field">
-        <span className="form-label">Logo URL</span>
-        <input
-          className="form-control"
-          name="logo_url"
-          value={form.logo_url}
-          onChange={onChange}
-          placeholder="https://cdn.example.com/logo.png"
-          inputMode="url"
-        />
       </label>
 
       {/* Description */}
@@ -324,3 +361,4 @@ export default function BusinessEditForm({setIsEditing}) {
     </form>
   );
 }
+

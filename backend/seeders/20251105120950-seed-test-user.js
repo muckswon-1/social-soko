@@ -1,5 +1,7 @@
 "use strict";
 const bcrypt = require("bcrypt");
+const { USER_MUCKS_ID, USER_BETTY_ID, USER_CYRIL_ID } = require("../seed_helpers/seed-ids");
+
 
 require("dotenv");
 
@@ -24,8 +26,11 @@ module.exports = {
     const testAdminRoleEmail = process.env.TEST_ADMIN_ROLE_EMAIL;
     const testCustomerRoleEmail = process.env.TEST_CUSTOMER_ROLE_EMAIL;
 
-    await queryInterface.bulkInsert("Users", [
+    
+
+    await queryInterface.bulkInsert("users", [
       {
+        id: USER_MUCKS_ID,
         email: testBusinessRoleEmail,
         password: hashedPassword,
         first_name: "Mucks",
@@ -36,11 +41,12 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
         role: "business",
-        phone: "08012345678",
+        phone: "+254101348264",
         
       },
 
         {
+        id: USER_BETTY_ID,
         email: testAdminRoleEmail,
         password: hashedPassword,
         first_name: "Betty",
@@ -51,11 +57,12 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
         role: "admin",
-        phone: "0123456789",
+        phone: "+254114020974",
         
       },
 
            {
+        id: USER_CYRIL_ID,
         email: testCustomerRoleEmail,
         password: hashedPassword,
         first_name: "Cyril",
@@ -66,14 +73,13 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
         role: "customer",
-        phone: "0123456789",
+        phone: "+254729439194",
         
       },
 
       
     ]);
 
-    
   },
 
   async down(queryInterface, Sequelize) {
@@ -84,6 +90,6 @@ module.exports = {
      * await queryInterface.bulkDelete('People', null, {});
      */
 
-    await queryInterface.bulkDelete("Users", { email: testUserEmail });
+    await queryInterface.bulkDelete("users", null, {});
   },
 };

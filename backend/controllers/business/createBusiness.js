@@ -1,8 +1,12 @@
 // controllers/business/createBusiness.js
 const createError = require("http-errors");
-const { User, Business, EmailJob } = require("../../models");
+const { User, Business, EmailJob, BusinessMember } = require("../../models");
 const UTILS = require("../../utils/utils");
 const { accessTokenCookieOptions, refreshTokenCookieOptions, CSRFTokenCookieOptions } = require("../auth/tokens.cookies");
+const { generateUniqueUsername } = require("../../utils/generateUniqueUsername.js");
+const { default: phone } = require("phone");
+const { generateUniqueSlug } = require("../../utils/generateUniqueSlug.js");
+
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -18,20 +22,34 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   const existingUser = await User.findOne({ where: { id: userId } });
   if (!existingUser) throw createError(404, "User not found");
 
-  // Check if slug exisits
-  const existingBusiness = await Business.findOne({
-    where: { slug: businessData.slug },
-    attributes: ["slug"],
 
-  });
 
-  if(existingBusiness) {
-    throw createError(400, "Business slug already exists");
-  }
+
+
+  // Generate unique username
+  const username = await generateUniqueUsername(businessData.username, businessData.name);
+
+
+
+  //phone validation if available
+let normalizedPhone = businessData.phone || "";
+if (normalizedPhone) {
+  const {isValid, phoneNumber} = phone(normalizedPhone, {country: null});
+
+  if(!isValid) throw UTILS.httpError(400, "Invalid phone number");
+  normalizedPhone = phoneNumber;
+}
+
+
+// Generate unique slug
+const slug = await generateUniqueSlug(businessData.slug, businessData.name);
+
 
   // Create business
   const business = await Business.create({
+
     user_id: userId,
+    username,
     name: businessData.name,
     description: businessData.description || "",
     address: businessData.address || "",
@@ -39,21 +57,29 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     state: businessData.state || "",
     country: businessData.country || "",
     postal_code: businessData.postal_code || "",
-    phone: businessData.phone || "",
+    phone: normalizedPhone || "",
     email: businessData.email || "",
     website: businessData.website || "",
-    slug: businessData.slug || "",
+    slug,
     logo_url: businessData.logo_url || "",
   });
 
-    console.log("User Before update",existingUser)
-
+    
   //update user from customer role to user role
-  await existingUser.update(
+ if(existingUser.role !== "business") {
+   await existingUser.update( { role: "business" } );
 
-    { role: "business" },
-    { where: { id: userId } }
-  );
+   await BusinessMember.findOrCreate({
+    where: { business_id: business.id, user_id: existingUser.id},
+    defaults: {
+      role: "owner",
+      invitation_status: "accepted",
+      invited_by: existingUser.id,
+      joined_at: new Date()
+    }
+   })
+ }
+
 
   
   const data = UTILS.normalizedUserAuthData(existingUser);

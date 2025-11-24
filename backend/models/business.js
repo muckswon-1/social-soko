@@ -1,10 +1,12 @@
 // src/models/business.js
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Business extends Model {
     static associate(models) {
       Business.belongsTo(models.User, { foreignKey: "user_id" });
+
       Business.hasMany(models.BusinessVerification, {
         foreignKey: "business_id",
       });
@@ -33,71 +35,131 @@ module.exports = (sequelize, DataTypes) => {
       Business.hasMany(models.BusinessHours, { foreignKey: "business_id" });
     }
   }
+
   Business.init(
     {
+      // Handle / @username used for display & UX
+      id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
+      username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          len: [3, 30],
+          is: /^[a-z0-9_-]+$/i, // @handle style: letters, numbers, _ and -
+        },
+      },
+
+      // Human-facing business name (not unique – different companies can share names)
       name: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
         validate: { len: [2, 255] },
       },
-      user_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
-      description: DataTypes.TEXT,
-      address: DataTypes.STRING,
-      city: DataTypes.STRING,
-      state: DataTypes.STRING,
-      country: DataTypes.STRING,
-      postal_code: DataTypes.STRING,
-      phone: {
-        type: DataTypes.STRING,
-        validate: { len: [5, 20] },
-      },
-      email: {
-        type: DataTypes.STRING,
-        unique: true,
-        validate: { isEmail: true },
+
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
 
       website: {
         type: DataTypes.STRING,
+        allowNull: true,
       },
+
+      // SEO / URL slug, still unique
       slug: {
         type: DataTypes.STRING,
         unique: true,
+        allowNull: true,
       },
-      logo_url: DataTypes.STRING,
+
+      // Owner / primary user
+      user_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+
+      // Location & address info
+      address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      city: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      state: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      country: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      postal_code: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
+      // Contact details (no longer unique – multiple businesses can share)
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          lenIfProvided(value) {
+            if(!value || value.trim() === "") return;
+            if(value.length < 10 || value.length > 15) throw new Error("Phone number must be between 10 and 15 characters")
+          }
+        },
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: { isEmail: true },
+      },
+
+      logo_url: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
       verification_status: {
-        type: DataTypes.ENUM("pending","requested", "verified", "rejected"),
+        type: DataTypes.ENUM("pending", "requested", "verified", "rejected"),
         defaultValue: "pending",
       },
       verification_requested_at: {
         type: DataTypes.DATE,
-        allowNull: true
+        allowNull: true,
       },
       verified_at: {
         type: DataTypes.DATE,
-        allowNull: true
+        allowNull: true,
       },
       verification_rejected_at: {
         type: DataTypes.DATE,
-        allowNull: true
+        allowNull: true,
       },
       verification_rejected_reason: {
         type: DataTypes.TEXT,
-        allowNull: true
+        allowNull: true,
       },
     },
     {
       sequelize,
       modelName: "Business",
-      tableName: "Businesses",
+      tableName: "businesses",
       timestamps: true,
       underscored: true,
       indexes: [
         { fields: ["user_id"] },
+        { fields: ["username"] },
+        { fields: ["slug"] },
         { fields: ["city"] },
         { fields: ["state"] },
         { fields: ["country"] },
@@ -106,5 +168,6 @@ module.exports = (sequelize, DataTypes) => {
       ],
     },
   );
+
   return Business;
 };

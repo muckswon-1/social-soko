@@ -150,4 +150,6 @@ const createBusinessRoute = express.Router();
  *                   code: "NOT_FOUND"
  */
 
-module.exports = createBusinessRoute.post("/create-business/:userId", verifyAccessToken,createBusiness);
+createBusinessRoute.post("/create-business/:userId", verifyAccessToken,createBusiness);
+
+module.exports = createBusinessRoute;

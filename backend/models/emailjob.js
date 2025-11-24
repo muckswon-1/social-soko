@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       payload: {
-        type: DataTypes.JSONB, // or DataTypes.JSON if not Postgres
+        type: DataTypes.JSONB, 
         allowNull: false,
       },
       status: {
@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "EmailJob",
-      tableName: "EmailJobs",
+      tableName: "email_jobs",
       timestamps: true,
       underscored: true,
     }

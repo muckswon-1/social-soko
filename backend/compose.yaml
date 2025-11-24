@@ -1,0 +1,78 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: dev-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Adanna12!
+      POSTGRES_DB: social_soko_dev
+    ports:
+      # host:container → Postgres accessible on localhost:2074
+      - "2074:5432"
+    volumes:
+      # Persist only the actual data directory (recommended)
+      - dev_postgres_data:/var/lib/postgresql
+      # Run any init SQL scripts (create app user, etc.)
+      - ./init-scripts:/docker-entrypoint-initdb.d
+
+      - ./uploads:/app/uploads
+    networks:
+      - devnet
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dev-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: mucks.won.softwares@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 18qPLESnbQRrkmNB
+    ports:
+      - "2075:80"
+    depends_on:
+      - postgres
+    networks:
+      - devnet
+
+  email_worker:
+    build: 
+      context: .
+      dockerfile: workers/Dockerfile.worker
+    container_name: dev-email-worker
+    env_file:
+      - .env.docker
+    environment:
+      NODE_ENV: docker
+    depends_on:
+      - postgres
+    networks:
+      - devnet
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: dev-backend
+    command: ["npm", "run", "dev"]
+    env_file:
+      - .env.docker
+    environment:
+      NODE_ENV: docker
+    ports:
+      - "2070:2070"
+    depends_on:
+      - postgres
+    volumes:
+      # Your source code (live edits on host)
+      - .:/usr/src/app
+      # Keep node_modules inside container so host OS doesn’t conflict
+      - /usr/src/app/node_modules
+    networks:
+      - devnet
+
+networks:
+  devnet:
+
+volumes:
+  dev_postgres_data:

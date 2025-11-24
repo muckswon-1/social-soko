@@ -6,7 +6,7 @@ const env = process.env.NODE_ENV || 'development';
 console.log('NODE:ENV: ', env);
 
 
-const allConfig = require("../backend/config/config");
+const allConfig = require("./config/config");
 
 const config = allConfig[env];
 

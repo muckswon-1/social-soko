@@ -178,6 +178,49 @@ textarea.form-control {
   text-decoration: underline;
 }
 
+/* Business memberships rows inside profile card */
+.biz-membership-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding-block: 0.35rem;
+}
+
+.biz-membership-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.biz-membership-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.biz-membership-username {
+  font-size: 0.75rem;
+}
+
+.biz-membership-location {
+  font-size: 0.8rem;
+}
+
+.biz-membership-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+/* Responsive tweak */
+@media (max-width: 768px) {
+  .biz-membership-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 /* ==========================
    Dark Mode
    ========================== */

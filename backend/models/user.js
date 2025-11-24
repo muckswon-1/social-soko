@@ -1,5 +1,6 @@
 // /backend/models/user.js
 "use strict";
+const { default: phone } = require("phone");
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -19,45 +20,60 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
+       first_name: DataTypes.STRING,
+      last_name: DataTypes.STRING,
+
       email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
       },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
+
+      email_verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
-      
+      email_verified_at: DataTypes.DATE,
+
+         phone: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: true,
+        validate: { len: [2, 255] },
+      },
+
+         phone_verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      phone_verified_at: DataTypes.DATE,
+
+      title: DataTypes.STRING,
+      bio: DataTypes.TEXT,
+      avatar_url: DataTypes.STRING,
+      skills: DataTypes.JSONB,
+
       role: {
         type: DataTypes.ENUM('admin','business','customer'),
         allowNull: false,
         defaultValue: "customer",
       },
-      first_name: DataTypes.STRING,
-      last_name: DataTypes.STRING,
-      phone: DataTypes.STRING,
-      email_verified: {
+       account_verified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      phone_verified: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+       password: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
-
-      account_verified: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
-
+     
       last_login_at: DataTypes.DATE,
-      email_verified_at: DataTypes.DATE,
+      
     },
     {
       sequelize,
       modelName: "User",
-      tableName: "Users",
+      tableName: "users",
       timestamps: true,
       underscored: true,
       defaultScope: {

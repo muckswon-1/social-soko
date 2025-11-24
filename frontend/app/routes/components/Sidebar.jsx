@@ -20,9 +20,20 @@ export default function Sidebar({handleToggle, expanded}) {
     console.error("Error loggin out: ", error)
    }
   };
+
+
+  const handleNavClick = () => {
+    if(expanded) {
+      handleToggle()
+    }
+  }
   
 
   return (
+    <>
+     {/* Backdrop for mobile overlay */}
+     {/* <div className={`sidebar-backdrop ${expanded ? "sidebar-backdrop--visible" : ""}`} onClick={handleToggle}></div> */}
+
     <aside
       className={`sidebar ${expanded ? "expanded" : "collapsed"}`}
       aria-label="Main menu"
@@ -98,5 +109,6 @@ export default function Sidebar({handleToggle, expanded}) {
         </button>
       </div>
     </aside>
+    </>
   );
 }

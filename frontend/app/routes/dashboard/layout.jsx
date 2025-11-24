@@ -57,6 +57,15 @@ export default function DashboardLayout() {
   return (
     <>
       <title>Social Soko | Dashboard</title>
+      {/* Mobile sidebar backdrop */}
+      {
+        expanded && (<div className="mobile-sidebar-backdrop"
+          onClick={() => setExpanded(false)}
+        >
+
+        </div>)
+      }
+
       <div className="layout-shell">
         <aside
           className={
@@ -71,6 +80,9 @@ export default function DashboardLayout() {
 
         <section className="layout-canvas">
           <div className="layout-canvas-inner">
+            <div className="layout-topbar">
+              <button className="mobile-menu-btn" onClick={handleToggle}>▤</button>
+            </div>
             <Outlet />
           </div>
         </section>

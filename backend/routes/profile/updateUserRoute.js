@@ -85,4 +85,7 @@ const updateUserRoute = express.Router();
  *         description: Unauthorized — invalid or missing token
  */
 
-module.exports = updateUserRoute.post("/update-user-profile/:userId",authRateLimiter, authSlowDown, verifyAccessToken, updateUser)
+ updateUserRoute.post("/update-user-profile/:userId",authRateLimiter, authSlowDown, verifyAccessToken, updateUser)
+
+
+ module.exports = updateUserRoute;

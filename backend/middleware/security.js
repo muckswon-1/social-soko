@@ -14,9 +14,18 @@ require("dotenv").config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
 const ADMIN_FRONTEND_URL = process.env.ADMIN_FRONTEND_URL;
+const NODE_ENV = process.env.NODE_ENV || "development";
+const IS_PROD = NODE_ENV === "production";
+
+console.log(FRONTEND_URL);
+
+// Small noop middleware for dev
+const noop = (req, res, next) => next();
 
 /*-----------------------  CSRF Double-Submit Middleware ---------------------*/
 const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
+
+  if(!IS_PROD) return next();
   const method = String(req.method || "").toUpperCase();
 
   // Exempt endpoints (regex aware)
@@ -54,33 +63,36 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
 });
 
 /*-----------------------  Login Rate Limiter ---------------------*/
-// NOTE: express-rate-limit uses `windowMs` (camelCase), not `windowMS`.
-const authRateLimiter =  rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 10,
-  message: "Too many login attempts.",
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// In prod: real limiter; in dev: noop
+const authRateLimiter = IS_PROD
+  ? rateLimit({
+      windowMs: 10 * 60 * 1000, // 10 minutes
+      max: 10,
+      message: "Too many login attempts.",
+      standardHeaders: true,
+      legacyHeaders: false,
+    })
+  : noop;
 
-
-
-
-const authSlowDown = slowDown({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  delayAfter: 5,
-  delayMs: (hits) => hits * 100,
-});
+const authSlowDown = IS_PROD
+  ? slowDown({
+      windowMs: 10 * 60 * 1000, // 10 minutes
+      delayAfter: 5,
+      delayMs: (hits) => hits * 100,
+    })
+  : noop;
 
 /*-----------------------  Global Rate Limit (optional) ---------------------*/
-const globalRateLimiter =  rateLimit(
-      {
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 300,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: "Too many requests!",
- });
+// Same pattern: only active in production
+const globalRateLimiter = IS_PROD
+  ? rateLimit({
+      windowMs: 10 * 60 * 1000, // 10 minutes
+      max: 300,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: "Too many requests!",
+    })
+  : noop;
 
 /*-----------------------  Security Middleware Bootstrap ---------------------*/
 function securityMiddleWare(app) {
@@ -95,7 +107,8 @@ function securityMiddleWare(app) {
   // CORS for SPA
   app.use(
     cors({
-      origin: [FRONTEND_URL, ADMIN_FRONTEND_URL],
+      //TODO fix cors
+      origin: true,
       credentials: true,
     }),
   );
@@ -106,14 +119,14 @@ function securityMiddleWare(app) {
   // Parse Cookies
   app.use(cookieParser());
 
-  // Global Rate Limit (uncomment if you want it globally)
-  // app.use(globalRateLimiter);
+  // Body parser (limit for protection)
+  app.use(express.json({ limit: "200kb" }));
+
+  // Global Rate Limit (prod only; noop in dev)
+  app.use(globalRateLimiter);
 
   // CSRF Guard
   app.use(csrfGuard);
-
-  // Small body parser limit for protection
-  app.use(express.json({ limit: "200kb" }));
 }
 
 /*-----------------------  Access Token Verifier ---------------------*/
@@ -137,32 +150,27 @@ const verifyAccessToken = UTILS.catchAsync(async (req, res, next) => {
   }
 });
 
+const requireRole = (...allowedRoles) =>
+  UTILS.catchAsync(async (req, res, next) => {
+    try {
+      if (!req.user) {
+        throw UTILS.httpError(401, "Not authenticated");
+      }
 
-const requireRole = (...allowedRoles) => UTILS.catchAsync(async (req,res,next) => {
-  try {
-    if(!req.user) {
-      throw UTILS.httpError(401, "Not authenticated");
+      const userRole = req.user.role;
+
+      if (!allowedRoles.includes(userRole)) {
+        throw UTILS.httpError(403, "Insufficient permissions");
+      }
+
+      return next();
+    } catch (error) {
+      if (error.status) throw error;
+      throw UTILS.httpError(403, "Forbidden");
     }
-
-    const userRole = req.user.role;
-
-    if(!allowedRoles.includes(userRole)) {
-      throw UTILS.httpError(403, "Insufficient permissions");
-    }
-
-    return next();
-
-  } catch (error) {
-    if(error.status) throw error;
-
-    UTILS.httpError(403,"Forbidden");
-  }
-});
+  });
 
 const requireAdmin = requireRole(ROLES.ADMIN);
-
-
-
 
 module.exports = {
   verifyAccessToken,
@@ -172,5 +180,5 @@ module.exports = {
   globalRateLimiter,
   csrfGuard,
   requireAdmin,
-  requireRole
+  requireRole,
 };

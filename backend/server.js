@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const UTILS = require("./utils/utils");
 const { securityMiddleWare } = require("./middleware/security");
 const errorHandler = require("errorhandler");
+const path = require('path')
 
 const swaggerUI = require('swagger-ui-express');
 
@@ -11,12 +12,18 @@ const adminRouter = require("./admin/routes");
 const swaggerSpec = require("./docs/swaggerJsdoc");
 const authRoutes = require("./routes/auth");
 const businessRoutes = require("./routes/business");
+const businessMembersRoutes = require("./routes/memberships");
 const profileRoutes = require("./routes/profile");
+const { UPLOADS_ROOT } = require("./utils/multerFactory");
 
 
 require("dotenv").config();
 
+
 const app = express();
+
+app.use("/uploads", express.static(UPLOADS_ROOT));
+
 const PORT = process.env.SERVER_PORT || 2070;
 
 
@@ -27,7 +34,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(errorHandler());
 }
 
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 
 
 UTILS.connectToDatabase().then(() => {
@@ -82,6 +89,7 @@ UTILS.connectToDatabase().then(() => {
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/profile", profileRoutes);
   app.use("/api/v1/business", businessRoutes);
+  app.use("/api/v1/business-members", businessMembersRoutes);
 
 
   //Admin routes
@@ -110,7 +118,7 @@ UTILS.connectToDatabase().then(() => {
   });
 
   // Start server
-  app.listen(PORT, () => {
+  app.listen(PORT,"0.0.0.0", () => {
     if (process.env.NODE_ENV === "development") {
       console.log("🌎 Application running in development mode.");
       console.log(" ™️ Developed my Won Softwares");

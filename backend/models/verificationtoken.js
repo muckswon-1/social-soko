@@ -45,21 +45,13 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: "email_verification",
       },
-      created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
-      updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
     },
     {
       sequelize,
       modelName: "VerificationToken",
+      tableName: "verification_tokens",
       timestamps: true,
-      createdAt: "created_at",
-      updatedAt: "updated_at",
+      underscored: true
     },
   );
   return VerificationToken;
