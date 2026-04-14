@@ -1,5 +1,5 @@
 const express = require("express");
-const { authRateLimiter, authSlowDown } = require("../../middleware/security");
+const { authRateLimiter, authSlowDown, verifyAccessToken } = require("../../middleware/security");
 const updateUserEmail = require("../../controllers/auth/updateUserEmail");
 const updateUserEmailRoute  = express.Router();
 
@@ -105,4 +105,4 @@ const updateUserEmailRoute  = express.Router();
  *                   code: "CONFLICT"
  */
 
-module.exports = updateUserEmailRoute.post("/email-update-with-digit-code",authRateLimiter, authSlowDown,updateUserEmail);
+module.exports = updateUserEmailRoute.post("/email-update-with-digit-code",authRateLimiter, authSlowDown,verifyAccessToken,updateUserEmail);

@@ -1,29 +1,38 @@
-// controllers/business/createBusiness.js
-const createError = require("http-errors");
-const { User, Business, EmailJob, BusinessMember } = require("../../models");
+/**
+ * @typedef {import("../../types/common").UUID} UUID 
+ * @typedef {import("../../types/models.js").Models} Models
+ * 
+ * */
 const UTILS = require("../../utils/utils");
 const { accessTokenCookieOptions, refreshTokenCookieOptions, CSRFTokenCookieOptions } = require("../auth/tokens.cookies");
 const { generateUniqueUsername } = require("../../utils/generateUniqueUsername.js");
-const { default: phone } = require("phone");
+
 const { generateUniqueSlug } = require("../../utils/generateUniqueSlug.js");
+const validatePhone = require("../../utils/validatePhone.js");
 
 
 module.exports = UTILS.catchAsync(async (req, res) => {
-  const { userId } = req.params;
-  if (!userId) throw createError(400, "User ID is required");
 
+  const { userId } = req.params;
+  if (!userId) throw UTILS.httpError(400, "User ID is required");
+
+ 
   const { businessData } = req.body || {};
   if (!businessData || !businessData.name) {
-    throw createError(400, "Missing businessData payload or name");
+    throw UTILS.httpError(400, "Missing businessData payload or name");
   }
+
+
+
+  /**@type {Models} */
+  const models = req.app.get("models");
+
+  const {User, Business, EmailJob, BusinessMembership} = models;
 
 
   // Check user exists
   const existingUser = await User.findOne({ where: { id: userId } });
-  if (!existingUser) throw createError(404, "User not found");
-
-
-
+  if (!existingUser) throw UTILS.httpError(404, "User not found");
 
 
   // Generate unique username
@@ -32,13 +41,16 @@ module.exports = UTILS.catchAsync(async (req, res) => {
 
 
   //phone validation if available
-let normalizedPhone = businessData.phone || "";
-if (normalizedPhone) {
-  const {isValid, phoneNumber} = phone(normalizedPhone, {country: null});
+  let countryIso2 = businessData.countryIso2 || "";
+  let localPhone = businessData.localPhone || "";
 
-  if(!isValid) throw UTILS.httpError(400, "Invalid phone number");
-  normalizedPhone = phoneNumber;
-}
+  
+
+
+
+const  normalizedPhone = validatePhone({countryIso2, localPhone});
+
+
 
 
 // Generate unique slug
@@ -57,7 +69,7 @@ const slug = await generateUniqueSlug(businessData.slug, businessData.name);
     state: businessData.state || "",
     country: businessData.country || "",
     postal_code: businessData.postal_code || "",
-    phone: normalizedPhone || "",
+    phone: normalizedPhone.e164 || "",
     email: businessData.email || "",
     website: businessData.website || "",
     slug,
@@ -69,16 +81,19 @@ const slug = await generateUniqueSlug(businessData.slug, businessData.name);
  if(existingUser.role !== "business") {
    await existingUser.update( { role: "business" } );
 
-   await BusinessMember.findOrCreate({
-    where: { business_id: business.id, user_id: existingUser.id},
-    defaults: {
-      role: "owner",
-      invitation_status: "accepted",
-      invited_by: existingUser.id,
-      joined_at: new Date()
-    }
-   })
  }
+
+//create business membership
+await BusinessMembership.findOrCreate({
+  where: { business_id: business.id, user_id: existingUser.id},
+  defaults: {
+    role: "owner",
+    status: "active",
+    created_at: new Date(),
+    updated_at: new Date()
+  }
+})
+ 
 
 
   

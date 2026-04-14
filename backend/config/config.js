@@ -1,22 +1,21 @@
 // backend/config/config.js
 "use strict";
+// const fs = require("fs");
+ const path = require("path");
 
-const fs = require("fs");
-const path = require("path");
-const dotenv = require("dotenv");
-
-const env = process.env.NODE_ENV || "development";
 const rootDir = path.join(__dirname, "..");
 
-// Prefer .env.<env>, then fallback to .env
+const env = process.env.NODE_ENV || "development";
 const envFile = path.join(rootDir, `.env.${env}`);
-const defaultEnvFile = path.join(rootDir, ".env");
 
-if (fs.existsSync(envFile)) {
-  dotenv.config({ path: envFile });
-} else if (fs.existsSync(defaultEnvFile)) {
-  dotenv.config({ path: defaultEnvFile });
-}
+ console.log("Env File: ",envFile);
+
+
+console.log("This is the root directory: ", rootDir);
+
+
+require("dotenv").config({path: envFile});
+
 
 // helper for boolean envs
 const bool = (val, fallback = false) => {
@@ -66,15 +65,20 @@ module.exports = {
   docker: devLikeConfig,
 
   test: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    dialect: "postgres",
-    logging: false,
-    pool: basePool,
-    dialectOptions: baseDialectOptions,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  dialect: "postgres",
+  logging: false,
+  pool: basePool,
+  dialectOptions: baseDialectOptions,
+  define: {
+    underscored: true,
+    freezeTableName: true,
+  },
+  migrationStorageTableName: "sequelize_meta",
   },
 
   production: {

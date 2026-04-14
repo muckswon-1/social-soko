@@ -2,17 +2,16 @@ const {Business, EmailJob, User} = require("../../models");
 const UTILS = require("../../utils/utils");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
-    const {id, userId} = req.params;
+    const {id} = req.params;
 
-    if(!id || !userId) {
-        throw UTILS.httpError(400, "Business id or user id is required");
+    const userId = req?.user.id;
+
+    if(!id) {
+        throw UTILS.httpError(400, "Business id  is required");
     }
 
-    const user =  await User.findByPk(userId);
+    if(!userId) throw UTILS.httpError(401, "Unauthorized")
 
-    if(!user) {
-       throw UTILS.httpError(404, "User not found");
-    }
 
     const business = await Business.findByPk(id);
 
@@ -20,7 +19,6 @@ module.exports = UTILS.catchAsync(async (req, res) => {
         throw UTILS.httpError(404, "Business not found");
     }
 
-  
 
     business.verification_status = "requested"
     business.verification_requested_at = new Date();

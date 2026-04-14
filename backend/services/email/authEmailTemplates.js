@@ -1,20 +1,20 @@
 const { Comp, escapeHtml } = require("./utils");
 const wrapLayout = require("./wrapLayout");
 
-require("dotenv");
+require("dotenv").config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
-const BRAND_NAME = process.env.BRAND_NAME;
+const BRAND_NAME = process.env.BRAND_NAME || "Social Soko";
 
-//Password reset
+/**
+ * Password reset link
+ */
 const sendPasswordResetLinkEmail = ({
   email,
   token,
   expiresInMinutes = 60,
 }) => {
   const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
-
-  console.log(resetUrl);
 
   return {
     subject: "Password Reset Request",
@@ -25,14 +25,20 @@ const sendPasswordResetLinkEmail = ({
         Comp.p(
           `We received a request to reset your password. Click the link below to reset it. This link will expire in <strong>${expiresInMinutes} minutes</strong>.`,
         ),
-        Comp.p(Comp.link(resetUrl, "Reset Password")),
+        `<p class="email-mb-lg">${Comp.btn(resetUrl, "Reset Password")}</p>`,
+        Comp.p(
+          `If the button doesn't work, copy and paste this URL into your browser:`,
+        ),
+        Comp.p(Comp.link(resetUrl, resetUrl)),
       ].join(""),
       brandName: BRAND_NAME,
     }),
   };
 };
 
-// Password reset Successful
+/**
+ * Password reset successful
+ */
 const sendPasswordResetSuccessEmail = ({
   email,
   loginUrl = `${FRONTEND_URL}/login`,
@@ -44,16 +50,18 @@ const sendPasswordResetSuccessEmail = ({
       bodyHtml: [
         Comp.p(`Hello ${escapeHtml(email)},`),
         Comp.p(
-          `Your password has been successfully reset. You can now log in with your new password. `,
+          `Your password has been successfully reset. You can now log in with your new password.`,
         ),
-        Comp.p(Comp.link(loginUrl, "Click here to login")),
+        `<p class="email-mb-lg">${Comp.btn(loginUrl, "Log in")}</p>`,
       ].join(""),
       brandName: BRAND_NAME,
     }),
   };
 };
 
-// Send 6 digit code email
+/**
+ * Six-digit verification code
+ */
 const sendSixDigitCodeEmail = ({ email, code, expiresInMinutes }) => {
   return {
     subject: `Verification Code`,
@@ -61,9 +69,10 @@ const sendSixDigitCodeEmail = ({ email, code, expiresInMinutes }) => {
       title: "Verification Code",
       bodyHtml: [
         Comp.p(`Hello ${escapeHtml(email)},`),
-
         Comp.p(
-          `Your verification digit code is: <strong>${code}</strong> The code will expire in <strong>${expiresInMinutes} minutes</strong>.`,
+          `Your verification digit code is: <strong>${escapeHtml(
+            String(code),
+          )}</strong>. The code will expire in <strong>${expiresInMinutes} minutes</strong>.`,
         ),
       ].join(""),
       brandName: BRAND_NAME,
@@ -71,109 +80,141 @@ const sendSixDigitCodeEmail = ({ email, code, expiresInMinutes }) => {
   };
 };
 
-//Verify Email
+/**
+ * Verify email link
+ */
 const sendVerifyEmail = ({ email, token, expiresInMinutes = 60 }) => {
-  const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+  const verifyUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
 
   return {
     subject: `Verify Your Email Address`,
-
     html: wrapLayout({
       title: "Verify Your Email Address",
       bodyHtml: [
         Comp.p(`Hello ${escapeHtml(email)},`),
-
         Comp.p(
           `Please click the button below to verify your email address. This link will expire in <strong>${expiresInMinutes} minutes</strong>.`,
         ),
-
-        `<p style="margin:24px 0">${Comp.btn(verifyUrl, "Verify email")}</p>`,
+        `<p class="email-mb-lg">${Comp.btn(verifyUrl, "Verify email")}</p>`,
         Comp.p(
           `If the button doesn't work, copy and paste this URL into your browser:`,
         ),
         Comp.p(Comp.link(verifyUrl, verifyUrl)),
-        `<p style="color:#666">If you didn't request this, you can safely ignore this email.</p>`,
+        `<p class="email-text-muted">If you didn't request this, you can safely ignore this email.</p>`,
       ].join(""),
       brandName: BRAND_NAME,
     }),
   };
 };
 
-// email successfully verifed
+/**
+ * Email successfully verified
+ */
 const sendEmailVerificationSuccessful = ({ email }) => {
+  const loginUrl = `${FRONTEND_URL}/login`;
+
   return {
     subject: `Email Verification Successful`,
-
     html: wrapLayout({
       title: "Email Verification Successful",
-
       bodyHtml: [
         Comp.p(`Hello ${escapeHtml(email)},`),
-
         Comp.p(`Your email address has been successfully verified.`),
-
         Comp.p(`You can now log in to your account.`),
-
+        `<p class="email-mb-lg">${Comp.btn(loginUrl, "Log in")}</p>`,
         Comp.p(`If you have any questions, feel free to reply to this email.`),
         Comp.p(`Best regards,`),
-        Comp.p(`The ${BRAND_NAME} Team`),
-        Comp.p(Comp.link(`${FRONTEND_URL}/login`, "Log in")),
+        Comp.p(`The ${escapeHtml(BRAND_NAME)} Team`),
       ].join(""),
       brandName: BRAND_NAME,
     }),
   };
 };
 
-//send email updated
+/**
+ * Email updated notification
+ */
 const sendEmailUpdated = ({ email }) => {
   return {
     subject: `Your Email Address Has Been Updated`,
-
     html: wrapLayout({
       title: "Email Address Updated",
-
       bodyHtml: [
         Comp.p(`Hello ${escapeHtml(email)},`),
-
         Comp.p(`Your email address has been successfully updated.`),
-
         Comp.p(
           `If you did not make this change, please contact us immediately.`,
         ),
-
         Comp.p(`If you have any questions, feel free to reply to this email.`),
         Comp.p(`Best regards,`),
-        Comp.p(`The ${BRAND_NAME} Team`),
-        Comp.p(Comp.link(`${FRONTEND_URL}/dashboard`, "Go to your dashboard")),
-        Comp.p(Comp.link(`${FRONTEND_URL}/contact`, "Contact Us")),
-        Comp.p(Comp.link(`${FRONTEND_URL}/support`, "Support")),
-        Comp.p(Comp.link(`${FRONTEND_URL}/privacy`, "Privacy Policy")),
-        Comp.p(Comp.link(`${FRONTEND_URL}/terms`, "Terms of Service")),
-        Comp.p(Comp.link(`${FRONTEND_URL}/unsubscribe`, "Unsubscribe")),
+        Comp.p(`The ${escapeHtml(BRAND_NAME)} Team`),
+        `<p class="email-mb-sm">${Comp.link(
+          `${FRONTEND_URL}/dashboard`,
+          "Go to your dashboard",
+        )}</p>`,
       ].join(""),
       brandName: BRAND_NAME,
     }),
   };
 };
 
-//Welcome
+/**
+ * Welcome email (generic)
+ */
 const sendWelcomeEmail = ({ email }) => {
+  const dashboardUrl = `${FRONTEND_URL}/dashboard`;
+
   return {
     subject: `Welcome to ${BRAND_NAME}`,
     html: wrapLayout({
       title: "Welcome!",
       bodyHtml: [
-        Comp.p(`Hi ${escapeHtml(email)}`),
+        Comp.p(`Hi ${escapeHtml(email)},`),
         Comp.p(`We're excited to have you on board.`),
-        Comp.p(Comp.link(`${FRONTEND_URL}/dashboard`, "Go to your dashboard")),
+        `<p class="email-mb-lg">${Comp.btn(dashboardUrl, "Go to your dashboard")}</p>`,
       ].join(""),
       brandName: BRAND_NAME,
     }),
   };
 };
 
-//export an array of all templates
+/**
+ * Registration successful (explicit auth.registerSuccessful)
+ * Separate from generic "welcome" if you want different copy later.
+ */
+const sendRegisterSuccessfulEmail = ({ email }) => {
+  const dashboardUrl = `${FRONTEND_URL}/dashboard`;
+
+  return {
+    subject: `Your ${BRAND_NAME} account is ready`,
+    html: wrapLayout({
+      title: "Registration Successful",
+      bodyHtml: [
+        Comp.p(`Hi ${escapeHtml(email)},`),
+        Comp.p(
+          `Your account has been created successfully. You can now sign in and start using ${escapeHtml(
+            BRAND_NAME,
+          )}.`,
+        ),
+        `<p class="email-mb-lg">${Comp.btn(dashboardUrl, "Go to your dashboard")}</p>`,
+        Comp.p(
+          `If you did not create this account, please contact our support team.`,
+        ),
+      ].join(""),
+      brandName: BRAND_NAME,
+    }),
+  };
+};
+
+/**
+ * Export template map
+ *
+ * We keep both:
+ *  - short keys for backward compatibility (e.g. "passwordReset")
+ *  - namespaced keys for clarity (e.g. "auth.passwordReset")
+ */
 const authEmailTemplates = {
+  // Legacy short keys
   passwordReset: sendPasswordResetLinkEmail,
   passwordResetSuccess: sendPasswordResetSuccessEmail,
   sixDigitCode: sendSixDigitCodeEmail,
@@ -181,6 +222,17 @@ const authEmailTemplates = {
   emailVerificationSuccess: sendEmailVerificationSuccessful,
   emailUpdated: sendEmailUpdated,
   welcome: sendWelcomeEmail,
+  registerSuccessful: sendRegisterSuccessfulEmail,
+
+  // Namespaced keys
+  "auth.passwordReset": sendPasswordResetLinkEmail,
+  "auth.passwordResetSuccess": sendPasswordResetSuccessEmail,
+  "auth.sixDigitCode": sendSixDigitCodeEmail,
+  "auth.verifyEmail": sendVerifyEmail,
+  "auth.emailVerificationSuccess": sendEmailVerificationSuccessful,
+  "auth.emailUpdated": sendEmailUpdated,
+  "auth.welcome": sendWelcomeEmail,
+  "auth.registerSuccessful": sendRegisterSuccessfulEmail,
 };
 
 module.exports = authEmailTemplates;

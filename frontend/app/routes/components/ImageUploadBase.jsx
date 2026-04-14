@@ -31,7 +31,6 @@ const ImageUploadBase = ({label = "Image", description = "Upload an image", onUp
 
     }
 
-
     const handleFileChange = async (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -120,7 +119,6 @@ const ImageUploadBase = ({label = "Image", description = "Upload an image", onUp
            <form className="form-grid-2 logo-step" onSubmit={handleSubmit}>
       {/* Intro */}
       <div className="form-field logo-step-intro">
-        <span className="form-label">Business Logo</span>
         <p className="form-hint">
           {/* Upload a clean, square picure (ideally 400x400 or 512x512). This will
           appear on your public profile, search results, and messages. */}

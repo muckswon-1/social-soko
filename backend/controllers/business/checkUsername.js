@@ -1,35 +1,29 @@
-const {Business} = require("../../models");
+const { Business } = require("../../models");
 const UTILS = require("../../utils/utils");
 const validateBusinessUsername = require("../../utils/validateBusinessUsername");
 
+module.exports = UTILS.catchAsync(async (req, res) => {
+  const { username } = req.params;
 
-module.exports = UTILS.catchAsync(async ( req, res) => {
+  if (!username) throw UTILS.httpError(400, "Business username is required");
 
-    const {username} = req.params;
+  const result = validateBusinessUsername(username);
 
+  if (!result.valid) {
+    throw UTILS.httpError(400, result.reason);
+  }
 
-    if(!username) throw UTILS.httpError(400, "Business username is required");
+  // check if username already exists
+  const existing = await Business.findOne({
+    where: { username },
+  });
 
+  if (existing) {
+    throw UTILS.httpError(400, "Username already taken");
+  }
 
-   const result = validateBusinessUsername(username);
-
-   if(!result.valid){
-     throw UTILS.httpError(400, result.reason)
-   }
-
-
-   // check if username already exists
-   const existing = await Business.findOne({
-    where: {username}
-   });
-
-   if(existing) {
-    throw UTILS.httpError(400, "Username already taken")
-   }
-
-   return res.status(200).json({
+  return res.status(200).json({
     valid: true,
-    username: result.username
-   })
-  
+    username: result.username,
+  });
 });

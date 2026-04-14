@@ -22,7 +22,7 @@ export default function ResetPasswordMessageRoute() {
         <div className="card auth-card">
           <h2 className="auth-title">Password reset requested</h2>
           <div className="auth-success">
-            <p>We&apos;ve sent a password reset link to your email.</p>
+            <p>We've sent a password reset link to your email.</p>
             <p>
               Please check your inbox (and spam) and follow the link to
               continue.

@@ -43,6 +43,8 @@ module.exports = UTILS.catchAsync(async (req, res ) => {
     const totalItems = count;
     const totalPages = Math.ceil(totalItems / limit);
 
+  
+
     return res.json({
         rows,
         meta: {

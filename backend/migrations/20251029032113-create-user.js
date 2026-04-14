@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         primaryKey: true,
-        defaultValue: Sequelize.literal("gen_random_uuid()"), // ensure extension enabled
+        defaultValue: Sequelize.literal("gen_random_uuid()"), 
       },
 
       first_name: {

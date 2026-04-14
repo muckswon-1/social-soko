@@ -1,9 +1,10 @@
+
+// root.jsx
 import {
   isRouteErrorResponse,
   Link,
   Links,
   Meta,
-  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -11,12 +12,22 @@ import {
 
 import "./app.css";
 import "./styles/error/error-boundary.css";
-import { Provider, useSelector } from "react-redux";
+import { Provider,  useSelector} from "react-redux";
 import { store } from "./store";
-import { authUserSelector } from "./features/auth/authSlice";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/ReactToastify.css";
+import TopNav from "./routes/components/TopNav";
+import ResponsiveShell from "./routes/components/ResponsiveShell";
+import LeftRail from "./routes/components/LeftRail";
+import RightRail from "./routes/components/RightRail";
+import { selectAuthUser } from "./features/auth/authSlice";
+import GuestLeftRail from "./routes/guest/GuestLeftRail";
+import GuestRightRail from "./routes/guest/GuestRightRail";
+import AuthGateProvider from "./routes/components/AuthGateProvider";
+import shellStyles from "./styles/layout/responsive-shell.css?url"
+import topNavStyles from './styles/nav/topnav.css?url';
+import iconStyles from './styles/icons/icons.css?url';
+
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -29,6 +40,19 @@ export const links = () => [
     href: "https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&family=Funnel+Display:wght@300..800&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Saira:ital,wght@0,100..900;1,100..900&display=swap",
     rel: "stylesheet",
   },
+  {
+    rel: 'stylesheet',
+    href: shellStyles
+  },
+   {
+    rel: 'stylesheet',
+    href: topNavStyles
+  },
+  {
+    rel:"stylesheet",
+    href:iconStyles
+  },
+
 ];
 
 export function Layout({ children }) {
@@ -54,58 +78,19 @@ export function Layout({ children }) {
 }
 
 export default function App() {
-  const user = useSelector(authUserSelector);
-
+  const user = useSelector(selectAuthUser);
+  const isGuest = !user;
+  
   return (
-    <>
-      <header className="header">
-        <nav className="nav">
-          <div className="nav-brand">
-            <h1 className="logo-text">Social Soko</h1>
-          </div>
-          <div className="nav-links">
-            {/* Show register and login only if user is logged out */}
-            {user ? (
-              <>
-                <NavLink
-                  to="/dashboard/profile"
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? " nav-link-active" : ""}`
-                  }
-                >
-                  Profile
-                </NavLink>
-              </>
-            ) : (
-              <>
-                <NavLink
-                  to="/login"
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? " nav-link-active" : ""}`
-                  }
-                >
-                  Login
-                </NavLink>
-                <NavLink
-                  to="/register"
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? " nav-link-active" : ""}`
-                  }
-                >
-                  Register
-                </NavLink>
-
-           
-              </>
-            )}
-          </div>
-        </nav>
-      </header>
-
-      <main className="main-content">
+  
+     <AuthGateProvider>
+      <ResponsiveShell header={<TopNav />}
+       leftRail={isGuest ? <GuestLeftRail /> : <LeftRail />}
+        rightRail={isGuest ? <GuestRightRail /> : <RightRail />}>
         <Outlet />
-      </main>
-    </>
+      </ResponsiveShell>
+      </AuthGateProvider>
+    
   );
 }
 

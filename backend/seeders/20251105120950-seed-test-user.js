@@ -1,6 +1,8 @@
 "use strict";
 const bcrypt = require("bcrypt");
-const { USER_MUCKS_ID, USER_BETTY_ID, USER_CYRIL_ID } = require("../seed_helpers/seed-ids");
+const { USER_ACCOUNT_ID } = require("../seed_helpers/seed-ids");
+
+
 
 
 require("dotenv");
@@ -29,31 +31,18 @@ module.exports = {
     
 
     await queryInterface.bulkInsert("users", [
-      {
-        id: USER_MUCKS_ID,
-        email: testBusinessRoleEmail,
-        password: hashedPassword,
-        first_name: "Mucks",
-        last_name: "Won",
-        email_verified: true,
-        phone_verified: true,
-        email_verified_at: new Date(),
-        created_at: new Date(),
-        updated_at: new Date(),
-        role: "business",
-        phone: "+254101348264",
-        
-      },
+  
 
         {
-        id: USER_BETTY_ID,
+        id: USER_ACCOUNT_ID.ann,
         email: testAdminRoleEmail,
         password: hashedPassword,
-        first_name: "Betty",
+        first_name: "Ann",
         last_name: "Won",
         email_verified: true,
         phone_verified: true,
         email_verified_at: new Date(),
+        phone_verified_at: new Date(),
         created_at: new Date(),
         updated_at: new Date(),
         role: "admin",
@@ -62,7 +51,7 @@ module.exports = {
       },
 
            {
-        id: USER_CYRIL_ID,
+        id: USER_ACCOUNT_ID.cyril,
         email: testCustomerRoleEmail,
         password: hashedPassword,
         first_name: "Cyril",
@@ -70,6 +59,7 @@ module.exports = {
         email_verified: true,
         phone_verified: true,
         email_verified_at: new Date(),
+         phone_verified_at: new Date(),
         created_at: new Date(),
         updated_at: new Date(),
         role: "customer",

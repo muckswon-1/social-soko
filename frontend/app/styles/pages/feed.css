@@ -1,0 +1,45 @@
+/* src/styles/feed/feed.css */
+
+/* Match GuestFeedPage layout structure, but for authenticated feed */
+.feed {
+    width: 100%;
+}
+
+.feed__inner {
+    width: 100%;
+    max-width: 980px;
+    /* keep consistent, tweak later if needed */
+    margin: 0 auto;
+    padding: var(--spacing-md);
+}
+
+.feed__list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spacing-md);
+}
+
+.feed__state {
+    padding: var(--spacing-md);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.feed__state--error {
+    color: #c62828;
+}
+
+[data-theme="dark"] .feed__state--error {
+    color: #ff8a8a;
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+    .feed__inner {
+        padding: var(--spacing-sm);
+    }
+
+    .feed__list {
+        gap: var(--spacing-sm);
+    }
+}

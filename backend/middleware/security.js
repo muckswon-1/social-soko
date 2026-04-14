@@ -10,14 +10,63 @@ const cookieParser = require("cookie-parser");
 const express = require("express");
 const { ROLES } = require("../constants/roles");
 
+const IS_PROD = process.env.NODE_ENV === "production";
+
 require("dotenv").config();
 
-const FRONTEND_URL = process.env.FRONTEND_URL;
-const ADMIN_FRONTEND_URL = process.env.ADMIN_FRONTEND_URL;
-const NODE_ENV = process.env.NODE_ENV || "development";
-const IS_PROD = NODE_ENV === "production";
 
-console.log(FRONTEND_URL);
+console.log("Server URL: ", process.env.SERVER_URL);
+
+const makeLocalOrigin = (port) => (port ? `http://localhost:${port}` : null);
+const makeLocalOrigin127 = (port) => (port ? `http://127.0.0.1:${port}` : null);
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.ADMIN_FRONTEND_URL,
+  process.env.SERVER_URL, // if your frontend is served from here in some env
+
+  makeLocalOrigin(process.env.FRONTEND_PORT),
+  makeLocalOrigin(process.env.ADMIN_FRONTEND_PORT),
+  makeLocalOrigin(process.env.SERVER_PORT),
+
+  makeLocalOrigin127(process.env.FRONTEND_PORT),
+  makeLocalOrigin127(process.env.ADMIN_FRONTEND_PORT),
+  makeLocalOrigin127(process.env.SERVER_PORT),
+].filter(Boolean); // removes nulls
+
+
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow Postman/curl/server-to-server (no Origin header)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+
+      return callback(null, true);
+    }
+
+    // Optional: helpful log while developing
+    console.warn(`❌ CORS blocked for origin: ${origin}`);
+
+    // Proper error for your global error handler
+    return callback(UTILS.httpError(403, "Not allowed by CORS"));
+  },
+
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-XSRF-TOKEN",
+    "x-xsrf-token",
+    "x-csrf-token",
+    "x-csrf_token"
+  ],
+};
+
+
 
 // Small noop middleware for dev
 const noop = (req, res, next) => next();
@@ -26,6 +75,7 @@ const noop = (req, res, next) => next();
 const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
 
   if(!IS_PROD) return next();
+
   const method = String(req.method || "").toUpperCase();
 
   // Exempt endpoints (regex aware)
@@ -35,7 +85,6 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
     /^\/api\/v1\/auth\/logout$/,
     /^\/api\/v1\/auth\/login$/,
     /^\/api\/v1\/auth\/forgot-password$/,
-    // match /api/v1/auth/verify-email and /api/v1/auth/verify-email/<token>
     /^\/api\/v1\/auth\/verify-email(?:\/[^\/\s]+)?$/,
     /^\/api\/v1\/auth\/reset-password(?:\/[^\/\s]+)?$/,
     /^\/api\/v1\/auth\/send-verification-email(?:\/[^\/\s]+)?$/,
@@ -51,7 +100,7 @@ const csrfGuard = UTILS.catchAsync(async (req, res, next) => {
   const headerToken =
     req.headers["x-xsrf-token"] ||
     req.headers["x-csrf-token"] ||
-    req.headers["x-csrf_token"];
+    req.headers["x-csrf_token"] 
 
   const flag = UTILS.timingSafeCompare(headerToken, cookieToken);
 
@@ -106,11 +155,7 @@ function securityMiddleWare(app) {
 
   // CORS for SPA
   app.use(
-    cors({
-      //TODO fix cors
-      origin: true,
-      credentials: true,
-    }),
+    cors(corsOptions),
   );
 
   // Prevent HTTP parameter pollution
@@ -150,8 +195,37 @@ const verifyAccessToken = UTILS.catchAsync(async (req, res, next) => {
   }
 });
 
+
+const verifyAccessTokenOptional = UTILS.catchAsync(
+ async (req,_res, next) => {
+  try {
+
+    const token = req.cookies?.access_token;
+
+
+    if (!token) {
+      req.user = null;
+      return next();
+    }
+
+     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+  
+
+    req.user = decoded; // attach user to request
+    return next(); // Proceed to the next middleware or route handler
+
+  } catch (error) {
+    req.user = null;
+    next();
+  }
+ }
+)
+ 
+
+
 const requireRole = (...allowedRoles) =>
   UTILS.catchAsync(async (req, res, next) => {
+  
     try {
       if (!req.user) {
         throw UTILS.httpError(401, "Not authenticated");
@@ -174,6 +248,7 @@ const requireAdmin = requireRole(ROLES.ADMIN);
 
 module.exports = {
   verifyAccessToken,
+  verifyAccessTokenOptional,
   securityMiddleWare,
   authRateLimiter,
   authSlowDown,

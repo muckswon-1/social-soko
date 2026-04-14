@@ -4,7 +4,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test jest",
+    "test-server": "NODE_ENV=test npx nodemon server.js",
     "dev": "npx nodemon server.js",
     "email:worker": "node ./workers/emailWorker.js"
   },
@@ -32,13 +33,16 @@
     "phone": "^3.1.67",
     "react-router-dom": "^7.9.5",
     "sequelize": "^6.37.7",
+    "sql-formatter": "^15.6.12",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^13.0.0",
+    "uuid": "^8.3.2",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "jest": "^30.2.0",
     "nodemon": "^3.1.10",
-    "sequelize-cli": "^6.6.3"
+    "sequelize-cli": "^6.6.3",
+    "supertest": "^7.1.4"
   }
 }

@@ -4,6 +4,7 @@ import { NavLink, Outlet } from "react-router";
 const SectionLayout = ({ sectionMeta }) => {
   const { sectionLinks } = sectionMeta;
 
+
   return (
     <div className="section-layout">
       <header className="layout-header section-layout__header">

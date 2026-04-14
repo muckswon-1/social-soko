@@ -1,0 +1,36 @@
+.guest-feed {
+    width: 100%;
+}
+
+.guest-feed__inner {
+    width: 100%;
+    max-width: 640px;
+    /* reddit-ish feed width */
+    margin: 0 auto;
+    padding: var(--spacing-md) var(--spacing-md);
+}
+
+.guest-feed__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Tablet: a touch tighter */
+@media (max-width: 768px) {
+    .guest-feed__inner {
+        max-width: 100%;
+        padding: var(--spacing-sm) var(--spacing-sm);
+    }
+
+    .guest-feed__list {
+        gap: var(--spacing-sm);
+    }
+}
+
+/* Mobile: tight like reddit */
+@media (max-width: 480px) {
+    .guest-feed__inner {
+        padding: 10px;
+    }
+}

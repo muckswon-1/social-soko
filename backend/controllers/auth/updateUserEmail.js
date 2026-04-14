@@ -44,13 +44,13 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     await EmailJob.bulkCreate([
       {
         to: oldEmail,
-        template: "emailUpdated",
+        template: "auth.emailUpdated",
         payload: { email: oldEmail },
 
       },
       {
         to: email,
-        template: "emailUpdated",
+        template: "auth.emailUpdated",
         payload: {email}
       }
       
@@ -84,7 +84,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   try {
     await EmailJob.create({
       to: email,
-      template: "verifyEmail",
+      template: "auth.verifyEmail",
       payload: { email: email, token: verificationToken, expiresInMinutes: 60 },
     })
   } catch (error) {

@@ -1,98 +1,137 @@
 // app/lib/api.server.js
 import axios from "axios";
-import { clientGetCookie } from "./csrf.client";
 
-const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
 
+/**
+ * The backend API base URL.
+ * @type {NullableString}
+ */
+const BACKEND_URL = import.meta.env.VITE_API_URL_BROWSER;
+
+console.log(BACKEND_URL);
+
+/**
+ * Axios instance configured for authenticated API requests.
+ * Automatically sends cookies (HTTP-only access tokens & refresh tokens).
+ *
+ * @type {import("axios").AxiosInstance}
+ */
 export const apiClient = axios.create({
   baseURL: `${BACKEND_URL}/api/v1`,
   timeout: 20000,
   withCredentials: true,
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-CSRF-TOKEN",
+  withXSRFToken: true,
 });
 
-apiClient.interceptors.request.use((config) => {
-  const method = (config.method || "").toUpperCase();
-  const unsafe = /^(POST|PUT|PATCH|DELETE)$/.test(method);
-  const url = config.url || "";
-
-  const isPublicAuth =
-    /^\/auth\/(login|register|forgot-password|send-verification-email|verify-email(?:\/[^/]+)?|reset-password(?:\/.*)?|refresh-token)$/i.test(
-      url,
-    );
-
-  if (unsafe && !isPublicAuth) {
-    const csrf = clientGetCookie("XSRF-TOKEN");
-    if (csrf) {
-      config.headers = config.headers || {};
-      config.headers["X-CSRF-TOKEN"] = csrf;
-    }
-  }
-
-  return config;
-});
-
+/**
+ * Indicates whether a token refresh request is currently being processed.
+ * Used to prevent multiple refresh requests from happening simultaneously.
+ * @type {boolean}
+ */
 let isRefreshing = false;
+
+/**
+ * Queue of callbacks (Promises) waiting for a refresh to complete.
+ * @type {Array<() => void>}
+ */
 let waiters = [];
 
-const notifyWaiters = () => {
-  waiters.forEach((request) => request());
+/**
+ * Resolves all queued API requests that were waiting for token refresh.
+ * Called after refresh completes successfully.
+ *
+ * @returns {void}
+ */
+function notifyWaiters() {
+  waiters.forEach((resumeFn) => {
+    try {
+      resumeFn();
+    } catch {}
+  });
   waiters = [];
-};
+}
 
+/**
+ * Determines if a given URL is a public authentication route, meaning it
+ * should not trigger a refresh attempt on 401 responses.
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isPublicAuthRoute(url) {
+  return /^\/auth\/(register|login|forgot-password|verify-email(?:\/[^/]+)?|reset-password(?:\/.*)?|email-update-with-digit-code|refresh-token)$/i.test(
+    url
+  );
+}
+
+/**
+ * Axios Response Error Interceptor.
+ *
+ * Handles:
+ * - Access token expiration (401)
+ * - Deduplicated refresh-token flow
+ * - Retrying the original request once new tokens are issued
+ *
+ * @param {import("axios").AxiosError} error
+ * @returns {Promise<never> | Promise<import("axios").AxiosResponse>}
+ */
 apiClient.interceptors.response.use(
-  (r) => r,
+  (response) => response,
+
   async (error) => {
-    const { config, response } = error;
+    const config = error.config || {};
+    const response = error.response;
 
-    if (!response) return Promise.reject(error); // network timeout
+    // No response → network or timeout, bubble up
+    if (!response) return Promise.reject(error);
 
-    console.warn(
-      "[API error]",
-      config?.method?.toUpperCase(),
-      config?.url,
-      response?.status,
-      response?.data,
-    );
+    const url = config.url || "";
+    const publicAuth = isPublicAuthRoute(url);
 
-    // Don't attempt to refresh for public auth endpoints or explcit opt-out
-
-    // Could be public routes: verify-email|send-verification-email|forgot-password|reset-password|email-update-with-digit-code|send-verification-digits-code|reset-password-with-digit-code
-
-    const url = (config && config.url) || "";
-    // const isPublicAuth = /^\/auth\/(verify-email| send-verification-email | forgot-password)/.test(url);
-    const isPublicAuth =
-      /^\/auth\/(register|login|forgot-password|verify-email(?:\/[^/]+)?|reset-password(?:\/.*)?|email-update-with-digit-code|refresh-token)$/.test(
-        url,
-      );
-
-    console.log(`is ${url} a public auth route?: ${isPublicAuth}`);
-
-    if (isPublicAuth || config?._skipRefresh) {
+    // Do not attempt refresh on:
+    // - Public routes (login, register, forgot-password, etc.)
+    // - Requests that explicitly skip refresh
+    if (publicAuth || config._skipRefresh) {
       return Promise.reject(error);
     }
 
+    // Handle expired access token (HTTP 401)
     if (response.status === 401 && !config._retry) {
-      // queue requests while refreshing
+      // If refresh is already in progress → queue this request
       if (isRefreshing) {
         await new Promise((resolve) => waiters.push(resolve));
         config._retry = true;
         return apiClient(config);
       }
 
+      // First request encountering an expired token → start refresh flow
       isRefreshing = true;
       config._retry = true;
 
       try {
-        await apiClient.post("/auth/refresh-token", {}, { _skipRefresh: true }); // uses refresh cookie, sets new access cookie
+        // Hit refresh endpoint with refresh token cookie
+        await apiClient.post(
+          "/auth/refresh-token",
+          {},
+          { _skipRefresh: true }
+        );
+
+        // Unblock all queued requests
         notifyWaiters();
+
+        // Retry original request
         return apiClient(config);
-      } catch (error) {
-        // refresh failed - user mut login again
-        return Promise.reject(error);
+      } catch (refreshError) {
+        // Refresh failed → session ended, must log in again
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
+
+    // If not 401 or already retried → bubble up error
     return Promise.reject(error);
-  },
+  }
 );

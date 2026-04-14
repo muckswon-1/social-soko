@@ -1,0 +1,30 @@
+.post-composer__wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.post-composer__header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+.post-composer__close {
+        border: 1px solid transparent;
+            background: transparent;
+            color: inherit;
+            border-radius: 999px;
+            padding: 0.35rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.post-composer__close:hover{
+    background-color: var(--border-color);
+    color: var(--dislike-active-color);
+}
+

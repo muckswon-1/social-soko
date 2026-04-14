@@ -6,7 +6,7 @@ const options = {
   swaggerDefinition,
   // Important! This tells swagger-jsdoc where to scan for @swagger blocks
   apis: [
-    path.join(__dirname, '../server.js'),
+    path.join(__dirname, '../app.js'),
     path.join(__dirname,'../routes/**/*.js'),
     path.join(__dirname,"../admin/routes/**/*.js")
    

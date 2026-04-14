@@ -1,0 +1,500 @@
+/* Safe fallbacks if tokens are missing */
+:root {
+    --post-max-width: 720px;
+    --post-border: var(--border-color, rgba(0,0,0,0.12));
+    --post-shadow: var(--shadow-sm, 0 8px 24px rgba(0, 0, 0, 0.06));
+    --post-radius: var(--radius-md, 14px);
+    --post-radius-lg: var(--radius-lg, 22px);
+    --post-focus: var(--focus-ring, 0 0 0 3px rgba(0, 123, 255, 0.25));
+     --post-muted: var(--text-muted, rgba(0, 0, 0, 0.65));
+}
+
+.post-card {
+    width: 100%;
+    background: var(--card-bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--post-border);
+    border-radius: var(--post-radius);
+    box-shadow: var(--post-shadow);
+    overflow: hidden;
+}
+
+.post-card:hover {
+    border-color: rgba(0, 0, 0, 0.14);
+    box-shadow: var(--post-shadow);
+}
+
+[data-theme="dark"] .post-card:hover {
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+
+/* Clickable region above footer */
+.post-click {
+    position: relative;
+    cursor: pointer;
+}
+
+/* Hover CTA (like "Watch video") */
+.post-click__hoverCta {
+    position: absolute;
+    top: 12px;
+    right: 56px;
+    /* leaves room for the More button */
+    z-index: 2;
+    pointer-events: none;
+    /* doesn't block clicks */
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.post-click__hoverCtaPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    font-weight: 400;
+    font-size: 0.7rem;
+    color: var(--text-color);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* Show pill on hover / focus-within */
+.post-card:hover .post-click__hoverCta,
+.post-card:focus-within .post-click__hoverCta {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+[data-theme="dark"] .post-click__hoverCtaPill {
+    background: rgba(17, 24, 39, 0.92);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .post-click__hoverCta {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .post-click__hoverCta {
+        transition: none;
+    }
+}
+
+
+
+
+.post-meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-md)
+}
+
+.post-meta__left {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.post-meta__row {
+    min-width: 0;
+}
+
+.post-meta__businessNameLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    text-decoration: none;
+    color: inherit;
+    min-width: 0;
+}
+
+.post-meta__businessName {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.25rem;
+    line-height: 1.1;
+    letter-spacing: 0.2px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.post-meta__verified {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(1px);
+    color: var(--color-yellow);
+}
+
+.post-meta__businessNameLink:hover .post-meta__businessName {
+    color: var(--accent-color);
+}
+
+.post-meta__authorText, .post-meta__authorLink {
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--text-color);
+}
+
+.post-meta__authorLink {
+    text-decoration: none;
+}
+
+.post-meta__authorLink:hover {
+    text-decoration: underline;
+    color: var(--accent-color);
+}
+
+.post-meta__time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* "More" button pinned right */
+.post-meta__right {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: flex-start;
+}
+
+.post-meta__moreBtn {
+    border: 1px solid transparent;
+    background: transparent;
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.05s ease;
+}
+
+.post-meta__moreBtn:hover {
+    background: rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .post-meta__moreBtn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================
+   CONTENT (clickable block)
+   ========================== */
+
+.post-content {
+    padding: 0 var(--spacing-lg) var(--spacing-md);
+    cursor: pointer;
+    outline: none;
+}
+
+.post-content:focus-visible {
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-md);
+}
+
+/* Title */
+.post-content__title {
+    margin-top: 0.2rem;
+    margin-bottom: 0.55rem;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0.1px;
+}
+
+/* Text preview area */
+.post-content__text {
+    margin-bottom: 0.75rem;
+}
+
+.post-content__textInner {
+    color: var(--text-color);
+    font-size: 0.96rem;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    /* reddit-ish */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+/* If no title, give text a bit of top spacing */
+.post-card[data-has-text="true"] .post-content__title:empty+.post-content__text {
+    margin-top: 0.5rem;
+}
+
+/* ==========================
+   MEDIA
+   - text+media: shows below text
+   - media-only: still looks nice
+   ========================== */
+
+.post-media {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    margin-bottom: 0.75rem;
+}
+
+[data-theme="dark"] .post-media {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.10);
+}
+
+.post-media__el {
+    width: 100%;
+    height: auto;
+    max-height: 560px;
+    display: block;
+    object-fit: cover;
+}
+
+/* Video: keep clean */
+.post-media[data-type="video"] .post-media__el {
+    max-height: 620px;
+}
+
+/* Media-only posts: make media the hero (less padding above) */
+.post-card[data-has-media="true"][data-has-text="false"] .post-content {
+    padding-bottom: var(--spacing-sm);
+}
+
+.post-card[data-has-media="true"][data-has-text="false"] .post-media {
+    margin-top: 0.35rem;
+}
+
+/* ==========================
+   ACTIONS (single footer row like screenshot)
+   ========================== */
+
+.post-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .post-actions {
+    border-top-color: rgba(255, 255, 255, 0.10);
+}
+
+/* Vote group is a pill */
+.post-actions__group--vote {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .post-actions__group--vote {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.10);
+}
+
+/* Base action button (comments/save etc.) */
+.post-actions__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid transparent;
+    background: rgba(0, 0, 0, 0.04);
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.05s ease;
+}
+
+[data-theme="dark"] .post-actions__btn {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.post-actions__btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.10);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .post-actions__btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+}
+
+/* Vote buttons: use smaller padding inside vote pill */
+.post-actions__btn--vote {
+    background: transparent;
+    padding: 0.25rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+
+.post-actions__btn--vote:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.10);
+    box-shadow: none;
+    transform: none;
+}
+
+[data-theme="dark"] .post-actions__btn--vote:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Active states (like you already defined tokens for global) */
+.post-actions__btn--active {
+    background: var(--like-active-bg);
+    color: var(--like-active-color);
+    border-color: transparent;
+}
+
+.post-actions__btn--active:hover {
+    filter: brightness(0.98);
+}
+
+/* Like/Dislike count */
+.post-actions__count {
+    font-size: 0.84rem;
+    font-weight: 800;
+    padding: 0 0.15rem;
+    color: var(--text-color);
+}
+
+/* Labels */
+.post-actions__label {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: inherit;
+}
+
+/* Views (non-button) looks like a pill but not clickable */
+.post-actions__views {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    color: var(--text-muted);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .post-actions__views {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.10);
+}
+
+/* Spacer + hint */
+.post-actions__spacer {
+    flex: 1;
+}
+
+.post-actions__hint {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* ==========================
+   Tags (optional)
+   If you re-add them later, this is ready.
+   ========================== */
+
+.post-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .post-tag {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* ==========================
+   Responsive tweaks
+   ========================== */
+
+@media (max-width: 768px) {
+    .post-meta {
+        padding: var(--spacing-md) var(--spacing-md);
+    }
+
+    .post-content {
+        padding: 0 var(--spacing-md) var(--spacing-md);
+    }
+
+    .post-actions {
+        padding: var(--spacing-sm) var(--spacing-md);
+        gap: 0.4rem;
+        flex-wrap: wrap;
+    }
+
+    .post-actions__hint {
+        display: none;
+        /* keep footer clean on small screens */
+    }
+
+    .post-meta__businessName {
+        font-size: 1.15rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .post-actions__btn {
+        padding: 0.1rem 0.2rem;
+        font-size: 0.5rem;
+    }
+
+    .post-actions__views {
+        padding: 0.28rem 0.5rem;
+    }
+
+    .post-media__el {
+        max-height: 520px;
+    }
+}

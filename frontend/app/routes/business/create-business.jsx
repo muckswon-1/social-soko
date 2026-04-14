@@ -12,24 +12,19 @@ import sharedFormStyles from "../../styles/forms/forms.css?url";
 import businessStyles from "../../styles/business/create-business.css?url";
 import logoUploadStyles from "../../styles/business/logo-upload.css?url";
 import { ImageUp } from "lucide-react";
-import { authUserSelector } from "../../features/auth/authSlice";
+import {  selectAuthUser } from "../../features/auth/authSlice";
 import {
   useCreateBusinessMutation,
   useLazyCheckBusinessSlugQuery,
   useLazyCheckBusinessUsernameQuery,
 } from "../../services/businessApi";
-import { emailRe, urlRe } from "../../utils/formValidation";
 import { useNavigate } from "react-router";
 import BusinessLogoUpload from "./BusinessLogoUpload";
+import BUSINESS_UTILS from "./utils/utils";
+import PhoneSelection from "./PhoneSelection";
+import { slugify } from "../../utils/slugify";
+import { emailRe, urlRe } from "../../utils/formValidation";
 
-
-
-const slugify = (s = "") =>
-  s
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
 
 const DRAFT_KEY_BASE = "ss:create-business-draft:v1";
 
@@ -45,23 +40,9 @@ export function meta() {
   return [{ title: "My Business | Social Soko" }];
 }
 
-const getEmptyForm = (email = "") => ({
-  username: "",
-  name: "",
-  description: "",
-  address: "",
-  city: "",
-  state: "",
-  country: "",
-  postal_code: "",
-  phone: "",
-  email: email || "",
-  website: "",
-  slug: "",
-});
 
 export default function CreateBusiness() {
-  const user = useSelector(authUserSelector);
+  const user = useSelector(selectAuthUser);
   const navigate = useNavigate();
 
   const [createBusiness, { isLoading: loading, error }] =
@@ -80,7 +61,8 @@ export default function CreateBusiness() {
   const errorMessage = error?.data?.message || error?.message || "";
 
   const [autoSlug, setAutoSlug] = useState(true);
-  const [form, setForm] = useState(() => getEmptyForm(user?.email));
+  const [form, setForm] = useState(() => BUSINESS_UTILS.getEmptyForm(user?.email));
+  const [phoneCountryCode, setPhoneCountryCode] = useState("KE")
 
   const [usernameStatus, setUsernameStatus] = useState("idle");
   const [slugStatus, setSlugStatus] = useState("idle");
@@ -98,48 +80,24 @@ export default function CreateBusiness() {
   const [step, setStep] = useState(1);
   const [createdBusinessId, setCreatedBusinessId] = useState(null);
 
-  const isValid = useMemo(() => {
-    if (!form.username.trim()) return false;
-    if (!form.name.trim()) return false;
-    if (form.email && !emailRe.test(form.email)) return false;
-    if (form.website && !urlRe.test(form.website)) return false;
+  const isValid = useMemo(() => BUSINESS_UTILS.formIsValid({form,checkUsername:true,usernameStatus,checkSlug:true,slugStatus}), [form, usernameStatus, slugStatus]);
 
-    if (usernameStatus === "taken" || usernameStatus === "invalid")
-      return false;
+  const onChange = BUSINESS_UTILS.onChange(setForm,autoSlug);
 
-    if (form.slug.trim() && slugStatus === "taken") return false;
+  const toggleAutoSlug = BUSINESS_UTILS.toggleAutoSlug(setAutoSlug,setForm);
 
-    return true;
-  }, [form, usernameStatus, slugStatus]);
 
-  const onChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => {
-      const next = { ...prev, [name]: value };
-
-      if (name === "name") {
-        if (autoSlug) {
-          next.slug = slugify(value);
-        }
-        if (!prev.username?.trim()) {
-          next.username = slugify(value);
-        }
-      }
-
-      return next;
-    });
-  };
-
-  const toggleAutoSlug = () => {
-    setAutoSlug((v) => !v);
-    if (!autoSlug) {
-      setForm((s) => ({ ...s, slug: slugify(s.name) }));
-    }
-  };
 
   const resetForm = () => {
-    setForm(getEmptyForm(user?.email || ""));
+    setForm(BUSINESS_UTILS.getEmptyForm(user?.email || ""));
   };
+
+
+  const handlePhoneCountryChange = BUSINESS_UTILS.handlePhoneCountryChange({phoneCountryCode,setForm,setPhoneCountryCode});
+
+  const selectedPhoneCountry = useMemo(() => BUSINESS_UTILS.selectedPhoneCountry(phoneCountryCode),[phoneCountryCode]);
+
+  const phonePlaceHolder  = useMemo(() => BUSINESS_UTILS.phonePlaceHolder(selectedPhoneCountry),[selectedPhoneCountry]);
 
   const submit = useCallback(
     async (e) => {
@@ -212,14 +170,14 @@ export default function CreateBusiness() {
           }
         } else {
           setForm((prev) => ({
-            ...getEmptyForm(user?.email || ""),
+            ...BUSINESS_UTILS.getEmptyForm(user?.email || ""),
             ...prev,
           }));
         }
       } catch (err) {
         console.error("Failed to load create-business draft:", err);
         setForm((prev) => ({
-          ...getEmptyForm(user?.email || ""),
+          ...BUSINESS_UTILS.getEmptyForm(user?.email || ""),
           ...prev,
         }));
       }
@@ -258,62 +216,50 @@ export default function CreateBusiness() {
   }, [form, draftKey, user?.email]);
 
   // username availability
-  useEffect(() => {
-    const value = form.username.trim();
+useEffect(() => {
+  const value = form.username.trim();
+  if (!value) {
+    setUsernameStatus("idle");
+    return;
+  }
 
-    if (!value) {
-      setUsernameStatus("idle");
-      return;
+  setUsernameStatus("checking");
+
+  const handle = setTimeout(async () => {
+    try {
+      const res = await triggerUsernameCheck(value).unwrap();
+      if (res) setUsernameStatus("available");
+    } catch (error) {
+      setUsernameStatus("error");
+      setUsernameStatusMessage(error.message);
     }
+  }, 450);
 
-    if (isCheckingUsername) {
-      setUsernameStatus("checking");
+  return () => clearTimeout(handle);
+}, [form.username, triggerUsernameCheck]);
+
+useEffect(() => {
+  const value = form.slug.trim();
+  if (!value) {
+    setSlugStatus("idle");
+    return;
+  }
+
+  setSlugStatus("checking");
+
+  const handle = setTimeout(async () => {
+    try {
+      const res = await triggerSlugCheck(value).unwrap();
+      if (res) setSlugStatus("available");
+    } catch (error) {
+      setSlugStatus("error");
+      setSlugStatusMessage(error.message);
     }
+  }, 450);
 
-    const handle = setTimeout(async () => {
-      try {
-        const res = await triggerUsernameCheck(value).unwrap();
-        if (res) {
-          setUsernameStatus("available");
-        }
-      } catch (error) {
-        console.error("Username availability check failed: ", error);
-        setUsernameStatus("error");
-        setUsernameStatusMessage(error.message);
-      }
-    }, 450);
+  return () => clearTimeout(handle);
+}, [form.slug, triggerSlugCheck]);
 
-    return () => clearTimeout(handle);
-  }, [form.username, triggerUsernameCheck, isCheckingUsername]);
-
-  // slug availability
-  useEffect(() => {
-    const value = form.slug.trim();
-
-    if (!value) {
-      setSlugStatus("idle");
-      return;
-    }
-
-    if (isCheckingSlug) {
-      setSlugStatus("checking");
-    }
-
-    const handle = setTimeout(async () => {
-      try {
-        const res = await triggerSlugCheck(value).unwrap();
-        if (res) {
-          setSlugStatus("available");
-        }
-      } catch (error) {
-        console.error("Slug availability check failed: ", error);
-        setSlugStatusMessage(error.message);
-        setSlugStatus("error");
-      }
-    }, 450);
-
-    return () => clearTimeout(handle);
-  }, [form.slug, triggerSlugCheck, isCheckingSlug]);
 
   if (!user) {
     return (
@@ -491,18 +437,33 @@ export default function CreateBusiness() {
           </label>
 
           {/* Phone */}
-          <label className="form-field">
-            <span className="form-label">Phone</span>
-            <input
-              className="form-control"
-              name="phone"
-              value={form.phone}
-              onChange={onChange}
-              placeholder="+1 ..."
-              autoComplete="tel"
-              inputMode="tel"
-            />
-          </label>
+               {/* Phone selection */}
+       <label className="form-field">
+        <span className="form-label">Phone</span>
+        <div style={{display: "flex", gap: "0.5rem"}}>
+          <div style={{flexBasis: "40%"}}>
+             <PhoneSelection value={phoneCountryCode} onChange={handlePhoneCountryChange} setForm={setForm} />
+          </div>
+
+             <div style={{flex: 1}}>
+
+               <input
+          className="form-control"
+          name="phone"
+          value={form.phone}
+          onChange={onChange}
+          placeholder={phonePlaceHolder}
+          autoComplete="tel"
+          inputMode="tel"
+        /> 
+
+        </div>
+
+        </div>
+     
+  
+      </label> 
+
 
           {/* Website */}
           <label className="form-field">

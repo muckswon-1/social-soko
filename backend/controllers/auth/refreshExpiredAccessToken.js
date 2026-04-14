@@ -27,7 +27,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   const userPayload = UTILS.normalizedUserAuthData(decoded);
 
   // Generate new tokens
-  const newAccessToken = UTILS.generateAccessToken(userPayload);
+  const { accessToken: newAccessToken, expiresIn } = UTILS.generateAccessToken(userPayload);
   const newRefreshToken = UTILS.generateRefreshToken(userPayload);
   const newCSRFToken = UTILS.generateCSRFToken();
 
@@ -38,6 +38,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
 
   return res.status(200).json({
     success: true,
+    access_token_expires_at: expiresIn,
     message: "Token refreshed successfully",
   });
 });

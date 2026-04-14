@@ -1,0 +1,189 @@
+/* =========================
+   Auth Gate (Login required modal)
+   ========================= */
+
+.auth-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Allows the panel to stay centered even if content is tall */
+    padding: var(--spacing-md);
+}
+
+.auth-gate__backdrop {
+    position: absolute;
+    inset: 0;
+
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    padding: 0;
+
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* Panel */
+.auth-gate__panel {
+    position: relative;
+    z-index: 1;
+
+    width: 100%;
+    max-width: 420px;
+
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+
+    display: flex;
+    flex-direction: column;
+
+    pointer-events: auto;
+
+    /* Prevent panel from touching edges on tiny screens */
+    max-height: calc(100vh - (var(--spacing-md) * 2));
+    overflow: hidden;
+}
+
+/* Header */
+.auth-gate__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.auth-gate__title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.05rem;
+    line-height: 1.2;
+}
+
+/* Close button */
+.auth-gate__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+
+    /* Your current padding was using --radius-sm; keep it but make it usable */
+    padding: 0.45rem 0.6rem;
+
+    cursor: pointer;
+    color: var(--dislike-active-color);
+
+    transition: background-color 0.2s ease-in, color 0.2s ease-in, border-color 0.2s ease-in;
+}
+
+.auth-gate__close:hover {
+    color: var(--text-color);
+    background: var(--dislike-active-color);
+}
+
+/* Body */
+.auth-gate__body {
+    padding: var(--spacing-md);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.auth-gate__body p {
+    margin: 0;
+    line-height: 1.5;
+    color: var(--text-color);
+    opacity: 0.92;
+}
+
+/* Footer */
+.auth-gate__footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Buttons */
+.auth-gate__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-color);
+
+    border-radius: var(--radius-md);
+    padding: 0.6rem 0.85rem;
+
+    cursor: pointer;
+
+    transition: background-color 160ms ease, border-color 160ms ease, transform 120ms ease;
+}
+
+/* Hover */
+.auth-gate__btn:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .auth-gate__btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Active press */
+.auth-gate__btn:active {
+    transform: scale(0.98);
+}
+
+/* Optional: Make the primary CTA stand out (Log In) */
+.auth-gate__footer .auth-gate__btn:first-child {
+    background-color: rgba(0, 0, 0, 0.08);
+    font-weight: 700;
+}
+
+[data-theme="dark"] .auth-gate__footer .auth-gate__btn:first-child {
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+/* “Continue browsing” can be more subtle (last button) */
+.auth-gate__footer .auth-gate__btn:last-child {
+    opacity: 0.9;
+}
+
+/* Responsive: on very small screens make buttons full width */
+@media (max-width: 480px) {
+    .auth-gate__panel {
+        max-width: 100%;
+    }
+
+    .auth-gate__btn {
+        width: 100%;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .auth-gate__close,
+    .auth-gate__btn {
+        transition: none;
+    }
+
+    .auth-gate__btn:active {
+        transform: none;
+    }
+}

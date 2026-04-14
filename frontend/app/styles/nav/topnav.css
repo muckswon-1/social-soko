@@ -1,0 +1,376 @@
+/* ==========================
+   TopNav (Reddit-like)
+   ========================== */
+
+.topnav {
+    height: var(--header-height);
+    background: var(--card-bg-color);
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-md);
+}
+
+.topnav__inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+/* Left / Center / Right zones */
+.topnav__left,
+.topnav__center,
+.topnav__right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.topnav__left {
+    min-width: 200px;
+}
+
+.topnav__center {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+}
+
+.topnav__right {
+    min-width: 220px;
+    justify-content: flex-end;
+}
+
+/* Brand */
+.topnav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.topnav__brandMark {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--action-bg-color);
+    color: var(--color-black);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 900;
+    font-size: 0.95rem;
+}
+
+.topnav__brandText {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+/* Icon buttons (hamburger etc.) */
+.topnav__iconbtn {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid transparent;
+    background: transparent;
+    color: inherit;
+    border-radius: 999px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.topnav__createbtn {
+    background: transparent;
+    border:  1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 0.8rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.topnav__createbtn:hover {
+    background: var(--action-bg-color);
+    color: var(--action-text-color);
+    border-color: var(--action-bg-color);
+    
+}
+
+.topnav__iconbtn:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .topnav__iconbtn:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.topnav__iconbtn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+
+.topnav__actionbtn-container {
+    display: flex;
+    min-width: 220px;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* Move to the bottom on mobile */
+.topnav__actionbtn-container__mobile {
+   width: 100%;
+   position: fixed;
+   bottom: 0;
+   left: 0;
+   right: 0;
+   z-index: 100;
+
+   display: flex;
+   justify-content: space-around;
+   align-items: center;
+   background: var(--text-muted);
+    
+
+}
+
+
+/* Search */
+.topnav__search {
+    width: min(720px, 100%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0.55rem 0.8rem;
+}
+
+[data-theme="dark"] .topnav__search {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.topnav__search:focus-within {
+    border-color: var(--accent-color);
+    box-shadow: var(--focus-ring);
+    background: transparent;
+}
+
+/* keep icon small and aligned */
+.topnav__searchIcon {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+}
+
+.topnav__search:focus-within .topnav__searchIcon {
+    color: var(--accent-color);
+}
+
+/* Remove double focus: input should NEVER draw its own ring */
+.topnav__searchInput {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    color: inherit;
+
+    font-size: 0.95rem;
+    padding: 0;
+    /* keeps it visually centered */
+    caret-color: var(--accent-color);
+}
+
+.topnav__searchInput:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Ask button inside search */
+.topnav__searchCta {
+    flex: 0 0 auto;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: inherit;
+    border-radius: 10px;
+    padding: 0.35rem 0.6rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.topnav__searchCta:hover {
+    border-color: var(--accent-color);
+}
+
+/* Right-side buttons */
+.topnav__actionbtn {
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.topnav__actionbtn:hover {
+    border-color: var(--accent-color);
+}
+
+.topnav__actionbtn--primary {
+    background: var(--action-bg-color);
+    color: var(--color-black);
+    border-color: transparent;
+}
+
+.topnav__actionbtn--primary:hover {
+    filter: brightness(0.98);
+}
+
+/* Profile bubble */
+.topnav__profileBtn {
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.25rem 0.35rem;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.topnav__profileAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+[data-theme="dark"] .topnav__profileAvatar {
+    background: rgba(255, 255, 255, 0.10);
+}
+
+/* ---------- Responsive ---------- */
+
+/* Tablet + mobile: use 2-row grid (Row1: left-brand-right, Row2: search) */
+@media (max-width: 768px) {
+    .topnav {
+        height: auto;
+        padding: var(--spacing-sm);
+    }
+
+    .topnav__inner {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas:
+            "left brand right"
+            "center center center";
+        align-items: center;
+        gap: var(--spacing-sm);
+        height: auto;
+    }
+
+    .topnav__left {
+        grid-area: left;
+        min-width: 0;
+    }
+
+    .topnav__center {
+        grid-area: center;
+        justify-content: stretch;
+        min-width: 0;
+    }
+
+    .topnav__right {
+        grid-area: right;
+        min-width: 0;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    /* Brand placement: put your brand element INSIDE .topnav__left
+     If you break it out later, you can change this rule. */
+    .topnav__brand {
+        justify-self: start;
+    }
+
+    /* Search should not be a huge pill on mobile */
+    .topnav__search {
+        width: 100%;
+        border-radius: 14px;
+        padding: 0.5rem 0.65rem;
+    }
+
+    /* Hide optional button text if you wrap it with .topnav__actionText */
+    .topnav__actionText {
+        display: none;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 480px) {
+    .topnav__brandText {
+        display: none;
+    }
+
+    .topnav__search {
+        border-radius: 12px;
+        padding: 0.45rem 0.6rem;
+    }
+
+    .topnav__searchInput {
+        font-size: 0.9rem;
+    }
+
+    .topnav__actionbtn {
+        padding: 0.4rem 0.55rem;
+    }
+
+    .topnav__createbtn{
+        border: 1px solid var(--action-bg-color);
+        padding: 0.3rem 0.5rem;
+        border-radius: 0.4rem;
+        color:  var(--color-white);
+        font-weight:900;
+
+    }
+
+    .topnav__createbtn:hover {
+        background: none;
+    }
+}

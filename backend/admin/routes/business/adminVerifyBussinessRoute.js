@@ -5,7 +5,7 @@ const adminVerifyBusinessRoute = express.Router();
 
 /**
  * @swagger
- * /api/v1/admin/verify-business/{id}:
+ * /api/v1/admin/business/verify/{id}:
  *   post:
  *     summary: Verify a business (admin only)
  *     description: >
@@ -116,4 +116,4 @@ const adminVerifyBusinessRoute = express.Router();
  *         description: Forbidden – user is not an admin
  */
 
-module.exports = adminVerifyBusinessRoute.post("/verify-business/:id",verifyAccessToken, requireAdmin, adminVerifyBusiness)
+module.exports = adminVerifyBusinessRoute.post("/business/verify/:id",verifyAccessToken, requireAdmin, adminVerifyBusiness)

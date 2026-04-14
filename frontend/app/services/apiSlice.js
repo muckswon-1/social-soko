@@ -1,7 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { clientGetCookie } from "../lib/csrf.client";
 
-const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
+const isServer = typeof window === "undefined";
+
+const BACKEND_URL = isServer ? import.meta.env.VITE_API_URL_INTERNAL : import.meta.env.VITE_API_URL_BROWSER;
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: `${BACKEND_URL}/api/v1`,
@@ -47,6 +49,6 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["Profile","Business","BusinessMemberships"],
+  tagTypes: ["Profile","Business","BusinessMembership","Posts", "Post", "PostStats", "Comments", "Comment", "CommentReplies"],
   endpoints: () => ({}),
 });

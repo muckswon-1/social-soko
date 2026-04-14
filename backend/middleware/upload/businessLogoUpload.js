@@ -1,7 +1,6 @@
-const {createUploader} = require("../../utils/multerFactory");
+const {imageUploader} = require("../../utils/multerFactory");
 
-module.exports = createUploader({
+module.exports = imageUploader({
     folderName: "logos",
     fieldName: "logo",
-    identifier: (req) => req.params.id
 })

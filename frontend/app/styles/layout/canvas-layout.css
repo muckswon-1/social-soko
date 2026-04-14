@@ -9,7 +9,7 @@
 }
 
 /* When a layout shell is present, let main-content be full width */
-.main-content > .layout-shell {
+.main-content>.layout-shell {
   width: 100%;
   padding: 0;
 }
@@ -57,13 +57,9 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  /* padding: var(--spacing-lg);
-    padding-left: var(--spacing-lg); */
 }
 
-/* Inner surface that pages render into.
-   This ensures a professional, full-height body even if empty.
-*/
+/* Inner surface that pages render into */
 .layout-canvas-inner {
   flex: 1;
   display: flex;
@@ -79,12 +75,20 @@
   min-height: 100%;
 }
 
-/* Optional: if a page wants its own header/tabs inside canvas */
-.layout-canvas-inner > .layout-header {
+/* Topbar inside canvas (for mobile menu button, actions, etc.) */
+.layout-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   margin-bottom: var(--spacing-sm);
 }
 
-.layout-canvas-inner > .layout-tabs {
+/* Optional: page header + tabs inside canvas */
+.layout-canvas-inner>.layout-header {
+  margin-bottom: var(--spacing-sm);
+}
+
+.layout-canvas-inner>.layout-tabs {
   margin-bottom: var(--spacing-md);
 }
 
@@ -142,9 +146,10 @@
   cursor: pointer;
   margin-bottom: 1rem;
 }
+
 .mobile-sidebar-backdrop {
   display: none;
-  position: fixed;  
+  position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
   z-index: 19;
@@ -163,12 +168,11 @@
     background-color: var(--card-bg-color);
 
     transform: translateX(-100%);
-    transition: transform 0.3 ease;
+    transition: transform 0.3s ease;
     z-index: 20;
     border-radius: 0;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   }
-
 
   .layout-sidebar--expanded {
     transform: translateX(0);
@@ -190,27 +194,3 @@
     display: block;
   }
 }
-
-
-
-/* @media (max-width: 900px) {
-  .layout-shell {
-    flex-direction: column;
-    min-height: calc(100vh - var(--header-height));
-  }
-
-  .layout-sidebar,
-  .layout-sidebar--expanded,
-  .layout-sidebar--collapsed {
-    width: 100%;
-  }
-
-  .layout-canvas {
-    padding: var(--spacing-md);
-  }
-
-  .layout-canvas-inner {
-    padding: var(--spacing-md);
-    border-radius: var(--radius-md);
-  }
-} */

@@ -49,7 +49,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     await EmailJob.create(
       {
         to: user.email,
-        template: "passwordReset",
+        template: "auth.passwordReset",
         payload: {
           email: user.email,
           token: resetToken,

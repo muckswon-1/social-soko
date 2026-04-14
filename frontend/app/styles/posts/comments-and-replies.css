@@ -1,0 +1,19 @@
+
+.comment-thread__toggle-btn--show {
+    color: var(--color-blue);
+}
+
+
+.comment-thread__toggle-btn--hide {
+    color: var(--dislike-active-color);
+}
+
+.comment-thread__toggle-btn {
+    outline: none;
+    border: 0;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 800;
+    font-style: italic;
+}
+

@@ -1,0 +1,673 @@
+/* =====================================================
+   post-detail.css (UPDATED for PostDetailPanel.jsx)
+   - Now uses post-detail-actions* classnames (NOT post-actions*)
+   - Keeps the same visual language as your post-card footer styles
+   ===================================================== */
+
+/* Safe fallbacks if tokens are missing */
+:root {
+    --post-detail-max-width: 720px;
+    --post-detail-border: var(--border-color, rgba(0, 0, 0, 0.12));
+    --post-detail-shadow: var(--shadow-sm, 0 8px 24px rgba(0, 0, 0, 0.06));
+    --post-detail-radius-lg: var(--radius-lg, 22px);
+    --post-detail-radius-md: var(--radius-md, 14px);
+    --post-detail-muted: var(--text-muted, rgba(0, 0, 0, 0.65));
+    --post-detail-hover: var(--hover-bg, rgba(0, 0, 0, 0.04));
+    --post-detail-focus: var(--focus-ring, 0 0 0 3px rgba(0, 123, 255, 0.25));
+    --post-detail-avatar-size: 36px;
+}
+
+/* =====================================================
+   LAYOUT WRAPPER
+   ===================================================== */
+
+.post-detail {
+    width: 100%;
+    max-width: var(--post-detail-max-width);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+
+    /* important for your "panelRef scroll" logic */
+    height: 100%;
+    overflow: auto;
+}
+
+.post-detail__card {
+    width: 100%;
+    background: var(--card-bg-color);
+    color: var(--text-color);
+
+    border-top: 1px solid var(--post-detail-border);
+    border-left: 1px solid var(--post-detail-border);
+    border-right: 1px solid var(--post-detail-border);
+    border-bottom: 0;
+
+    /* overflow: hidden; */
+}
+
+/* Inner padding blocks */
+.post-detail-meta,
+.post-detail-title,
+.post-detail-media,
+.post-detail-body {
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+}
+
+/* =====================================================
+   TOP BAR
+   ===================================================== */
+
+.post-detail-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--spacing-sm);
+
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--card-bg-color);
+    border-bottom: 1px solid var(--post-detail-border);
+}
+
+.post-detail-topbar__back,
+.post-detail-topbar__more {
+    border: 1px solid transparent;
+    background: transparent;
+    color: inherit;
+
+    border-radius: 999px;
+    padding: 0.35rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.post-detail-topbar__back:hover,
+.post-detail-topbar__more:hover {
+    background: var(--post-detail-hover);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.post-detail-topbar__back:focus-visible,
+.post-detail-topbar__more:focus-visible {
+    outline: none;
+    box-shadow: var(--post-detail-focus);
+}
+
+.post-detail-topbar__titleWrap {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.post-detail-topbar__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1.1;
+    color: var(--text-color);
+}
+
+.post-detail-topbar__time {
+    font-size: 0.75rem;
+    color: var(--post-detail-muted);
+}
+
+/* =====================================================
+   META HEADER
+   ===================================================== */
+
+.post-detail-meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+}
+
+.post-detail-meta__left {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.post-detail-meta__business {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+
+    text-decoration: none;
+    color: inherit;
+}
+
+.post-detail-meta__business:hover {
+    color: var(--accent-color);
+}
+
+.post-detail-meta__verified {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(1px);
+    color: var(--color-yellow);
+}
+
+/* Avatar + author row */
+.post-detail-meta__author {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--text-color);
+}
+
+.post-detail-meta__avatar {
+    width: var(--post-detail-avatar-size);
+    height: var(--post-detail-avatar-size);
+    border-radius: 999px;
+    overflow: hidden;
+
+    border: 1px solid var(--post-detail-border);
+    background: rgba(0, 0, 0, 0.03);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+[data-theme="dark"] .post-detail-meta__avatar {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.post-detail-meta__avatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.post-detail-meta__authorInfo {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+.post-detail-meta__authorName {
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.post-detail-meta__author a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.post-detail-meta__author a:hover {
+    text-decoration: underline;
+    color: var(--accent-color);
+}
+
+.post-detail-meta__time {
+    font-size: 0.75rem;
+    color: var(--post-detail-muted);
+}
+
+/* =====================================================
+   TITLE
+   ===================================================== */
+
+.post-detail-title {
+    margin: 0;
+    padding-top: 0.25rem;
+    padding-bottom: 0.6rem;
+
+    font-size: 1.35rem;
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: 0.1px;
+}
+
+/* =====================================================
+   MEDIA
+   ===================================================== */
+
+.post-detail-media {
+    padding-top: 0.25rem;
+    padding-bottom: var(--spacing-sm);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.post-detail-media img,
+.post-detail-media video {
+    width: 100%;
+    height: auto;
+    max-height: 620px;
+    display: block;
+
+    object-fit: contain;
+    border-radius: var(--post-detail-radius-md);
+
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .post-detail-media img,
+[data-theme="dark"] .post-detail-media video {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* =====================================================
+   BODY
+   ===================================================== */
+
+.post-detail-body {
+    padding-top: 0.15rem;
+    padding-bottom: var(--spacing-md);
+
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+.post-detail-body p {
+    margin: 0 0 var(--spacing-sm) 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* =====================================================
+   ACTIONS (UPDATED)
+   - Uses: .post-detail-actions, .post-detail-actions__actionsRow, etc.
+   - Styled to match your post-card "post-actions" look and feel
+   ===================================================== */
+
+.post-detail-actions {
+    width: 100%;
+}
+
+/* The actual row (this is your "footer row") */
+.post-detail-actions__actionsRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+
+    /* subtle background like you had for detail */
+    background: rgba(0, 0, 0, 0.015);
+}
+
+[data-theme="dark"] .post-detail-actions__actionsRow {
+    border-top-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Vote group is a pill */
+.post-detail-actions__group--vote {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    padding: 0.25rem 0.45rem;
+    border-radius: 999px;
+
+    background: rgba(0, 0, 0, 0.035);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="dark"] .post-detail-actions__group--vote {
+    background: rgba(255, 255, 255, 0.055);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Base action button */
+.post-detail-actions__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    border: 1px solid transparent;
+    background: rgba(0, 0, 0, 0.035);
+    color: inherit;
+
+    border-radius: 999px;
+    padding: 0.3rem 0.55rem;
+
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease,
+        transform 0.05s ease;
+}
+
+[data-theme="dark"] .post-detail-actions__btn {
+    background: rgba(255, 255, 255, 0.055);
+}
+
+.post-detail-actions__btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .post-detail-actions__btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+}
+
+/* Vote buttons: smaller padding inside vote pill */
+.post-detail-actions__btn--vote {
+    background: transparent;
+    padding: 0.25rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+
+.post-detail-actions__btn--vote:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: none;
+    transform: none;
+}
+
+[data-theme="dark"] .post-detail-actions__btn--vote:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Active state (uses your global tokens) */
+.post-detail-actions__btn--active {
+    background: var(--like-active-bg);
+    color: var(--like-active-color);
+    border-color: transparent;
+}
+
+.post-detail-actions__btn--active:hover {
+    filter: brightness(0.98);
+}
+
+/* Like count */
+.post-detail-actions__count {
+    font-size: 0.84rem;
+    font-weight: 800;
+    padding: 0 0.15rem;
+    color: var(--text-color);
+}
+
+/* Button labels (comments/save/copy) */
+.post-detail-actions__label {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: inherit;
+}
+
+/* Views pill (non-button) */
+.post-detail-actions__views {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    padding: 0.3rem 0.55rem;
+    border-radius: 999px;
+
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+    color: var(--text-muted);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .post-detail-actions__views {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Your JSX uses post-detail-actions__viewsLabel (add it) */
+.post-detail-actions__viewsLabel {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: inherit;
+}
+
+/* Focus */
+.post-detail-actions__btn:focus-visible,
+.post-detail-actions__btn--vote:focus-visible {
+    outline: none;
+    box-shadow: var(--post-detail-focus);
+}
+
+/* =====================================================
+   COMMENTS
+   ===================================================== */
+
+.post-detail-comments {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+
+    padding: var(--spacing-md) 0 var(--spacing-lg);
+}
+
+.post-detail-comments__header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.post-detail-comments__count {
+    margin-left: var(--spacing-sm);
+    font-weight: 500;
+    font-size: 12px;
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+.post-detail-comments__header-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+
+    padding: var(--spacing-md);
+}
+
+.post-detail-comments__sort {
+    display: inline-flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.post-detail-comments__sort-label {
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-display);
+}
+
+.post-detail-comments__sort-select {
+    border: 2px solid transparent;
+    background: transparent;
+
+    font-size: 14px;
+    font-family: var(--font-display);
+    color: var(--text-muted);
+
+    outline: 0;
+    cursor: pointer;
+
+    transition: color 0.15s ease, transform 0.12s ease, opacity 0.12s ease;
+}
+
+.post-detail-comments__sort-select:focus,
+.post-detail-comments__sort-select:focus-visible,
+.post-detail-comments__sort-select:active {
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+.post-detail-comments__sort-select:hover {
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--post-detail-radius-md);
+    padding: 1px;
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.post-detail-comments__search {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.post-detail-comments__search-form {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.post-detail-comments__search-input {
+    flex: 1;
+    border: 1px solid var(--border-color);
+    outline: none;
+    box-shadow: none;
+
+    background: transparent;
+    resize: none;
+
+    padding: 8px 6px;
+    line-height: 1.4;
+    min-height: 24px;
+    border-radius: var(--spacing-sm);
+}
+
+.post-detail-comments__empty {
+    width: 100%;
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    justify-content: center;
+    margin-left: var(--spacing-sm);
+}
+
+.post-detail-comments__empty-text {
+    color: var(--text-muted);
+}
+
+/* "Show more" link-style button */
+.post-detail-comments__showMoreBtn {
+    outline: none;
+    border: 0;
+    background: transparent;
+
+    font-size: 12px;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--accent-color);
+    cursor: pointer;
+}
+
+.post-detail-comments__showMoreBtn:hover {
+    text-decoration: underline;
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 768px) {
+    .post-detail {
+        max-width: 100%;
+    }
+
+    .post-detail-topbar {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .post-detail-meta,
+    .post-detail-title,
+    .post-detail-media,
+    .post-detail-body {
+        padding-left: var(--spacing-md);
+        padding-right: var(--spacing-md);
+    }
+
+    .post-detail-actions__actionsRow {
+        padding: var(--spacing-sm) var(--spacing-md);
+        flex-wrap: wrap;
+        gap: 0.45rem;
+    }
+
+    .post-detail-title {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .post-detail-actions__actionsRow {
+        gap: 0.35rem;
+    }
+
+    .post-detail-comments__header-actions {
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm);
+    }
+
+    .post-detail-comments__sort {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .post-detail-meta__avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* match your post-card tiny footer feel */
+    .post-detail-actions__btn {
+        padding: 0.1rem 0.2rem;
+        font-size: 0.5rem;
+    }
+
+    .post-detail-actions__views {
+        padding: 0.28rem 0.5rem;
+    }
+}
