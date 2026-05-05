@@ -43,12 +43,11 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   //phone validation if available
   let countryIso2 = businessData.countryIso2 || "";
   let localPhone = businessData.localPhone || "";
+  let normalizedPhone = {};
 
-  
-
-
-
-const  normalizedPhone = validatePhone({countryIso2, localPhone});
+if(countryIso2 && localPhone  ) {
+   normalizedPhone = validatePhone(countryIso2, localPhone)
+}
 
 
 

@@ -7,8 +7,17 @@ import axios from "axios";
  * @type {NullableString}
  */
 const BACKEND_URL = import.meta.env.VITE_API_URL_BROWSER;
+const BACKEND_URL_LOCALHOST = import.meta.env.VITE_API_URL_BROWSER_LOCALHOST;
+
+
+const hostname = window.location.hostname;
+
+
+const BASE_URL = hostname === "localhost" || hostname === "127.0.0.1" ? BACKEND_URL_LOCALHOST : BACKEND_URL;
+
 
 console.log(BACKEND_URL);
+
 
 /**
  * Axios instance configured for authenticated API requests.
@@ -17,7 +26,7 @@ console.log(BACKEND_URL);
  * @type {import("axios").AxiosInstance}
  */
 export const apiClient = axios.create({
-  baseURL: `${BACKEND_URL}/api/v1`,
+  baseURL: `${BASE_URL}/api/v1`,
   timeout: 20000,
   withCredentials: true,
   xsrfCookieName: "XSRF-TOKEN",

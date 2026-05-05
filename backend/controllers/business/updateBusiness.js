@@ -1,25 +1,31 @@
-const createError = require("http-errors");
-const { Business } = require("../../models");
+
 const UTILS = require("../../utils/utils");
 const validatePhone = require("../../utils/validatePhone");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
-  const { id, userId } = req.params;
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  /**@type {Models} */
+  const models = req.app.get("models");
+  const {Business, BusinessMembership} = models;
+  
+
   if (!id ) {
-    throw createError(400, "User ID and business ID required");
+    throw UTILS.httpError(400, "Business ID is required");
   }
 
-  const { businessData } = req.body || {};
+  if(!userId) {
+    throw UTILS.httpError(401, "Unauthorized");
+  }
 
 
-   //phone validation if available
-  let countryIso2 = businessData.countryIso2 || "";
-  let localPhone = businessData.localPhone || "";
+  const { businessData = {} } = req.body || {};
 
 
+  console.log("businessData", businessData);
 
-
-
+  
   const {
     name,
     description,
@@ -28,11 +34,44 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     state,
     country,
     postal_code,
-    phone,
     email,
     website,
     slug,
+    countryIso2,
+    localPhone
   } = businessData;
+
+
+  const business = await Business.findByPk(id);
+
+  if (!business) {
+    throw UTILS.httpError(404, "Business not found");
+  }
+
+  const membership = await BusinessMembership.findOne({
+    where: {
+      user_id: userId,
+      business_id: id,
+      status: "active"
+    }
+  });
+
+  if(!membership) {
+    throw UTILS.httpError(403, "You are not a member of this business")
+  }
+
+
+const canUpdateBusiness = membership.role === "owner" || membership.role === "admin";
+
+if(!canUpdateBusiness) {
+  throw UTILS.httpError(403,"You do not have permission to update this business");
+}
+
+
+
+  const shouldUpdatePhone = countryIso2 !== undefined || localPhone !== undefined;
+
+  console.log("Should update phone: ", shouldUpdatePhone)
 
   //Enusre atleast one filed to updaate
   const hasUpdates =
@@ -45,28 +84,39 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     postal_code !== undefined ||
     email !== undefined ||
     website !== undefined ||
+    shouldUpdatePhone ||
     slug !== undefined;
 
   if (!hasUpdates) {
-    throw createError(400, "No fields to update");
-  }
-
-  if (!businessData || !businessData.name) {
-    throw createError(400, "Missing businessData payload or name");
+    return res.status(200).json({
+      success: true,
+      message: "No business fields were provided to update",
+      business: null,
+    })
   }
   
-  const business = await Business.findOne({where: {id, user_id: userId}});
 
-  if (!business) {
-    throw createError(404, "Business not found");
+
+ let normalizedPhone = null;
+
+
+
+ if(shouldUpdatePhone) {
+  if(!countryIso2 || !localPhone){
+    throw UTILS.httpError(400, "countryIso2 and localPhone are required to update phone")
   }
+   normalizedPhone = validatePhone({countryIso2, localPhone});
 
-  const normalizedPhone = validatePhone({countryIso2, localPhone});
+   if(!normalizedPhone.e164) {
+    throw UTILS.httpError(400, "Invalid phone number")
+   }
+ }
+
  
-console.log(normalizedPhone);
+ 
   
   // update fields found in businessData
-  await business.update({
+  const updatePayload = {
     ...(name !== undefined && { name }),
     ...(description !== undefined && { description }),
     ...(address !== undefined && { address }),
@@ -74,16 +124,28 @@ console.log(normalizedPhone);
     ...(state !== undefined && { state }),
     ...(country !== undefined && { country }),
     ...(postal_code !== undefined && { postal_code }),
-    ...(normalizedPhone.e164 !== undefined && { phone: normalizedPhone.e164 }),
+    ...(normalizedPhone?.e164 !== undefined && { phone: normalizedPhone.e164 }),
     ...(email !== undefined && { email }),
     ...(website !== undefined && { website }),
     ...(slug !== undefined && { slug }),
-  });
+  };
+
+
+  await business.update(updatePayload);
+    
 
   // return updated business
   return res.status(200).json({
     success: true,
     message: "Business updated successfully",
     business,
+    membershipRole: membership.role,
+    membershipStatus: membership.status,
+    permissions: {
+      canManage: true,
+      canEdit: true,
+      canManageMembers: membership.role === "owner" || membership.role === "admin",
+      canViewPrivateDetails: true
+    }
   });
 });

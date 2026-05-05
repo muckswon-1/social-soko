@@ -47,7 +47,7 @@ export default function BusinessLayout() {
     { to: "/business", title: "My Businesses" },
     { to: "/business/create-business", title: "Create Business" },
     {
-      to: "/dashboard/business/request-membership",
+      to: "/business/join",
       title: "Join a Business",
     },
     { to: "/dashboard/business/settings", title: "Settings" },

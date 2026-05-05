@@ -7,8 +7,8 @@ const updateBusinessRoute = express.Router();
 
 /**
  * @swagger
- * /api/v1/business/update-business/{id}/{userId}:
- *   post:
+ * /api/v1/business/update-business/{id}:
+ *   patch:
  *     summary: Update an existing business
  *     description: >
  *       Updates an existing Business owned by a specific user.  
@@ -157,6 +157,6 @@ const updateBusinessRoute = express.Router();
  *       403:
  *         description: Forbidden – user does not have BUSINESS or ADMIN role
  */
-updateBusinessRoute.post("/update-business/:id/:userId", verifyAccessToken, requireRole(ROLES.BUSINESS,ROLES.ADMIN), updateBusiness)
+updateBusinessRoute.patch("/update-business/:id", verifyAccessToken, requireRole(ROLES.BUSINESS,ROLES.ADMIN), updateBusiness)
 
  module.exports = updateBusinessRoute

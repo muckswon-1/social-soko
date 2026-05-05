@@ -1,9 +1,15 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { clientGetCookie } from "../lib/csrf.client";
 
+
+const hostname = typeof window !== "undefined" ? window.location.hostname : "localhost"; // Default to localhost if not in a
+
 const isServer = typeof window === "undefined";
 
-const BACKEND_URL = isServer ? import.meta.env.VITE_API_URL_INTERNAL : import.meta.env.VITE_API_URL_BROWSER;
+const BASE_BROWSER_URL = hostname === "localhost" || hostname === "127.0.0.1" ? import.meta.env.VITE_API_URL_BROWSER_LOCALHOST : import.meta.env.VITE_API_URL_BROWSER;
+
+
+const BACKEND_URL = isServer ? import.meta.env.VITE_API_URL_INTERNAL : BASE_BROWSER_URL;
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: `${BACKEND_URL}/api/v1`,

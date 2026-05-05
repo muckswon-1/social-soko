@@ -1,0 +1,641 @@
+.membership-requests-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.membership-requests-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.membership-requests-toolbar__left,
+.membership-requests-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.membership-requests-search-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.membership-requests-search-input {
+  min-width: 320px;
+  min-height: 42px;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-elevated-color);
+  color: var(--text-color);
+  font-size: var(--font-size-sm);
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.membership-requests-search-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 1px rgba(185, 28, 28, 0.6);
+}
+
+.membership-requests-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background-color: rgba(15, 23, 42, 0.035);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  color: var(--muted-text-color);
+}
+
+.membership-requests-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.membership-requests-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+}
+
+.membership-request-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(180px, auto) auto;
+  gap: var(--spacing-md);
+  align-items: center;
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.94),
+      rgba(255, 255, 255, 0.99)
+    ),
+    var(--card-bg-color);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.membership-request-row:hover {
+  transform: translateY(-2px);
+  border-color: rgba(15, 23, 42, 0.14);
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.1);
+}
+
+.membership-request-row--with-message {
+  border-left: 4px solid rgba(59, 130, 246, 0.65);
+}
+
+.membership-request-row--without-message {
+  border-left: 4px solid rgba(148, 163, 184, 0.5);
+}
+
+.membership-request-row__left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-width: 260px;
+  flex: 1;
+}
+
+.membership-request-avatar {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background:
+    linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(185, 28, 28, 0.08)),
+    var(--accent-soft-bg);
+  color: var(--accent-color);
+  font-size: var(--font-size-md);
+  font-weight: 900;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+}
+
+.membership-request-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.membership-request-name {
+  font-size: var(--font-size-md);
+  font-weight: 900;
+  color: var(--text-color);
+  word-break: break-word;
+}
+
+.membership-request-email {
+  font-size: var(--font-size-sm);
+  color: var(--muted-text-color);
+  word-break: break-word;
+}
+
+.membership-request-row__center {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  min-width: 180px;
+}
+
+.membership-request-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.membership-request-pill--role {
+  background-color: rgba(59, 130, 246, 0.12);
+  color: var(--info-color);
+}
+
+.membership-request-pill--status {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+}
+
+.membership-request-date {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--muted-text-color);
+}
+
+.membership-request-row__right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+  min-width: 180px;
+}
+
+.membership-request-action {
+  min-width: 88px;
+}
+
+.membership-request-message {
+  position: relative;
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.membership-request-message::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  border-radius: 999px;
+}
+
+.membership-request-message--filled {
+  border: 1px solid rgba(59, 130, 246, 0.16);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.08),
+      rgba(255, 255, 255, 0.82)
+    ),
+    rgba(59, 130, 246, 0.04);
+}
+
+.membership-request-message--filled::before {
+  background-color: #2563eb;
+}
+
+.membership-request-message--empty {
+  border: 1px dashed rgba(148, 163, 184, 0.42);
+  background-color: rgba(148, 163, 184, 0.08);
+}
+
+.membership-request-message--empty::before {
+  background-color: rgba(148, 163, 184, 0.7);
+}
+
+.membership-request-message__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.membership-request-message__label {
+  color: var(--muted-text-color);
+  font-size: var(--font-size-xs);
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.membership-request-message__meta {
+  flex: 0 0 auto;
+  color: var(--muted-text-color);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+}
+
+.membership-request-message__text {
+  margin: 0;
+  color: var(--text-color);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.membership-request-message--empty .membership-request-message__text {
+  color: var(--muted-text-color);
+  font-style: italic;
+}
+
+[data-theme="dark"] .membership-requests-search-input {
+  background-color: #020617;
+}
+
+[data-theme="dark"] .membership-requests-count {
+  border-color: rgba(148, 163, 184, 0.22);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .membership-request-row {
+  border-color: rgba(148, 163, 184, 0.22);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.015)
+    ),
+    var(--card-bg-color);
+}
+
+[data-theme="dark"] .membership-request-message--filled {
+  border-color: rgba(59, 130, 246, 0.28);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.12),
+      rgba(255, 255, 255, 0.03)
+    ),
+    rgba(59, 130, 246, 0.06);
+}
+
+[data-theme="dark"] .membership-request-message--empty {
+  border-color: rgba(148, 163, 184, 0.28);
+  background-color: rgba(255, 255, 255, 0.035);
+}
+
+@media (max-width: 980px) {
+  .membership-request-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .membership-request-row__left,
+  .membership-request-row__center,
+  .membership-request-row__right {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .membership-request-row__center {
+    justify-content: flex-start;
+  }
+
+  .membership-request-row__right {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .membership-requests-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .membership-requests-toolbar__right {
+    justify-content: space-between;
+  }
+
+  .membership-requests-search-input {
+    min-width: 100%;
+  }
+}
+
+.membership-approval-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.membership-approval-modal {
+  width: min(100%, 620px);
+  max-height: min(90vh, 760px);
+  overflow-y: auto;
+  background-color: var(--card-bg-color);
+  border: 1px solid var(--card-border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.membership-approval-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.membership-approval-modal__eyebrow {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-text-color);
+}
+
+.membership-approval-modal__title {
+  margin-top: 0.25rem;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.membership-approval-modal__close {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.membership-approval-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+}
+
+.membership-approval-modal__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.membership-approval-modal__avatar {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: var(--accent-soft-bg);
+  color: var(--accent-color);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+}
+
+.membership-approval-modal__identity-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.membership-approval-modal__name {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-color);
+  word-break: break-word;
+}
+
+.membership-approval-modal__email {
+  font-size: var(--font-size-sm);
+  color: var(--muted-text-color);
+  word-break: break-word;
+}
+
+.membership-approval-modal__message {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.membership-approval-modal__message::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+}
+
+.membership-approval-modal__message--filled {
+  border: 1px solid rgba(59, 130, 246, 0.16);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.08),
+      rgba(255, 255, 255, 0.88)
+    ),
+    rgba(59, 130, 246, 0.04);
+}
+
+.membership-approval-modal__message--filled::before {
+  background-color: #2563eb;
+}
+
+.membership-approval-modal__message--empty {
+  border: 1px dashed rgba(148, 163, 184, 0.42);
+  background-color: rgba(148, 163, 184, 0.08);
+}
+
+.membership-approval-modal__message--empty::before {
+  background-color: rgba(148, 163, 184, 0.7);
+}
+
+.membership-approval-modal__message-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.membership-approval-modal__message-label {
+  color: var(--muted-text-color);
+  font-size: var(--font-size-xs);
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.membership-approval-modal__message-meta {
+  color: var(--muted-text-color);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+}
+
+.membership-approval-modal__message-text {
+  margin: 0;
+  color: var(--text-color);
+  font-size: var(--font-size-sm);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.membership-approval-modal__message--empty
+  .membership-approval-modal__message-text {
+  color: var(--muted-text-color);
+  font-style: italic;
+}
+
+.membership-approval-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-md);
+}
+
+.membership-approval-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background-color: rgba(15, 23, 42, 0.03);
+  border: 1px solid var(--border-color);
+}
+
+.membership-approval-modal__label {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted-text-color);
+}
+
+.membership-approval-modal__value {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-color);
+  word-break: break-word;
+}
+
+.membership-approval-modal__value--mono {
+  font-family: var(--font-mono);
+}
+
+.membership-approval-modal__notice {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background-color: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.14);
+}
+
+.membership-approval-modal__notice-title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.membership-approval-modal__notice-list {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 1rem;
+  list-style: disc;
+}
+
+.membership-approval-modal__notice-list li {
+  font-size: var(--font-size-sm);
+  color: var(--muted-text-color);
+}
+
+.membership-approval-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .membership-approval-modal__notice {
+  background-color: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="dark"] .membership-approval-modal__field {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .membership-approval-modal__message--filled {
+  border-color: rgba(59, 130, 246, 0.28);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.12),
+      rgba(255, 255, 255, 0.03)
+    ),
+    rgba(59, 130, 246, 0.06);
+}
+
+[data-theme="dark"] .membership-approval-modal__message--empty {
+  border-color: rgba(148, 163, 184, 0.28);
+  background-color: rgba(255, 255, 255, 0.035);
+}
+
+@media (max-width: 720px) {
+  .membership-approval-modal {
+    width: 100%;
+  }
+
+  .membership-approval-modal__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .membership-approval-modal__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}

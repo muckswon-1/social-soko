@@ -33,6 +33,32 @@
   min-width: 120px;
 }
 
+
+.create-business-phone-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.8fr) minmax(180px, 1fr);
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.create-business-phone-row__country,
+.create-business-phone-row__number {
+  min-width: 0;
+}
+
+.create-business-phone-row__country select,
+.create-business-phone-row__number input {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .create-business-phone-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
 /* Responsive:
    On small screens stack actions and make primary full-width
 */

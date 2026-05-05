@@ -6,7 +6,6 @@ module.exports = ({countryIso2, localPhone}) => {
     const country = String(countryIso2 || "").trim().toUpperCase();
     const rawPhone = String(localPhone || "").trim();
 
-
     if(!country){
         const error = new Error("Country is required");
         error.status = 400;
