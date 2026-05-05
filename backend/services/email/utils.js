@@ -1,5 +1,5 @@
 // ---------- helpers ----------
-export function escapeHtml(str = "") {
+ function escapeHtml(str = "") {
   return String(str)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -7,15 +7,26 @@ export function escapeHtml(str = "") {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
-
 // Very light “component” helpers for consistent UI
-export const Comp = {
+const Comp = {
   btn: (href, label) => `
-    <a href="${href}" style="background:#111;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px;display:inline-block">
+    <a href="${href}" class="email-btn-primary">
       ${escapeHtml(label)}
     </a>
   `,
-  p: (text) => `<p>${text}</p>`,
+
+  p: (text) => `
+    <p class="email-mb-md">
+      ${text}
+    </p>
+  `,
+
   link: (href, label) =>
-    `<a href="${href}" target="_blank">${escapeHtml(label)}</a>`,
+    `<a href="${href}" target="_blank" class="email-link-cta">${escapeHtml(label)}</a>`,
+};
+
+module.exports = {
+  Comp,
+  escapeHtml,
+  escapeHtml
 };

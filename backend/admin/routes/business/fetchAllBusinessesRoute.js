@@ -1,11 +1,11 @@
 const express = require("express");
 const { verifyAccessToken, requireAdmin } = require("../../../middleware/security");
-const adminVerifyBusiness = require("../../controllers/business/adminVerifyBusiness");
+const fetchAllBusiness= require("../../controllers/business/fetchAllBusiness");
 const fetchAllBusinessesRoute = express.Router();
 
 /**
  * @swagger
- * /api/v1/admin/fetch-businesses:
+ * /api/v1/admin/business/fetch-all:
  *   get:
  *     summary: List businesses (admin only)
  *     description: >
@@ -102,4 +102,4 @@ const fetchAllBusinessesRoute = express.Router();
  *         description: Forbidden – user is not an admin
  */
 
-module.exports = fetchAllBusinessesRoute.get("/fetch-businesses",verifyAccessToken,requireAdmin, adminVerifyBusiness);
+module.exports = fetchAllBusinessesRoute.get("/business/fetch-all",verifyAccessToken,requireAdmin, fetchAllBusiness);

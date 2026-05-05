@@ -53,7 +53,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
       {
         user_id: user.id,
         to: user.email,
-        template: "verifyEmail",
+        template: "auth.verifyEmail",
         payload: {
           email: user.email,
           token: verificationToken,
@@ -64,7 +64,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
        {
         user_id: user.id,
         to: user.email,
-        template: "welcome",
+        template: "auth.welcome",
         payload: {
           email: user.email,
         },

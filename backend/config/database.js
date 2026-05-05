@@ -11,6 +11,11 @@ if (!config) {
   process.exit(1);
 }
 
+if(env === "development" || env === "test"){
+  console.log("✅ Database config for env: ", env,);
+  console.log(config);
+}
+
 
 let sequelize;
 

@@ -106,6 +106,7 @@ const createBusinessRoute = express.Router();
  *                   business:
  *                     id: "61718ded-da6d-4418-ac45-5a09d0369acf"
  *                     user_id: "47086655-4ca2-4f2e-a350-4d4b6dc2d312"
+ *                     username: "etac_service"
  *                     name: "ETAC Service and Supply Inc"
  *                     description: "We sell large organization transformers."
  *                     address: "123 Industrial Park Road"

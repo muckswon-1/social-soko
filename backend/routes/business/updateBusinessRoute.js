@@ -1,5 +1,5 @@
 const express = require("express");
-const { authRateLimiter, authSlowDown, verifyAccessToken, requireRole } = require("../../middleware/security");
+const { verifyAccessToken, requireRole } = require("../../middleware/security");
 const { ROLES } = require("../../constants/roles");
 const updateBusiness = require("../../controllers/business/updateBusiness");
 
@@ -157,6 +157,6 @@ const updateBusinessRoute = express.Router();
  *       403:
  *         description: Forbidden – user does not have BUSINESS or ADMIN role
  */
-updateBusinessRoute.post("/update-business/:id/:userId",authRateLimiter,authSlowDown, verifyAccessToken, requireRole(ROLES.BUSINESS,ROLES.ADMIN), updateBusiness)
+updateBusinessRoute.post("/update-business/:id/:userId", verifyAccessToken, requireRole(ROLES.BUSINESS,ROLES.ADMIN), updateBusiness)
 
  module.exports = updateBusinessRoute

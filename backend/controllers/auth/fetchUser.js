@@ -11,12 +11,11 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   const user = await User.findOne({ where: { email } });
   if (!user) throw UTILS.httpError(404, "User not found");
 
-  // Normalize and respond
-  const data = UTILS.normalizedUserAuthData(user);
+;
 
   return res.status(200).json({
     success: true,
     message: "User fetched successfully",
-    data,
+    user
   });
 });

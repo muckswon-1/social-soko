@@ -5,35 +5,39 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Business extends Model {
     static associate(models) {
-      Business.belongsTo(models.User, { foreignKey: "user_id" });
+  // Owner of the business
+  Business.belongsTo(models.User, {
+    foreignKey: "user_id",
+    as: "owner",
+  });
 
-      Business.hasMany(models.BusinessVerification, {
-        foreignKey: "business_id",
-      });
-      Business.hasMany(models.BusinessDocument, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessContact, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessCategory, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessSocialLink, {
-        foreignKey: "business_id",
-      });
-      Business.hasMany(models.BusinessImage, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessService, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessTestimonial, {
-        foreignKey: "business_id",
-      });
-      Business.hasMany(models.BusinessReview, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessAward, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessCertification, {
-        foreignKey: "business_id",
-      });
-      Business.hasMany(models.BusinessEvent, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessNews, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessBlogPost, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessFAQ, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessPartner, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessTag, { foreignKey: "business_id" });
-      Business.hasMany(models.BusinessHours, { foreignKey: "business_id" });
-    }
+  // Posts under this business
+  Business.hasMany(models.Post, {
+    foreignKey: "business_id",
+    as: "posts",
+  });
+
+  // Approved memberships
+  Business.hasMany(models.BusinessMembership, {
+    foreignKey: "business_id",
+    as: "memberships",
+  });
+
+  // Join requests
+  Business.hasMany(models.BusinessMembershipRequest, {
+    foreignKey: "business_id",
+    as: "membershipRequests",
+  });
+
+  // Optional convenience (recommended)
+  Business.belongsToMany(models.User, {
+    through: models.BusinessMembership,
+    foreignKey: "business_id",
+    otherKey: "user_id",
+    as: "users",
+  });
+}
+
   }
 
   Business.init(

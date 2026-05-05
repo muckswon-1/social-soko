@@ -1,0 +1,200 @@
+.comment-composer {
+    width: 100%;
+    margin-top: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+}
+.comment-composer--idle {
+    width: 100%;
+}
+
+/* Row layout */
+.comment-composer__row {
+    width: 100%;
+   
+}
+
+.comment-composer__row--input {
+    align-items: center;
+    padding: 10px;
+}
+
+
+/* The pill that contains textarea + upload icon */
+ .comment-composer__pill {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.02);
+    padding:0 var(--spacing-sm);
+    box-shadow: var(--shadow-sm);
+    margin-right: var(--spacing-md);
+    transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease,
+            background-color 0.15s eas
+}
+
+
+
+.comment-composer__pill:focus-within {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05) !important;
+    background: rgba(0, 0, 0, 0.03) !important;
+}
+
+
+[data-theme="dark"] .comment-composer__pill {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Active state (subtle) */
+.comment-composer--active .comment-composer__pill {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="dark"] .comment-composer--active .comment-composer__pill {
+    border-color: rgba(255, 255, 255, 0.24);
+}
+
+.comment-composer__pill--hasMedia {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.comment-composer__pill--hasNoMedia {
+    width: 100%;
+    display:  flex;
+    gap: var(--spacing-sm);
+}
+
+.comment-composer__pill__input {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0;
+
+}
+
+
+/* Textarea */
+.comment-composer__textarea {
+    flex: 1;
+    border: 0;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    resize: none;
+    padding: 8px 6px;
+    line-height: 1.4;
+    min-height: 24px;
+}
+
+/* Kill global focus ring for comment textarea only */
+.comment-composer__textarea:focus,
+.comment-composer__textarea:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Upload icon button inside pill */
+.comment-composer__uploadBtn {
+    height: 32px;
+    width: 32px;
+    border-radius: 999px;
+
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.92);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+[data-theme="dark"] .comment-composer__uploadBtn {
+    background: rgba(17, 24, 39, 0.92);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.comment-composer__uploadBtn:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="dark"] .comment-composer__uploadBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.comment-composer__uploadBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* SVG size inside button */
+.comment-composer__uploadIcon {
+    width: 16px;
+    height: 16px;
+}
+
+/* Actions row */
+.comment-composer__row--actions {
+    width: 100%;
+    text-align: right;
+
+    
+}
+
+
+.comment-composer__rightActions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+
+@media (max-width: 480px) {
+
+    .comment-composer__row, .comment-composer__row--input{
+        padding: 0;
+    }
+
+
+    .comment-composer__pill {
+        margin-right: 0;
+        padding: 0;
+       
+    }
+
+.comment-composer__row {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+
+}
+
+
+.comment-composer__rightActions .post-actions__btn {
+    font-size: 16px;
+    padding: var(--spacing-sm);
+
+}
+
+.comment-composer__uploadBtn {
+    margin-left: var(--spacing-sm);
+}
+
+.comment-composer__row--actions {
+    margin-top: var(--spacing-sm);
+}
+    
+
+
+}

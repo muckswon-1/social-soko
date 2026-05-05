@@ -13,19 +13,24 @@ const updateUser = UTILS.catchAsync(async (req, res) => {
 
   const patch = req.body?.patch || {};
 
-  const { first_name, last_name, phone } = patch;
+  
+
+  const { first_name, last_name, phone, title, bio, skills } = patch;
 
   // Ensure at least one field to update
   const hasUpdates =
-    first_name !== undefined || last_name !== undefined || phone !== undefined;
+    first_name !== undefined || last_name !== undefined || phone !== undefined || title !== undefined || bio !== undefined || skills !== undefined;
   if (!hasUpdates) throw UTILS.httpError(400, "No fields provided to update");
 
 
 
   await user.update({
-    ...(first_name !== undefined && { first_name }),
+    ...(first_name !== undefined &&  first_name  &&{ first_name }),
     ...(last_name !== undefined && { last_name }),
-    ...(phone !== undefined && { phone }),
+    ...(phone !== undefined &&  phone && { phone }),
+    ...(title !== undefined && title && { title }),
+    ...(bio !== undefined && bio && { bio }),
+    ...(skills !== undefined && skills && { skills }),
   });
   
   return res.status(200).json({

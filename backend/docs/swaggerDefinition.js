@@ -1,6 +1,11 @@
 // src/swagger/swaggerDefinition.js
 
+const BusinessMembership = require("./schemas/BusinessMembership");
 const { Business } = require("./schemas/BusinessSchema");
+const { CommentLike } = require("./schemas/CommentsLikesSchema");
+const { Comment } = require("./schemas/CommentsSchema");
+const { PostLike } = require("./schemas/PostLikesSchema");
+const { Post } = require("./schemas/PostsSchema");
 const { User } = require("./schemas/UserSchema");
 
 module.exports = {
@@ -15,7 +20,7 @@ module.exports = {
 
   servers: [
     {
-      url: "http://localhost:2070",
+      url: "http://localhost:2078",
       description: "Local Development Server",
     },
   ],
@@ -34,6 +39,13 @@ module.exports = {
       /* ---------------------- Core Models ---------------------- */
       User: { ...User },
       Business: { ...Business },
+      Post: {...Post},
+      PostLike: {...PostLike},
+      Comment: {...Comment},
+      CommentLike: {...CommentLike},
+      BusinessMembership: {...BusinessMembership.BusinessMembership},
+      BusinessMembershipRequest: {...BusinessMembership.BusinessMembershipRequest},
+      
 
       /* --------------------- Auth Responses -------------------- */
       AuthSuccessResponse: {

@@ -57,7 +57,7 @@
 }
 
 /* ==========================
-   Form
+   Auth Form Wrapper
    ========================== */
 
 .auth-form {
@@ -66,52 +66,13 @@
   gap: var(--spacing-md);
 }
 
-/* Generic group wrapper for auth fields */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
+/* We intentionally do NOT restyle labels/inputs here;
+   they come from forms.css (.form-field, .form-label, .form-control, etc.) */
 
-/* Labels & inputs (reusable) */
-.form-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
+/* ==========================
+   Errors & Success Messages
+   ========================== */
 
-.form-input,
-.auth-form input,
-.auth-form select {
-  width: 100%;
-  padding: 0.55rem 0.7rem;
-  font-size: 0.9rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(0, 0, 0, 0.16);
-  outline: none;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
-  background-color: var(--color-white);
-  box-sizing: border-box;
-}
-
-.form-input:focus,
-.auth-form input:focus,
-.auth-form select:focus {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.14);
-}
-
-/* Hint / helper text */
-.field-hint,
-.form-hint {
-  font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.55);
-}
-
-/* Errors & success messages */
 .auth-error,
 .error-message {
   padding: 0.55rem 0.7rem;
@@ -156,12 +117,7 @@
   margin-top: var(--spacing-sm);
 }
 
-/* Reuse .btn + .btn-primary from global styles; just ensure good size */
-.auth-button.btn,
-.btn.auth-button {
-  padding: 0.65rem var(--spacing-md);
-  font-size: 0.95rem;
-}
+/* We let .btn / .btn-primary from global.css handle the actual button design */
 
 /* ==========================
    Footer links

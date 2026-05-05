@@ -1,0 +1,147 @@
+/* src/styles/posts/media-upload.css */
+
+
+
+/* iconOnly mode: we still render preview, but no extra ui */
+.media-upload--iconOnly .media-upload__ui {
+    display: none;
+}
+
+/* Preview */
+.media-upload__previewGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.media-upload__previewCard {
+    position: relative;
+    width: 100%;
+    max-height: 420px;
+    border: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .media-upload__previewCard {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Media */
+.media-upload__previewMedia {
+    width: 100%;
+    height: 360px;
+    /* stable layout */
+    object-fit: contain;
+    /* no cropping */
+    background: #000;
+    display: block;
+}
+
+/* Hover-only remove button (overlay) */
+.media-upload__removeBtn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 0.42rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--color-white);
+
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.media-upload__previewCard:hover .media-upload__removeBtn {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.media-upload__removeBtn:disabled {
+    opacity: 0.55 !important;
+    pointer-events: none;
+}
+
+.media-upload__removeBtn:hover {
+    background: rgba(0, 0, 0, 0.72);
+}
+
+/* close icon sizing */
+.media-upload__removeIcon {
+    width: 14px;
+    height: 14px;
+    display: block;
+}
+
+.media-upload__removeText {
+    font-weight: 800;
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+/* Optional UI (posts) */
+.media-upload__ui {
+    margin-top: var(--spacing-sm);
+}
+
+.media-upload__trigger {
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content:center;
+    border: 0;
+    background: transparent;
+
+}
+
+.media-upload__trigger:hover {
+    background: var(--border-color);
+    border-radius: var(--shadow-sm);
+}
+
+.media-upload__triggerIcon {
+    color: var(--color-blue);
+}
+
+.media-upload__error {
+    margin-top: 0.35rem;
+}
+
+.media-upload__status {
+    margin-top: 0.35rem;
+}
+
+.media-upload__label {
+    margin-top: 0.35rem;
+    font-weight: 800;
+}
+
+.media-upload__helper {
+    margin-top: 0.15rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+
+
+/* Touch devices: always show remove button */
+@media (hover: none),
+(pointer: coarse) {
+    .media-upload__removeBtn {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+}

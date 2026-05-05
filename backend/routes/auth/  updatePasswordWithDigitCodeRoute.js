@@ -98,4 +98,4 @@ const updatePasswordWithDigitCodeRoute = express.Router();
  *                   code: "UNAUTHORIZED"
  */
 
-module.exports = updatePasswordWithDigitCodeRoute.post("/reset-password-with-digit-code",authRateLimiter,authSlowDown,verifyAccessToken, updatePasswordWithDigitCode)
+module.exports = updatePasswordWithDigitCodeRoute.post("/reset-password-with-digit-code",authRateLimiter,authSlowDown,verifyAccessToken, updatePasswordWithDigitCode);

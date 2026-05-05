@@ -1,12 +1,12 @@
 import React from "react";
 import {
+  Form,
   NavLink,
   useNavigate,
 } from "react-router";
 import { useDispatch,} from "react-redux";
 import "../../styles/components/sidebar.css";
 import { logout } from "../../features/auth/authThunk";
-
 
 export default function Sidebar({handleToggle, expanded}) {
   const dispatch = useDispatch();
@@ -53,7 +53,7 @@ export default function Sidebar({handleToggle, expanded}) {
 
       {/* Nav Links */}
       <nav className="sidebar-nav">
-        <NavLink
+          <NavLink
           to="/dashboard"
           end
           className={({ isActive }) =>
@@ -61,8 +61,9 @@ export default function Sidebar({handleToggle, expanded}) {
           }
         >
           <span className="sidebar-icon">🏠</span>
-          {expanded && <span className="sidebar-label">Home</span>}
+          {expanded && <span className="sidebar-label">Feed</span>}
         </NavLink>
+
 
         <NavLink
           to="/dashboard/business"
@@ -74,40 +75,29 @@ export default function Sidebar({handleToggle, expanded}) {
           {expanded && (
             <span className="sidebar-label">My Business</span>
           )}
-        </NavLink>
+        </NavLink> 
 
-             <NavLink
-          to="/dashboard/profile"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "active" : ""}`
-          }
-        >
-          <span className="sidebar-icon">👤</span>
-          {expanded && <span className="sidebar-label">Profile</span>}
-        </NavLink>
-
-
-
+        
         <NavLink
-          to="/dashboard/privacy"
+          to="/dashboard/account-settings"
           className={({ isActive }) =>
             `sidebar-link ${isActive ? "active" : ""}`
           }
         >
           <span className="sidebar-icon">🔐</span>
           {expanded && (
-            <span className="sidebar-label">Privacy & Security</span>
+            <span className="sidebar-label">Account Settings</span>
           )}
         </NavLink>
       </nav>
 
       {/* Footer / Logout */}
-      <div className="sidebar-footer">
-        <button className="sidebar-link sidebar-logout" onClick={handleLogout}>
+      <Form method="post" action="/logout" className="sidebar-footer">
+        <button type="submit" className="sidebar-link sidebar-logout" onClick={handleLogout}>
           <span className="sidebar-icon">⏻</span>
           {expanded && <span className="sidebar-label">Logout</span>}
         </button>
-      </div>
+      </Form>
     </aside>
     </>
   );

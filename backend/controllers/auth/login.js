@@ -30,11 +30,16 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     last_login_at: new Date(),
   })
 
+  
+
   // Generate tokens + user payload
-  const accessToken = UTILS.generateAccessToken(user);
+  const {accessToken, expiresIn} = UTILS.generateAccessToken(user);
   const refreshToken = UTILS.generateRefreshToken(user);
   const csrfToken = UTILS.generateCSRFToken();
-  const data = UTILS.normalizedUserAuthData(user);
+
+
+  user.password = null;
+  
 
   // Set cookies
   res.cookie("access_token", accessToken, accessTokenCookieOptions);
@@ -44,7 +49,9 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   // Respond
   return res.status(200).json({
     success: true,
+    access_token_expires_at: expiresIn, // Include expiration time in the response if needed by the client
+    access_token: accessToken,
     message: "Login successful",
-    data,
+    user,
   });
 });

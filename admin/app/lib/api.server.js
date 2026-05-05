@@ -3,7 +3,7 @@ import axios from "axios";
 import serverGetCookieFromHeader from "./csrf.server";
 
 
-const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
+const BACKEND_URL = import.meta.env.VITE_API_URL_INTERNAL;
 
 export function createServerApi(request) {
   const cookieHeader = request.headers.get("cookie") || "";

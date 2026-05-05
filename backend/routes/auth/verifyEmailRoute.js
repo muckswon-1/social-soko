@@ -1,6 +1,7 @@
 const express = require("express");
 const { authRateLimiter, authSlowDown } = require("../../middleware/security");
 const verifyToken = require("../../controllers/auth/verifyToken");
+const verifyEmail = require("../../controllers/auth/verifyEmail");
 const verifyEmailRouter = express.Router();
 
 /**
@@ -74,4 +75,4 @@ const verifyEmailRouter = express.Router();
  *                   code: "BAD_REQUEST"
  */
 
-module.exports = verifyEmailRouter.post("/verify-email/:token",authRateLimiter, authSlowDown,verifyToken );
+module.exports = verifyEmailRouter.post("/verify-email/:token",authRateLimiter, authSlowDown,verifyEmail );

@@ -1,39 +1,41 @@
 // src/routes/business/business-edit-form.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import { authUserSelector } from "../../features/auth/authSlice";
-import "../../styles/business/business.css"
-import { useGetBusinessQuery, useUpdateBusinessMutation } from "../../services/businessApi";
+import "../../styles/business/business.css";
+import {
+  useGetBusinessQuery,
+  useUpdateBusinessMutation,
+} from "../../services/businessApi";
 import { toast } from "react-toastify";
+import PhoneSelection from "./PhoneSelection";
+import { inferCountryFromPhone } from "../../utils/inferCountryFromPhone";
+import { slugify } from "../../utils/slugify";
+import BUSINESS_UTILS from "./utils/utils";
+import { emailRe, urlRe } from "../../utils/formValidation";
+import { mapUiBusinessToApiBusiness } from "./utils/businessTransformers";
 
-const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-const urlRe = /^(https?:\/\/)?([a-z0-9\-]+\.)+[a-z]{2,}(\/[^\s]*)?$/i;
+ /**
+    * @typedef {import("./utils/businessTransformers").Business} Business
+    * 
+    */
 
-const slugify = (s = "") =>
-  s
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
+   /**
+  * 
+  * @typedef {import("../posts/utils/postTransformers").ErrorResponse} BusinessErrors
+  */
 
-const emptyForm = (email = "") => ({
-  name: "",
-  description: "",
-  address: "",
-  city: "",
-  state: "",
-  country: "",
-  postal_code: "",
-  phone: "",
-  email,
-  website: "",
-  slug: "",
-  logo_url: "",
-});
+    /**
+    * @typedef {import("./utils/businessTransformers").BusinessForm} BusinessForm
+    * 
+    */
+
+ 
+
+  
+
+  
 
 export default function BusinessEditForm({ setIsEditing }) {
-  const user = useSelector(authUserSelector);
-
+  
   const {
     data,
     isLoading: isBusinessLoading,
@@ -41,19 +43,34 @@ export default function BusinessEditForm({ setIsEditing }) {
     error: businessError,
   } = useGetBusinessQuery(user?.id, { skip: !user?.id });
 
-  const business = data?.business || null;
-
-  const [updateBusiness, { isLoading: isUpdating }] =
+  const [updateBusiness, { isLoading: isUpdating, isError: isUpdateError, error: updateError }] =
     useUpdateBusinessMutation();
 
-  const initialValues = business || null;
+  /**@type {Business} */
+  const business = data;
+
+/**@type {BusinessErrors} */
+const getBusinessError = businessError;
+
+/**@type {BusinessErrors} */
+const updateBusinessError = updateError;
+
+
+
+
+  const initialValues = mapUiBusinessToApiBusiness(business);
 
   const [autoSlug, setAutoSlug] = useState(true);
+
+
+  /** @type {[BusinessForm, React.Dispatch<React.SetStateAction<BusinessForm>>]} */
   const [form, setForm] = useState(() =>
     initialValues
-      ? { ...emptyForm(user?.email), ...initialValues }
-      : emptyForm(user?.email),
+      ? { ...BUSINESS_UTILS.getEmptyForm(user?.email), ...initialValues }
+      : BUSINESS_UTILS.getEmptyForm(user?.email),
   );
+
+  const [phoneCountryCode, setPhoneCountryCode] = useState("KE");
 
   // keep form in sync if initialValues change (e.g. refetch)
   useEffect(() => {
@@ -64,50 +81,48 @@ export default function BusinessEditForm({ setIsEditing }) {
       }));
       // if there is a slug already, default to manual mode
       setAutoSlug(!initialValues.slug);
+
+      const inferred = inferCountryFromPhone(initialValues?.phone);
+      if (inferred) {
+        setPhoneCountryCode(inferred.code);
+      }
     }
   }, [initialValues]);
 
-  const isValid = useMemo(() => {
-    if (!form.name.trim()) return false;
-    if (form.email && !emailRe.test(form.email)) return false;
-    if (form.website && !urlRe.test(form.website)) return false;
-    return true;
-  }, [form]);
+  // PHONE + FORM UTILS USING BUSINESS_UTILS
 
-  const onChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => {
-      const next = { ...prev, [name]: value };
-      if (name === "name" && autoSlug) {
-        next.slug = slugify(value);
-      }
-      return next;
-    });
-  };
+  const selectedPhoneCountry = useMemo(
+    () => BUSINESS_UTILS.selectedPhoneCountry(phoneCountryCode),
+    [phoneCountryCode],
+  );
 
-  const handleSlugChange = (e) => {
-    const val = e.target.value;
-    setForm((prev) => ({
-      ...prev,
-      slug: val,
-    }));
-    // once user types slug manually, turn off auto
-    if (autoSlug) setAutoSlug(false);
-  };
+  const phonePlaceHolder = useMemo(
+    () => BUSINESS_UTILS.phonePlaceHolder(selectedPhoneCountry),
+    [selectedPhoneCountry],
+  );
 
-  const toggleAutoSlug = () => {
-    setAutoSlug((on) => {
-      const next = !on;
-      if (next) {
-        // when turning auto back on, regenerate from current name
-        setForm((prev) => ({
-          ...prev,
-          slug: slugify(prev.name),
-        }));
-      }
-      return next;
-    });
-  };
+  const isValid = useMemo(
+    () => BUSINESS_UTILS.formIsValid({form}),
+    [form],
+  );
+
+  const onChange = BUSINESS_UTILS.onChange(setForm, autoSlug);
+
+  const handleSlugChange = (e) => BUSINESS_UTILS.handleSlugChange(
+    e,
+    setForm,
+    setAutoSlug,
+    autoSlug,
+  );
+
+  const toggleAutoSlug = BUSINESS_UTILS.toggleAutoSlug(setAutoSlug, setForm);
+
+  const handlePhoneCountryChange = BUSINESS_UTILS.handlePhoneCountryChange({
+    phoneCountryCode,
+    setForm,
+    setPhoneCountryCode
+
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,20 +134,25 @@ export default function BusinessEditForm({ setIsEditing }) {
 
     if (!isValid || isUpdating) return;
 
+    // 🚫 Do not send username in payload (locked for now)
+    const { username, ...rest } = form;
+
     const payload = {
-      ...form,
-      slug: form.slug ? slugify(form.slug) : "",
+      ...rest,
+      slug: rest.slug ? slugify(rest.slug) : "",
     };
 
     try {
-      await updateBusiness({
+      const res = await updateBusiness({
         id: business.id,
         userId: user.id,
         businessData: payload,
       }).unwrap();
 
-      toast.success("Business updated successfully");
-      setIsEditing(false);
+      if (res.success) {
+        toast.success(res.message);
+        setIsEditing(false);
+      }
     } catch (error) {
       console.error(error);
       toast.error(
@@ -173,6 +193,22 @@ export default function BusinessEditForm({ setIsEditing }) {
 
   return (
     <form className="form-grid-2 business-edit-form" onSubmit={handleSubmit}>
+      {/* Username (read-only / disabled for now) */}
+      <label className="form-field">
+        <span className="form-label">Business Username</span>
+        <input
+          className="form-control-disabled form-control"
+          name="username"
+          value={form.username || ""}
+          disabled
+          readOnly
+        />
+        <div className="form-hint">
+          Username is currently managed by support. Contact us if you need to
+          change it.
+        </div>
+      </label>
+
       {/* Name */}
       <label className="form-field">
         <span className="form-label">Business Name *</span>
@@ -234,20 +270,32 @@ export default function BusinessEditForm({ setIsEditing }) {
         />
         {form.email && !emailRe.test(form.email) && (
           <div className="form-error">Enter a valid email</div>
-        )}
+        )} 
       </label>
 
+      {/* Phone selection (matches create business layout) */}
       <label className="form-field">
         <span className="form-label">Phone</span>
-        <input
-          className="form-control"
-          name="phone"
-          value={form.phone}
-          onChange={onChange}
-          placeholder="+254 ..."
-          autoComplete="tel"
-          inputMode="tel"
-        />
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <div style={{ flexBasis: "40%" }}>
+            <PhoneSelection
+              value={phoneCountryCode}
+              onChange={handlePhoneCountryChange}
+            />
+          </div>
+
+          <div style={{ flex: 1 }}>
+            <input
+              className="form-control"
+              name="phone"
+              value={form.phone}
+              onChange={onChange}
+              placeholder={phonePlaceHolder}
+              autoComplete="tel"
+              inputMode="tel"
+            />
+          </div>
+        </div>
       </label>
 
       {/* Online */}
@@ -361,4 +409,3 @@ export default function BusinessEditForm({ setIsEditing }) {
     </form>
   );
 }
-

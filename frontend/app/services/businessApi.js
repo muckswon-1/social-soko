@@ -1,27 +1,31 @@
 import { current } from "@reduxjs/toolkit";
 import { apiSlice } from "./apiSlice";
+import { normalisedBusinessResponse, normaliseFetchMyBusinessesResponse } from "../routes/business/utils/businessTransformers";
+import { normaliseErrorResponse, normaliseGenericErrorResponse } from "./servicesTransformers";
+
 
 export const businessApi = apiSlice.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     getBusiness: builder.query({
       query: (userId) => ({
-        url: `/business/fetch-business/${userId}`,
+        url: `/business/me/${userId}`,
         method: "GET",
       }),
       providesTags: (result) =>result ? [{ type: "Business", id: "CURRENT" }] : [{ type: "Business", userId: "EMPTY" }],
+      transformResponse: (result) => {
+
+        return normalisedBusinessResponse(result);
+
+        
+      },
+
+
       transformErrorResponse:(response, meta, args) => {
        
-        const {data, status} = response;
+        return normaliseGenericErrorResponse(response);
+      
 
-        if(status === 403) {
-          // if its 403 it means user has not created an account and thier role is customer
-
-          // allow a user to create business
-          return { status, message: "You are not authorized to access this resource"}
-        }
-
-        return response;
       }
     }),
     createBusiness: builder.mutation({
@@ -148,6 +152,16 @@ export const businessApi = apiSlice.injectEndpoints({
         body: { businessData },
         
       }),
+      transformResponse: (result, meta, args) => {
+        const {success, message, business} = result;
+
+        return {success, message, business}
+      },
+      transformErrorResponse: (response) => {
+        console.log(response);
+      },
+
+      
 
     async onQueryStarted({id,userId, businessData}, {dispatch, queryFulfilled}){
       const patchResult = dispatch(
@@ -248,8 +262,44 @@ export const businessApi = apiSlice.injectEndpoints({
          invalidatesTags: (result, error, {businessId}) => result ? [{type: "Business", id: businessId}] : [],
      
       
-    })
+    }),
 
+    fetchMyBusinesses: builder.query({
+      /**
+       * Fetch businesses the authenticated user is a member/admin/owner of
+       *
+       * @param {{ page?: number, limit?: number, q?: string }} params
+       */
+      query: (params = {}) => ({
+        url: "business/me/businesses",
+        method: "GET",
+        params,
+      }),
+
+      // Normalize response shape for easier consumption
+      transformResponse: (response) => {
+        // Expected shape:
+        // { success, message, data: { rows, count, page, limit } }
+        return normaliseFetchMyBusinessesResponse(response)
+        
+      },
+      transformErrorResponse: (response, meta, arg) => {
+        return normaliseErrorResponse(response)
+      },
+
+      providesTags: (result) =>{
+        const rows = result?.data?.rows || [];
+
+        return [
+          {type: "Business", id: "MY_LIST"},
+          ...rows.map((row) => ({
+            type:"Business",
+            id: row.business.id
+          }))
+        ]
+      }
+        
+    }),
 
   }),
 });
@@ -261,5 +311,6 @@ export const {
   useRequestBusinessVerificationMutation,
   useLazyCheckBusinessSlugQuery,
   useLazyCheckBusinessUsernameQuery,
-  useUploadBusinessLogoMutation
+  useUploadBusinessLogoMutation,
+  useFetchMyBusinessesQuery
 } = businessApi;

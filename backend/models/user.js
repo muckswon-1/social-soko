@@ -1,16 +1,54 @@
 // /backend/models/user.js
 "use strict";
-const { default: phone } = require("phone");
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.Business, { foreignKey: "user_id" });
-      User.hasMany(models.Notification, { foreignKey: "user_id" });
-      User.hasMany(models.Message, { foreignKey: "sender_id" });
-      User.hasMany(models.Message, { foreignKey: "receiver_id" });
-      User.hasMany(models.BusinessReview, { foreignKey: "user_id" });
-    }
+  // Businesses this user owns
+  User.hasMany(models.Business, {
+    foreignKey: "user_id",
+    as: "ownedBusinesses",
+  });
+
+  // Posts authored by user
+  User.hasMany(models.Post, {
+    foreignKey: "user_id",
+    as: "posts",
+  });
+
+  // Comments authored by user
+  User.hasMany(models.Comment, {
+    foreignKey: "user_id",
+    as: "comments",
+  });
+
+  // Approved memberships
+  User.hasMany(models.BusinessMembership, {
+    foreignKey: "user_id",
+    as: "businessMemberships",
+  });
+
+  // Join requests created by user
+  User.hasMany(models.BusinessMembershipRequest, {
+    foreignKey: "user_id",
+    as: "businessMembershipRequests",
+  });
+
+  // Requests reviewed by this user (admin/owner)
+  User.hasMany(models.BusinessMembershipRequest, {
+    foreignKey: "reviewed_by_user_id",
+    as: "reviewedBusinessMembershipRequests",
+  });
+
+  // Optional convenience (recommended)
+  User.belongsToMany(models.Business, {
+    through: models.BusinessMembership,
+    foreignKey: "user_id",
+    otherKey: "business_id",
+    as: "businesses",
+  });
+}
+
   }
   User.init(
     {

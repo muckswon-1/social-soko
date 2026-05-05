@@ -4,9 +4,7 @@ const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
 const digitsCodegenerator = require("node-code-generator");
-
-
-
+//const {format: formatSQLQuery} = require('sql-formatter');
 
 /**
  * Utility methods for Social Soko API
@@ -41,15 +39,18 @@ const UTILS = {
    * @returns {string} - Generated Access Token
    */
   generateAccessToken: (user) => {
-    return jwt.sign(
+    const expiresIn = process.env.JWT_TOKEN_EXPIRES_IN;
+    const accessToken =  jwt.sign(
       {
         id: user.id,
         email: user.email,
         role: user.role,
       },
       process.env.JWT_ACCESS_SECRET,
-      { expiresIn: "1h" },
+      { expiresIn },
     );
+
+    return {accessToken, expiresIn}
   },
 
   /**
@@ -101,17 +102,20 @@ const UTILS = {
    *
    */
   sendEmail: async (email, subject, htmlData) => {
+   
     try {
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: process.env.EMAIL_HOST,
+        port: Number(process.env.EMAIL_HOST_PORT),
+        secure: process.env.NODE_ENV === "production",
         auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD,
+          user: process.env.EMAIL_HOST_USERNAME,
+          pass: process.env.EMAIL_HOST_PASSWORD
         },
       });
 
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: process.env.EMAIL_HOST_FROM_NO_REPLY_HEADER,
         to: email,
         subject: subject,
         html: htmlData,
@@ -120,6 +124,7 @@ const UTILS = {
       await transporter.sendMail(mailOptions);
       console.log(`Email sent to ${email}`);
     } catch (error) {
+      console.log(process.env.EMAIL_USER);
       console.error("Error sending email:", error);
       throw error;
     }
@@ -241,6 +246,18 @@ const UTILS = {
     return Math.floor(Date.now() / 1000);
 
   },
+
+  // prettySQL: (sql) => {
+  //   const prettyQuery = formatSQLQuery(sql,{
+  //     language: 'postgresql',
+  //     indent: '  ',
+  //     keywordCase: 'upper'
+  //   });
+
+  //   console.log(prettyQuery);
+  // }
+
+
 }
 
 module.exports = UTILS;

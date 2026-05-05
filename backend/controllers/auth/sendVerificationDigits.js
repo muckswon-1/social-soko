@@ -42,7 +42,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   try {
     await EmailJob.create({
       to: email,
-      template: "sixDigitCode",
+      template: "auth.sixDigitCode",
       payload: { email, code, expiresInMinutes },
     })
   } catch (error) {

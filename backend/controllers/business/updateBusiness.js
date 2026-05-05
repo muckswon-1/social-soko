@@ -1,6 +1,7 @@
 const createError = require("http-errors");
 const { Business } = require("../../models");
 const UTILS = require("../../utils/utils");
+const validatePhone = require("../../utils/validatePhone");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   const { id, userId } = req.params;
@@ -9,6 +10,15 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   }
 
   const { businessData } = req.body || {};
+
+
+   //phone validation if available
+  let countryIso2 = businessData.countryIso2 || "";
+  let localPhone = businessData.localPhone || "";
+
+
+
+
 
   const {
     name,
@@ -33,7 +43,6 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     state !== undefined ||
     country !== undefined ||
     postal_code !== undefined ||
-    phone !== undefined ||
     email !== undefined ||
     website !== undefined ||
     slug !== undefined;
@@ -52,6 +61,10 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     throw createError(404, "Business not found");
   }
 
+  const normalizedPhone = validatePhone({countryIso2, localPhone});
+ 
+console.log(normalizedPhone);
+  
   // update fields found in businessData
   await business.update({
     ...(name !== undefined && { name }),
@@ -61,7 +74,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     ...(state !== undefined && { state }),
     ...(country !== undefined && { country }),
     ...(postal_code !== undefined && { postal_code }),
-    ...(phone !== undefined && { phone }),
+    ...(normalizedPhone.e164 !== undefined && { phone: normalizedPhone.e164 }),
     ...(email !== undefined && { email }),
     ...(website !== undefined && { website }),
     ...(slug !== undefined && { slug }),

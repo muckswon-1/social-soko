@@ -1,10 +1,8 @@
-import { isRouteErrorResponse, Link, Outlet } from "react-router";
+import { isRouteErrorResponse, Link } from "react-router";
 import styles from "../../styles/layout/section-layout.css?url";
 import errorStyles from "../../styles/error/error-boundary.css?url";
 import SectionLayout from "../components/SectionLayout";
-import { useSelector } from "react-redux";
-import { authUserSelector } from "../../features/auth/authSlice";
-import { useGetBusinessQuery } from "../../services/businessApi";
+import { useFetchMyBusinessesQuery } from "../../services/businessApi";
 
 export function links() {
   return [
@@ -14,34 +12,66 @@ export function links() {
 }
 
 export default function BusinessLayout() {
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useFetchMyBusinessesQuery(
+    { page: 1, limit: 50 },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
-  const user = useSelector(authUserSelector);
-  const {data} = useGetBusinessQuery(user?.id);
+  // Support both possible service return shapes while you finish normalising RTK:
+  // 1) { success, message, data: { rows, count, ... } }
+  // 2) { rows, count, ... }
+  const rows = Array.isArray(data?.data?.rows)
+    ? data.data.rows
+    : Array.isArray(data?.rows)
+      ? data.rows
+      : [];
 
- 
- const existingBusinessLinks = [];
 
- const newBusinessLinks = [
-  { to: "/dashboard/business/create-business", title: "Create Business" },
- ]
+  const businessCount =
+    typeof data?.data?.count === "number"
+      ? data.data.count
+      : typeof data?.count === "number"
+        ? data.count
+        : rows.length;
 
- const sectionLinks = [
-  { to: "/dashboard/business", title: "Home" },
- ];
+  const hasBusinesses = businessCount > 0;
 
- if(data?.business?.id) {
-  sectionLinks.push(...existingBusinessLinks)
- }else {
-  sectionLinks.push(...newBusinessLinks)
- }
-   
- 
+  const sectionLinks = [
+    { to: "/business", title: "My Businesses" },
+    { to: "/business/create-business", title: "Create Business" },
+    {
+      to: "/dashboard/business/request-membership",
+      title: "Join a Business",
+    },
+    { to: "/dashboard/business/settings", title: "Settings" },
+  ];
 
   const sectionMeta = {
     header: "Business",
-    description: "Manage your business info and how we contact you.",
-    sectionLinks: sectionLinks
-     
+    description: hasBusinesses
+      ? "Manage the businesses you own, administer, or belong to."
+      : "Create a business or request membership to join one.",
+    sectionLinks,
+    stats: [
+      {
+        label: "Businesses",
+        value: isLoading ? "…" : String(businessCount),
+      },
+    ],
+    status:
+      isError && error
+        ? {
+            tone: "danger",
+            label: "Issue loading businesses",
+          }
+        : null,
   };
 
   return <SectionLayout sectionMeta={sectionMeta} />;
@@ -69,7 +99,6 @@ export function ErrorBoundary({ error }) {
       message = error.statusText || message;
     }
   } else if (error instanceof Error) {
-    // Hide stack in production; show friendly text
     message = error.message || message;
   }
 
@@ -102,7 +131,6 @@ export function ErrorBoundary({ error }) {
           </button>
         </div>
 
-        {/* Optional: subtle technical info in dev; safe to ignore if no error.message */}
         {!isRouteErrorResponse(error) && error instanceof Error && (
           <details className="error-details">
             <summary>Technical details</summary>

@@ -1,66 +1,59 @@
 services:
   postgres:
     image: postgres:18
-    container_name: dev-postgres
+    container_name: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Adanna12!
-      POSTGRES_DB: social_soko_dev
+      # Bootstrap super admin (used only for first init)
+      POSTGRES_USER: ${SUPER_ADMIN_USER}
+      POSTGRES_PASSWORD: ${SUPER_ADMIN_PASS}
+      POSTGRES_DB: ${SUPER_ADMIN_DB}
+
+      # Application DB + user (used by our init script)
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+
+
     ports:
       # host:container → Postgres accessible on localhost:2074
       - "2074:5432"
     volumes:
       # Persist only the actual data directory (recommended)
-      - dev_postgres_data:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql
       # Run any init SQL scripts (create app user, etc.)
       - ./init-scripts:/docker-entrypoint-initdb.d
 
       - ./uploads:/app/uploads
     networks:
-      - devnet
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: dev-pgadmin
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: mucks.won.softwares@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: 18qPLESnbQRrkmNB
-    ports:
-      - "2075:80"
-    depends_on:
-      - postgres
-    networks:
-      - devnet
+      - social-soko-net
 
   email_worker:
     build: 
       context: .
       dockerfile: workers/Dockerfile.worker
-    container_name: dev-email-worker
+    container_name: email-worker
     env_file:
-      - .env.docker
+      - .env.development
     environment:
-      NODE_ENV: docker
+      NODE_ENV: development
     depends_on:
       - postgres
     networks:
-      - devnet
+      - social-soko-net
     restart: unless-stopped
 
   backend:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: dev-backend
-    command: ["npm", "run", "dev"]
+    container_name: social-soko-api
     env_file:
-      - .env.docker
+      - .env.development
     environment:
-      NODE_ENV: docker
+      NODE_ENV: development
     ports:
-      - "2070:2070"
+      - "2078:2078"
     depends_on:
       - postgres
     volumes:
@@ -69,10 +62,29 @@ services:
       # Keep node_modules inside container so host OS doesn’t conflict
       - /usr/src/app/node_modules
     networks:
-      - devnet
+      - social-soko-net
+
+  nocodb:
+    image: nocodb/nocodb:latest
+    container_name: nocodb
+    restart: unless-stopped
+    ports:
+      - "2079:8080"
+    volumes:
+      - ./nocodb:/usr/app/data
+    environment:
+      NC_DB: "pg://postgres:5432?u=${DB_USER}&p=${DB_PASS}&d=nocodb_meta"
+      NC_AUTH_JWT_SECRET: "569a1821-0a93-45e8-87ab-eb857f20a010"
+      NC_ALLOW_LOCAL_EXTERNAL_DBS: "true"
+    depends_on:
+      - postgres
+    networks:
+      - social-soko-net
 
 networks:
-  devnet:
+  social-soko-net:
+    name: social-soko-net
+    driver: bridge
 
 volumes:
-  dev_postgres_data:
+  postgres_data:

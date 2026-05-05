@@ -1,15 +1,36 @@
 // app/lib/api.server.js
 import axios from "axios";
-import serverGetCookieFromHeader from "./csrf.server";
+import { serverGetCookieFromHeader } from "./csrf.server";
 
-const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
+/**
+ * Axios types (for editor intellisense / TS via JSDoc)
+ * @typedef {import("axios").AxiosInstance} AxiosInstance
+ * @typedef {import("axios").AxiosRequestConfig} AxiosRequestConfig
+ * @typedef {import("axios").AxiosError} AxiosError
+ */
 
+const BACKEND_URL = import.meta.env.VITE_API_URL_INTERNAL;
+
+/**
+ * Server-side API client factory.
+ *
+ * - For use inside React Router loaders/actions (Node "server" context).
+ * - Forwards incoming cookies to the backend.
+ * - Automatically injects `X-CSRF-TOKEN` for unsafe, non-public auth routes.
+ * - DOES NOT handle refresh-token logic anymore — that now lives in
+ *   helpers like `ensureServerSession`, which can also forward Set-Cookie
+ *   back to the browser.
+ *
+ * @param {Request} request - React Router / Remix request passed into loader/action.
+ * @returns {AxiosInstance}
+ */
 export function createServerApi(request) {
-  const cookieHeader = request.headers.get("cookie") || "";
+  const cookieHeader = request?.headers?.get("cookie") || "";
 
+  /** @type {AxiosInstance} */
   const api = axios.create({
     baseURL: `${BACKEND_URL}/api/v1`,
-    timeout: 20000,
+    timeout: 20_000,
     withCredentials: true,
     headers: {
       "Content-Type": "application/json",
@@ -17,91 +38,66 @@ export function createServerApi(request) {
     },
   });
 
+  /**
+   * Request interceptor:
+   * - For unsafe methods (POST/PUT/PATCH/DELETE) on non-public auth routes
+   *   attach the CSRF token from the incoming cookies.
+   */
   api.interceptors.request.use((config) => {
-    const method = (config.method || "").toUpperCase();
-    const unsafe = /^(POST|PUT|PATCH|DELETE)$/.test(method);
-    const url = config.url || "";
+    /** @type {AxiosRequestConfig & { _skipRefresh?: boolean; _retry?: boolean }} */
+    const cfg = config;
 
-    const isPublicAuth =
-      /^\/auth\/(login|register|forgot-password|send-verification-email|verify-email(?:\/[^/]+)?|reset-password(?:\/.*)?|refresh-token)$/i.test(
-        url,
-      );
+    const method = (cfg.method || "").toUpperCase();
+    const isUnsafe = /^(POST|PUT|PATCH|DELETE)$/.test(method);
+    const url = cfg.url || "";
 
-    if (unsafe && !isPublicAuth) {
+    // Public auth endpoints that should NOT require CSRF
+    const isPublicAuth = /^\/auth\/(login|register|forgot-password|send-verification-email|verify-email(?:\/[^/]+)?|reset-password(?:\/.*)?|email-update-with-digit-code|send-verification-digits-code|refresh-token)$/i.test(
+      url,
+    );
+
+    if (isUnsafe && !isPublicAuth) {
       const csrf = serverGetCookieFromHeader("XSRF-TOKEN", cookieHeader);
       if (csrf) {
-        config.headers = config.headers || {};
-        config.headers["X-CSRF-TOKEN"] = csrf;
+        cfg.headers = cfg.headers || {};
+        cfg.headers["X-CSRF-TOKEN"] = csrf;
       }
     }
 
-    return config;
+    return cfg;
   });
 
-  // your 401/refresh-token logic can live here (server-side only) if needed
-
-  let isRefreshing = false;
-  let waiters = [];
-
-  const notifyWaiters = () => {
-    waiters.forEach((request) => request());
-    waiters = [];
-  };
-
+  /**
+   * Response interceptor:
+   * - Logs errors with method/url/status/data.
+   * - NO refresh-token logic here anymore.
+   *   If a loader/action needs to ensure a valid session, use
+   *   `ensureServerSession(request)` before making other calls.
+   */
   api.interceptors.response.use(
-    (r) => r,
+    (response) => response,
+    /** @param {AxiosError & { config?: AxiosRequestConfig & { _skipRefresh?: boolean; _retry?: boolean } }} error */
     async (error) => {
       const { config, response } = error;
 
-      if (!response) return Promise.reject(error); // network timeout
-
-      console.warn(
-        "[API error]",
-        config?.method?.toUpperCase(),
-        config?.url,
-        response?.status,
-        response?.data,
-      );
-
-      // Don't attempt to refresh for public auth endpoints or explcit opt-out
-
-      // Could be public routes: verify-email|send-verification-email|forgot-password|reset-password|email-update-with-digit-code|send-verification-digits-code|reset-password-with-digit-code
-
-      const url = (config && config.url) || "";
-      // const isPublicAuth = /^\/auth\/(verify-email| send-verification-email | forgot-password)/.test(url);
-      const isPublicAuth =
-        /^\/auth\/(register|login|forgot-password|send-verification-email|verify-email(?:\/[^/]+)?|reset-password(?:\/.*)?|email-update-with-digit-code|refresh-token)$/.test(
-          url,
-        );
-
-      console.log(`is ${url} a public auth route?: ${isPublicAuth}`);
-
-      if (isPublicAuth || config?._skipRefresh) {
+      // Network / timeout / no HTTP response at all
+      if (!response || !config) {
+        console.warn("[API error] network/timeout:", error.message);
         return Promise.reject(error);
       }
 
-      if (response.status === 401 && !config._retry) {
-        // queue requests while refreshing
-        if (isRefreshing) {
-          await new Promise((resolve) => waiters.push(resolve));
-          config._retry = true;
-          return api(config);
-        }
+      const method = (config.method || "").toUpperCase();
+      const url = config.url || "";
 
-        isRefreshing = true;
-        config._retry = true;
+      console.warn(
+        "[API error]",
+        method,
+        url,
+        response.status,
+        response.data,
+      );
 
-        try {
-          await api.post("/auth/refresh-token", {}, { _skipRefresh: true }); // uses refresh cookie, sets new access cookie
-          notifyWaiters();
-          return api(config);
-        } catch (error) {
-          // refresh failed - user mut login again
-          return Promise.reject(error);
-        } finally {
-          isRefreshing = false;
-        }
-      }
+      // Let callers (or ensureServerSession) handle 401s, 403s, etc.
       return Promise.reject(error);
     },
   );

@@ -3,7 +3,6 @@
    ========================== */
 
 .error-shell {
-  /* Works both inside layout-canvas-inner and standalone pages */
   width: 100%;
   min-height: 40vh;
   display: flex;

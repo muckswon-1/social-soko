@@ -1,0 +1,244 @@
+.responsive-shell {
+    height: 100vh;
+    width: 100%;
+}
+
+.responsive-shell__header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.responsive-shell {
+    display: grid;
+    grid-template-areas: 
+        "header header  header"
+        "left   center  right";
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 260px minmax(0, 1fr) 320px;
+
+}
+
+/* Grid areas */
+.responsive-shell__header {
+    grid-area: header;
+}
+
+.responsive-shell__left {
+    grid-area: left;
+    position: sticky;
+    top: var(--header-height);
+    align-self: start;
+    height: calc(100vh - var(--header-height));
+    overflow: auto;
+    padding: var(--spacing-md);
+
+}
+
+.responsive-shell__left::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    width: 1px;
+    height: 100%;
+
+    background: var(--border-color);
+    pointer-events: none;
+}
+
+.responsive-shell__center {
+
+    grid-area: center;
+    overflow-y: auto;
+    min-width: 0;
+    min-height: 0;
+    padding: var(--spacing-md);
+}
+
+.responsive-shell__right {
+    grid-area: right;
+    position: sticky;
+    top: var(--header-height);
+    align-self: start;
+    height: calc(100vh - var(--header-height));
+    overflow: auto;
+    padding: var(--spacing-md);
+}
+
+.responsive-shell__left, .responsive-shell__right {
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.responsive-shell--mdDesktop {
+    grid-template-areas: 
+    "header header"
+    "left   center";
+    grid-template-columns: 260px minmax(0, 1fr);
+}
+
+.responsive-shell--tablet, .responsive-shell--mobile {
+    grid-template-areas: 
+        "header"
+        "center" ;
+    grid-template-columns: 1fr;
+}
+
+.responsive-shell--tablet .responsive-shell__left,
+.responsive-shell--tablet .responsive-shell__right,
+.responsive-shell--mobile .responsive-shell__left,
+.responsive-shell--mobile .responsive-shell__right {
+    display: none;
+}
+
+/* =========================
+   Drawer: minimal working UI
+   ========================= */
+
+.drawer-root {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    /* above sticky header */
+}
+
+.drawer-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.42);
+    cursor: pointer;
+}
+
+.drawer-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+
+    /* width tuned for mobile */
+    width: min(88vw, 360px);
+
+    background: var(--card-bg-color);
+    color: var(--text-color);
+
+    /* slide-in */
+    transform: translateX(-102%);
+    transition: transform 180ms ease;
+
+    display: flex;
+    flex-direction: column;
+
+    /* keep content from touching edges */
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.drawer-panel[data-side="left"] {
+    left: 0;
+}
+
+.drawer-root[data-open="true"] .drawer-panel[data-side="left"] {
+    transform: translateX(0);
+}
+
+.drawer-header {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding: 0 var(--spacing-md);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.drawer-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+}
+
+.drawer-close {
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--dislike-active-color);
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--radius-sm);
+}
+
+.drawer-body {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--spacing-md);
+}
+
+/* =========================
+   Mobile rail slot modifiers
+   (your chosen naming rule)
+   ========================= */
+
+.responsive-shell__left--mobile {
+    /* acts as a wrapper inside the drawer */
+}
+
+.responsive-shell__right--mobile {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Dark theme borders */
+[data-theme="dark"] .drawer-header,
+[data-theme="dark"] .responsive-shell__right--mobile {
+    border-bottom-color: rgba(255, 255, 255, 0.10);
+    border-top-color: rgba(255, 255, 255, 0.10);
+}
+
+[data-theme="dark"] .drawer-close {
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* When we merge the right rail into the left area (mdDesktop + mobile drawer) */
+.responsive-shell__right--merged {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .responsive-shell__right--merged {
+    border-top-color: rgba(255, 255, 255, 0.10);
+}
+
+/* ==========================================================
+   FIX: Ensure shell rail slots render inside drawers on small
+   - Your mergedRailContent contains nested .responsive-shell__left/.right
+   - Small bucket rules hide these by default
+   - So we re-enable them ONLY inside the drawer
+   ========================================================== */
+
+.drawer-body .responsive-shell__left.responsive-shell__left--mobile,
+.drawer-body .responsive-shell__right.responsive-shell__right--mobile,
+.drawer-body .responsive-shell__left.responsive-shell__left--merged,
+.drawer-body .responsive-shell__right.responsive-shell__right--merged,
+.drawer-body .responsive-shell__left.responsive-shell__left--mobile .responsive-shell__left,
+.drawer-body .responsive-shell__left.responsive-shell__left--mobile .responsive-shell__right,
+.drawer-body .responsive-shell__left.responsive-shell__left--merged .responsive-shell__left,
+.drawer-body .responsive-shell__left.responsive-shell__left--merged .responsive-shell__right {
+    display: block !important;
+    position: static !important;
+    top: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+}
+
+@media (max-width: 480px){
+    .responsive-shell__center {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+}
+
+
+
+

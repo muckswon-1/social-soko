@@ -1,20 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
-
+  Form,
   Link,
-  useNavigate,
+  useActionData,
+  useNavigation,
 } from "react-router";
-
-
-import { register } from "../../features/auth/authThunk";
-
 
 import styles from "../../styles/auth/auth.css?url";
 import formStyles from "../../styles/forms/forms.css?url";
-import { validateRegisterForm } from "../../utils/formValidation";
-import { useDispatch, useSelector } from "react-redux";
-import { authLoadingSelector } from "../../features/auth/authSlice";
-import { toast } from "react-toastify";
+
+import { hasErrors, toErrorList, validateAuthForm } from "./utils/authUtils";
+import { createServerApi } from "../../lib/api.server";
+import {
+  normaliseAuthGenericError,
+  normaliseMessageResponse,
+} from "../../features/auth/authTransformers";
+import { useNavigate } from "react-router";
+
+/**
+ * @typedef {import("../../types/reactRouterTypes").ActionArgs} ActionArgs
+ * @typedef {import("../../types/authForm").RegisterForm} RegisterForm
+ * @typedef {import("../../types/formError").FormError} FormError
+ */
+
+
 
 export function links() {
   return [
@@ -25,10 +34,7 @@ export function links() {
     {
       rel: "stylesheet",
       href: formStyles,
-
     },
-
-
   ];
 }
 
@@ -36,67 +42,144 @@ export function meta() {
   return [{ title: "Social Soko | Register" }];
 }
 
+export function loader() {
+  return null;
+}
+
+/**
+ * Register action
+ *
+ * 1) Local validation
+ * 2) Call /auth/register on backend
+ * 3) On success: return ok + message (no redirect; UI shows success)
+ * 4) On failure: return field + form errors (normalized)
+ *
+ * @param {ActionArgs} args
+ */
+export async function action({ request }) {
+  const formData = await request.formData();
+
+  /** @type {RegisterForm} */
+  const values = {
+    email: String(formData.get("email") || ""),
+    password: String(formData.get("password") || ""),
+    confirmPassword: String(formData.get("confirmPassword") || ""),
+  };
+
+  // 1) Local validation (shared validator in authUtils)
+  const fieldErrors = validateAuthForm(values, "register_form");
+
+  if (hasErrors(fieldErrors)) {
+    return Response.json(
+      {
+        ok: false,
+        fieldErrors,
+        formError: "Please fix the errors below.",
+        values,
+      },
+      { status: 400 },
+    );
+  }
+
+  // 2) Call backend register endpoint via server API
+  const api = createServerApi(request);
+
+  try {
+    const response = await api.post("/auth/register", {
+      email: values.email,
+      password: values.password,
+    });
+
+    const normalised = normaliseMessageResponse(
+      response,
+      "Account created successfully.",
+    );
+
+    return Response.json(
+      {
+        ok: normalised.success,
+        fieldErrors: {},
+        formError: "",
+        values: {
+          email: values.email,
+          password: "",
+          confirmPassword: "",
+        },
+        message: normalised.message,
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error("[register action] error:", error?.response || error);
+
+    const normalised = normaliseAuthGenericError(error);
+
+    return Response.json(
+      {
+        ok: false,
+        fieldErrors: {},
+        formError: normalised.error || normalised.message,
+        values,
+      },
+      { status: normalised.status || 400 },
+    );
+  }
+}
 
 export default function Register() {
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: ""
-  });
+  /** @type {{ ok?: boolean, fieldErrors?: FormError, formError?: string, values?: RegisterForm, message?: string } | undefined} */
+  const actionData = useActionData();
 
-  const [errors, setErrors] = useState({});
-  const [error, setError] = useState("");
+  const fieldErrors = actionData?.fieldErrors || {};
+  const formError = actionData?.formError || "";
 
-  const loading = useSelector(authLoadingSelector);
-  const dispatch = useDispatch();
+  const values =
+    actionData?.values ||
+    /** @type {RegisterForm} */ ({
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+
+  const successMessage =
+    actionData?.ok && actionData.message
+      ? actionData.message
+      : actionData?.ok
+      ? "Account created successfully. You can now log in."
+      : "";
+
+  const passwordErrorItems = toErrorList(fieldErrors.password);
+
+  // -----------------------------
+  // AUTO REDIRECT AFTER SUCCESS
+  // -----------------------------
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (successMessage) {
+      const timeout = setTimeout(() => {
+        navigate("/login");
+      }, 1800);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) =>({...prev,[name]: value}));
-
-    if(errors[name]){
-      setErrors((prev) =>({...prev, [name]: ""}));
+      return () => clearTimeout(timeout);
     }
+  }, [successMessage, navigate]);
 
-    if(error) setError("")
-    
-  }
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const fieldErrors = validateRegisterForm(formData);
-
-    if(Object.keys(fieldErrors).length > 0){
-      setErrors(fieldErrors);
-      return;
-    }
-
-    setError("");
-
-    try {
-      const result = await dispatch(register({email: formData.email, password: formData.password})).unwrap();
-
-      if(result?.success) {
-        toast.success("Registration successful. You can now login.")
-        navigate('/login', {replace: true});
+  // Scroll to error feedback
+  useEffect(() => {
+    if (formError || Object.keys(fieldErrors).length > 0) {
+      const el =
+        document.querySelector(".auth-error") ||
+        document.querySelector(".form-error");
+      if (el && typeof el.scrollIntoView === "function") {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
       }
-
-     
-
-    } catch (error) {
-      console.error('Error in register: ', error);
-      setError(error?.error || "An error occurred during registration")
     }
+  }, [formError, fieldErrors]);
 
-  }
-
-
-
- 
   return (
     <div className="page page-auth">
       <main className="main-content">
@@ -106,89 +189,107 @@ export default function Register() {
             Join Social Soko and start building trusted B2B connections.
           </p>
 
-          {error && (
-            <div className="auth-error">{error}</div>
+          {/* SUCCESS STATE */}
+          {successMessage && (
+            <div className="auth-success">
+              {successMessage}
+              <br />
+              <small>You will be redirected shortly…</small>
+            </div>
           )}
 
-          <form onSubmit={handleSubmit} className="auth-form" >
-            <div className="form-group">
+          {/* ERROR STATE */}
+          {!successMessage && formError && (
+            <div className="auth-error">{formError}</div>
+          )}
+
+          {/* Disable form when succeeded */}
+          <Form
+            method="post"
+            className="auth-form"
+            noValidate
+            style={successMessage ? { opacity: 0.45, pointerEvents: "none" } : {}}
+          >
+            {/* EMAIL */}
+            <div className="form-field">
               <label htmlFor="email" className="form-label">
                 Email
               </label>
+
               <input
                 id="email"
                 name="email"
                 type="email"
-                onChange={handleChange}
                 required
-                className="form-input"
+                className="form-control"
                 autoComplete="email"
+                defaultValue={values.email}
+                disabled={!!successMessage}
               />
-                    {errors.email && (
-                <div className="form-error">{errors.email}</div>
+
+              {fieldErrors.email && (
+                <div className="form-error">{fieldErrors.email}</div>
               )}
             </div>
 
-            <div className="form-group">
+            {/* PASSWORD */}
+            <div className="form-field">
               <label htmlFor="password" className="form-label">
                 Password
               </label>
+
               <input
                 id="password"
                 name="password"
                 type="password"
-                onChange={handleChange}
                 required
-                className="form-input"
+                className="form-control"
                 autoComplete="new-password"
+                disabled={!!successMessage}
               />
-               {errors.password && (
-                <div className="form-error">{errors.password}</div>
+
+              {passwordErrorItems.length > 0 && (
+                <div className="form-error">
+                  <ul className="form-error-list">
+                    {passwordErrorItems.map((msg, idx) => (
+                      <li key={idx}>{msg}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
 
-            <div className="form-group">
+            {/* CONFIRM PASSWORD */}
+            <div className="form-field">
               <label htmlFor="confirmPassword" className="form-label">
                 Confirm Password
               </label>
+
               <input
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
-                onChange={handleChange}
                 required
-                className="form-input"
+                className="form-control"
                 autoComplete="new-password"
+                disabled={!!successMessage}
               />
-                   {errors.confirmPassword && (
-                <div className="form-error">{errors.confirmPassword}</div>
+
+              {fieldErrors.confirmPassword && (
+                <div className="form-error">
+                  {fieldErrors.confirmPassword}
+                </div>
               )}
             </div>
-
-            {/* <div className="form-group">
-              <label htmlFor="role" className="form-label">
-                Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                className="form-input"
-                defaultValue="customer"
-              >
-                <option value="customer">Customer</option>
-                <option value="business">Business Owner</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div> */}
 
             <button
               type="submit"
               className="btn btn-primary auth-button"
-              disabled={loading}
+              disabled={isSubmitting || !!successMessage}
             >
-              {loading ? "Registering..." : "Register"}
+              {isSubmitting ? "Registering..." : "Register"}
             </button>
-          </form>
+          </Form>
 
           <div className="auth-footer-links">
             <p>
