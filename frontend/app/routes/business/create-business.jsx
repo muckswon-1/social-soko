@@ -93,11 +93,33 @@ export default function CreateBusiness() {
   };
 
 
-  const handlePhoneCountryChange = BUSINESS_UTILS.handlePhoneCountryChange({phoneCountryCode,setForm,setPhoneCountryCode});
+ const selectedPhoneCountry = useMemo(
+  () => BUSINESS_UTILS.selectedPhoneCountry(phoneCountryCode),
+  [phoneCountryCode]
+);
 
-  const selectedPhoneCountry = useMemo(() => BUSINESS_UTILS.selectedPhoneCountry(phoneCountryCode),[phoneCountryCode]);
+const phonePlaceHolder = useMemo(
+  () => BUSINESS_UTILS.phonePlaceHolder(selectedPhoneCountry),
+  [selectedPhoneCountry]
+);
 
-  const phonePlaceHolder  = useMemo(() => BUSINESS_UTILS.phonePlaceHolder(selectedPhoneCountry),[selectedPhoneCountry]);
+const handlePhoneCountryChange = useCallback((event) => {
+  const value = event?.target?.value || "KE";
+
+  setForm((current) => ({
+    ...current,
+    countryIso2: value,
+  }));
+}, []);
+
+const handleLocalPhoneChange = useCallback((event) => {
+  const value = event.target.value;
+
+  setForm((current) => ({
+    ...current,
+    localPhone: value,
+  }));
+}, []);
 
   const submit = useCallback(
     async (e) => {
@@ -166,6 +188,8 @@ export default function CreateBusiness() {
               ...prev,
               ...parsed,
               email: parsed.email || user?.email || prev.email,
+              countryIso2: parsed.countryIso2 || prev.countryIso2 || "KE",
+              localPhone: parsed.localPhone || prev.localPhone || "",
             }));
           }
         } else {
@@ -194,7 +218,8 @@ export default function CreateBusiness() {
       form.state.trim() ||
       form.country.trim() ||
       form.postal_code.trim() ||
-      form.phone.trim() ||
+      form.localPhone.trim() ||
+      form.countryIso2.trim() ||
       form.website.trim() ||
       form.slug.trim() ||
       (form.email && form.email !== (user?.email || ""));
@@ -439,30 +464,33 @@ useEffect(() => {
           {/* Phone */}
                {/* Phone selection */}
        <label className="form-field">
-        <span className="form-label">Phone</span>
-        <div style={{display: "flex", gap: "0.5rem"}}>
-          <div style={{flexBasis: "40%"}}>
-             <PhoneSelection value={phoneCountryCode} onChange={handlePhoneCountryChange} setForm={setForm} />
-          </div>
+  <span className="form-label">Phone</span>
 
-             <div style={{flex: 1}}>
+  <div className="create-business-phone-row">
+    <div className="create-business-phone-row__country">
+      <PhoneSelection
+        value={form.countryIso2 || "KE"}
+        onChange={handlePhoneCountryChange}
+      />
+    </div>
 
-               <input
-          className="form-control"
-          name="phone"
-          value={form.phone}
-          onChange={onChange}
-          placeholder={phonePlaceHolder}
-          autoComplete="tel"
-          inputMode="tel"
-        /> 
+    <div className="create-business-phone-row__number">
+      <input
+        className="form-control"
+        name="localPhone"
+        value={form.localPhone || ""}
+        onChange={handleLocalPhoneChange}
+        placeholder={phonePlaceHolder}
+        autoComplete="tel-national"
+        inputMode="tel"
+      />
+    </div>
+  </div>
 
-        </div>
-
-        </div>
-     
-  
-      </label> 
+  <div className="form-hint">
+    Select the country code, then enter the local phone number only.
+  </div>
+</label>
 
 
           {/* Website */}

@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { selectAuthUser } from "../../features/auth/authSlice";
 import { useFetchMyBusinessesQuery } from "../../services/businessApi";
 
-import "../../styles/business/business-dashboard.css";
 import "../../styles/business/business.css";
 import "../../styles/business/business-workspace.css";
 
@@ -17,7 +16,7 @@ import "../../styles/business/business-workspace.css";
 
 function formatLabel(value) {
   if (!value) return "Unknown";
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  return String(value).charAt(0).toUpperCase() + String(value).slice(1);
 }
 
 function formatDate(value) {
@@ -33,6 +32,14 @@ function formatDate(value) {
   }).format(date);
 }
 
+function getVerificationTone(status) {
+  if (status === "verified") return "verified";
+  if (status === "requested") return "requested";
+  if (status === "rejected") return "danger";
+  if (status === "pending") return "warning";
+  return "neutral";
+}
+
 function BusinessBadge({ children, tone = "neutral" }) {
   return (
     <span className={`business-workspace__badge business-workspace__badge--${tone}`}>
@@ -41,18 +48,59 @@ function BusinessBadge({ children, tone = "neutral" }) {
   );
 }
 
-function OverviewStatCard({ label, value, helper }) {
+function InlineActionButton({ children, onClick, variant = "ghost", disabled = false }) {
   return (
-    <article className="card business-workspace__stat-card">
-      <div className="business-workspace__stat-label">{label}</div>
-      <div className="business-workspace__stat-value">{value}</div>
-      {helper ? <div className="business-workspace__stat-helper">{helper}</div> : null}
+    <button
+      type="button"
+      className={`business-workspace__inline-action business-workspace__inline-action--${variant}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  );
+}
+
+function WorkspaceCard({ eyebrow, title, copy, action, tone = "neutral" }) {
+  return (
+    <article className={`business-workspace__mini-card business-workspace__mini-card--${tone}`}>
+      <div className="business-workspace__mini-card-top">
+        <span className="business-workspace__mini-card-eyebrow">{eyebrow}</span>
+        {action}
+      </div>
+
+      <h3 className="business-workspace__mini-card-title">{title}</h3>
+
+      {copy ? (
+        <p className="business-workspace__mini-card-copy">{copy}</p>
+      ) : null}
     </article>
   );
 }
 
+function ReadinessItem({ label, complete, helper }) {
+  return (
+    <div className="business-workspace__readiness-item">
+      <span
+        className={
+          complete
+            ? "business-workspace__readiness-dot business-workspace__readiness-dot--complete"
+            : "business-workspace__readiness-dot"
+        }
+      />
+
+      <div>
+        <div className="business-workspace__readiness-label">{label}</div>
+        {helper ? (
+          <div className="business-workspace__readiness-helper">{helper}</div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function meta() {
-  return [{ title: "Business Dashboard | Social Soko" }];
+  return [{ title: "Business Overview | Social Soko" }];
 }
 
 export default function BusinessDashboard() {
@@ -97,6 +145,35 @@ export default function BusinessDashboard() {
   const membershipStatus = selectedRow?.membershipStatus || null;
 
   const canManage = membershipRole === "owner" || membershipRole === "admin";
+  const isOwner = membershipRole === "owner";
+
+  const hasLogo = Boolean(business?.logoUrl);
+  const hasDescription = Boolean(business?.description);
+  const hasWebsite = Boolean(business?.website);
+  const hasContact = Boolean(business?.email || business?.phoneNumber);
+  const hasLocation = Boolean(business?.city || business?.state || business?.country);
+
+  const readinessItems = [
+    { label: "Logo", complete: hasLogo, helper: hasLogo ? "Logo added" : "Add a logo for trust" },
+    {
+      label: "Description",
+      complete: hasDescription,
+      helper: hasDescription ? "Business story added" : "Add a short business description",
+    },
+    {
+      label: "Contact",
+      complete: hasContact,
+      helper: hasContact ? "Contact information available" : "Add email or phone",
+    },
+    {
+      label: "Location",
+      complete: hasLocation,
+      helper: hasLocation ? "Location information available" : "Add business location",
+    },
+  ];
+
+  const completedReadiness = readinessItems.filter((item) => item.complete).length;
+  const readinessPercent = Math.round((completedReadiness / readinessItems.length) * 100);
 
   if (!userId) {
     return (
@@ -111,7 +188,7 @@ export default function BusinessDashboard() {
   if (isLoading) {
     return (
       <div className="layout-empty">
-        <div className="layout-empty__inner">Loading business dashboard…</div>
+        <div className="layout-empty__inner">Loading business overview…</div>
       </div>
     );
   }
@@ -141,15 +218,14 @@ export default function BusinessDashboard() {
       <div className="layout-empty">
         <div className="layout-empty__inner">
           <div className="stack-sm">
-            <div>
-              We couldn&apos;t find that business in your memberships.
-            </div>
+            <div>We couldn&apos;t find that business in your memberships.</div>
 
             <div className="row-center">
-              <Link to="/dashboard/business" className="btn btn-secondary">
+              <Link to="/business" className="btn btn-secondary">
                 Back to My Businesses
               </Link>
-              <Link to="/dashboard/business/request-membership" className="btn btn-primary">
+
+              <Link to="/business/join" className="btn btn-primary">
                 Join a Business
               </Link>
             </div>
@@ -159,9 +235,12 @@ export default function BusinessDashboard() {
     );
   }
 
+  const verificationStatus = business.verificationStatus || "unverified";
+  const verificationTone = getVerificationTone(verificationStatus);
+
   return (
-    <div className="business-workspace stack-lg">
-      <section className="card business-workspace__hero">
+    <div className="business-workspace">
+      <section className="business-workspace__hero business-workspace__hero--overview">
         <div className="business-workspace__hero-main">
           <div className="business-workspace__identity">
             {business.logoUrl ? (
@@ -177,8 +256,10 @@ export default function BusinessDashboard() {
             )}
 
             <div className="business-workspace__identity-copy">
-              <div className="business-workspace__eyebrow">Business workspace</div>
+              <div className="business-workspace__eyebrow">Business overview</div>
+
               <h1 className="business-workspace__title">{business.name}</h1>
+
               <div className="business-workspace__subtitle">
                 @{business.username || business.slug}
               </div>
@@ -186,8 +267,8 @@ export default function BusinessDashboard() {
               <div className="business-workspace__badges">
                 <BusinessBadge tone="role">{formatLabel(membershipRole)}</BusinessBadge>
                 <BusinessBadge tone="status">{formatLabel(membershipStatus)}</BusinessBadge>
-                <BusinessBadge tone={business.verificationStatus === "verified" ? "verified" : "neutral"}>
-                  {formatLabel(business.verificationStatus || "unverified")}
+                <BusinessBadge tone={verificationTone}>
+                  {formatLabel(verificationStatus)}
                 </BusinessBadge>
               </div>
             </div>
@@ -197,103 +278,189 @@ export default function BusinessDashboard() {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => navigate("/dashboard/posts/explore")}
+              onClick={() => navigate("/posts/new-post")}
             >
               Create post
             </button>
 
-            {canManage ? (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => navigate(`/dashboard/business/${business.id}/settings`)}
-              >
-                Manage business
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => navigate(`/business/${business.id}/profile`)}
+            >
+              View profile
+            </button>
           </div>
         </div>
 
-        <div className="business-workspace__hero-meta">
-          <div className="business-workspace__meta-item">
-            <span className="business-workspace__meta-label">Slug</span>
-            <span className="business-workspace__meta-value">{business.slug || "—"}</span>
+        <div className="business-workspace__hero-footer">
+          <div className="business-workspace__hero-footer-item">
+            <span>Created</span>
+            <strong>{formatDate(business.createdAt)}</strong>
           </div>
 
-          <div className="business-workspace__meta-item">
-            <span className="business-workspace__meta-label">Created</span>
-            <span className="business-workspace__meta-value">
-              {formatDate(business.createdAt)}
-            </span>
+          <div className="business-workspace__hero-footer-item">
+            <span>Updated</span>
+            <strong>{formatDate(business.updatedAt)}</strong>
           </div>
 
-          <div className="business-workspace__meta-item">
-            <span className="business-workspace__meta-label">Last updated</span>
-            <span className="business-workspace__meta-value">
-              {formatDate(business.updatedAt)}
-            </span>
+          <div className="business-workspace__hero-footer-item">
+            <span>Access</span>
+            <strong>{formatLabel(membershipRole)} · {formatLabel(membershipStatus)}</strong>
           </div>
 
-          <div className="business-workspace__meta-item">
-            <span className="business-workspace__meta-label">Membership</span>
-            <span className="business-workspace__meta-value">
-              {formatLabel(membershipRole)} · {formatLabel(membershipStatus)}
-            </span>
+          <div className="business-workspace__hero-footer-item business-workspace__hero-footer-item--wide">
+            <span>Business identity</span>
+            <strong>@{business.username || business.slug || "—"}</strong>
           </div>
         </div>
       </section>
 
-      <section className="business-workspace__stats-grid">
-        <OverviewStatCard label="Verification" value={formatLabel(business.verificationStatus || "unverified")} helper="Trust and identity status" />
-        <OverviewStatCard label="Role" value={formatLabel(membershipRole)} helper="Your current access level" />
-        <OverviewStatCard label="Membership" value={formatLabel(membershipStatus)} helper="Access standing in this business" />
-        <OverviewStatCard label="Business Handle" value={`@${business.username || business.slug || "—"}`} helper="Public-facing identity" />
-      </section>
-
-      <div className="business-workspace__grid">
-        <div className="business-workspace__main stack-md">
-          <section className="card business-workspace__panel">
-            <div className="card-header">
-              <div>
-                <h2 className="card-title">Overview</h2>
-                <p className="card-subtitle">
-                  Core details and next actions for this business.
-                </p>
-              </div>
+      <div className="business-workspace__overview-grid">
+        <main className="business-workspace__overview-main">
+          <section className="business-workspace__section-header">
+            <div>
+              <p className="business-workspace__section-kicker">Workspace health</p>
+              <h2 className="business-workspace__section-title">Next best actions</h2>
             </div>
 
-            <div className="business-workspace__details-grid">
-              <div className="business-workspace__detail">
-                <span className="business-workspace__detail-label">Name</span>
-                <span className="business-workspace__detail-value">{business.name || "—"}</span>
+            {canManage ? (
+              <InlineActionButton
+                variant="primary"
+                onClick={() => navigate(`/business/${business.id}/profile`)}
+              >
+                Edit profile
+              </InlineActionButton>
+            ) : null}
+          </section>
+
+          <div className="business-workspace__mini-grid">
+            <WorkspaceCard
+              eyebrow="Profile readiness"
+              title={`${readinessPercent}% complete`}
+              copy={
+                readinessPercent === 100
+                  ? "Your business profile has the key public trust fields."
+                  : "Complete your profile so buyers and sellers trust the business faster."
+              }
+              tone={readinessPercent === 100 ? "success" : "warning"}
+              action={
+                canManage ? (
+                  <InlineActionButton
+                    onClick={() => navigate(`/business/${business.id}/profile`)}
+                  >
+                    Improve
+                  </InlineActionButton>
+                ) : null
+              }
+            />
+
+            <WorkspaceCard
+              eyebrow="Verification"
+              title={formatLabel(verificationStatus)}
+              copy={
+                verificationStatus === "verified"
+                  ? "This business has passed verification."
+                  : canManage
+                    ? "Verification helps increase trust across the marketplace."
+                    : "Verification status is managed by the business admins."
+              }
+              tone={verificationTone}
+              action={
+                canManage ? (
+                  <InlineActionButton
+                    onClick={() => navigate(`/business/${business.id}/profile`)}
+                  >
+                    Review
+                  </InlineActionButton>
+                ) : null
+              }
+            />
+
+            <WorkspaceCard
+              eyebrow="Members"
+              title={canManage ? "Manage access" : "Member access"}
+              copy={
+                canManage
+                  ? "Review members, roles, and pending membership requests."
+                  : "Your current business access is controlled by admins and owners."
+              }
+              tone="neutral"
+              action={
+                canManage ? (
+                  <InlineActionButton
+                    onClick={() => navigate(`/business-memberships/${business.id}`)}
+                  >
+                    Open
+                  </InlineActionButton>
+                ) : null
+              }
+            />
+
+            <WorkspaceCard
+              eyebrow="Posting"
+              title="Share an update"
+              copy="Create business posts, updates, product news, and marketplace activity."
+              tone="info"
+              action={
+                <InlineActionButton
+                  variant="primary"
+                  onClick={() => navigate("/posts/new-post")}
+                >
+                  Post
+                </InlineActionButton>
+              }
+            />
+          </div>
+
+          <section className="card business-workspace__panel business-workspace__readiness-panel">
+            <div className="business-workspace__section-header business-workspace__section-header--inside">
+              <div>
+                <p className="business-workspace__section-kicker">Profile checklist</p>
+                <h2 className="business-workspace__section-title">
+                  Build a trusted business profile
+                </h2>
               </div>
 
-              <div className="business-workspace__detail">
-                <span className="business-workspace__detail-label">Username</span>
-                <span className="business-workspace__detail-value">{business.username || "—"}</span>
+              {canManage ? (
+                <InlineActionButton
+                  onClick={() => navigate(`/business/${business.id}/profile`)}
+                >
+                  Edit fields
+                </InlineActionButton>
+              ) : null}
+            </div>
+
+            <div className="business-workspace__readiness">
+              <div className="business-workspace__readiness-meter">
+                <div className="business-workspace__readiness-meter-top">
+                  <span>Completion</span>
+                  <strong>{readinessPercent}%</strong>
+                </div>
+
+                <div className="business-workspace__progress">
+                  <span style={{ width: `${readinessPercent}%` }} />
+                </div>
               </div>
 
-              <div className="business-workspace__detail">
-                <span className="business-workspace__detail-label">Slug</span>
-                <span className="business-workspace__detail-value">{business.slug || "—"}</span>
-              </div>
-
-              <div className="business-workspace__detail">
-                <span className="business-workspace__detail-label">Verification</span>
-                <span className="business-workspace__detail-value">
-                  {formatLabel(business.verificationStatus || "unverified")}
-                </span>
+              <div className="business-workspace__readiness-list">
+                {readinessItems.map((item) => (
+                  <ReadinessItem
+                    key={item.label}
+                    label={item.label}
+                    complete={item.complete}
+                    helper={item.helper}
+                  />
+                ))}
               </div>
             </div>
           </section>
 
           <section className="card business-workspace__panel">
-            <div className="card-header">
+            <div className="business-workspace__section-header business-workspace__section-header--inside">
               <div>
-                <h2 className="card-title">Recent activity</h2>
-                <p className="card-subtitle">
-                  This area will grow into posts, inquiries, and member activity.
-                </p>
+                <p className="business-workspace__section-kicker">Recent activity</p>
+                <h2 className="business-workspace__section-title">Workspace timeline</h2>
               </div>
             </div>
 
@@ -302,10 +469,10 @@ export default function BusinessDashboard() {
                 <div className="business-workspace__timeline-dot" />
                 <div>
                   <div className="business-workspace__timeline-title">
-                    Workspace ready
+                    Workspace is ready
                   </div>
                   <div className="business-workspace__timeline-copy">
-                    This business dashboard is connected and ready for posts, members, and analytics.
+                    This business dashboard is connected and ready for posts, members, verification, and analytics.
                   </div>
                 </div>
               </div>
@@ -314,86 +481,105 @@ export default function BusinessDashboard() {
                 <div className="business-workspace__timeline-dot" />
                 <div>
                   <div className="business-workspace__timeline-title">
-                    Next recommended step
+                    Recommended next step
                   </div>
                   <div className="business-workspace__timeline-copy">
                     {canManage
-                      ? "Complete your business profile and request verification if needed."
-                      : "Explore the business and wait for expanded permissions if your role changes."}
+                      ? "Finish the profile, confirm contact information, then start posting business updates."
+                      : "Use this space to follow business updates and activity available to your role."}
                   </div>
                 </div>
               </div>
             </div>
           </section>
-        </div>
+        </main>
 
-        <aside className="business-workspace__sidebar stack-md">
-          <section className="card business-workspace__panel">
-            <div className="card-header">
-              <div>
-                <h3 className="card-title">Quick actions</h3>
-                <p className="card-subtitle">
-                  Most-used actions for this business.
-                </p>
-              </div>
+        <aside className="business-workspace__overview-sidebar">
+          <section className="card business-workspace__panel business-workspace__quick-panel">
+            <div>
+              <p className="business-workspace__section-kicker">Actions</p>
+              <h2 className="business-workspace__section-title">Quick controls</h2>
+              <p className="business-workspace__section-copy">
+                Actions are filtered by your role in this business.
+              </p>
             </div>
 
-            <div className="business-workspace__action-list">
+            <div className="business-workspace__action-stack">
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={() => navigate("/dashboard/posts/explore")}
+                onClick={() => navigate("/posts/new-post")}
               >
                 Create post
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => navigate(`/business/${business.id}/profile`)}
+              >
+                View profile
               </button>
 
               {canManage ? (
                 <>
                   <button
                     type="button"
-                    className="btn btn-secondary"
-                    onClick={() => navigate(`/dashboard/business/${business.id}/settings`)}
+                    className="btn btn-ghost"
+                    onClick={() => navigate(`/business/${business.id}/profile?mode=edit`)}
                   >
-                    Edit business details
+                    Edit business profile
                   </button>
 
                   <button
                     type="button"
                     className="btn btn-ghost"
-                    onClick={() => navigate(`/dashboard/business/${business.id}/members`)}
+                    onClick={() => navigate(`/business-memberships/${business.id}`)}
                   >
                     Manage members
                   </button>
                 </>
-              ) : (
+              ) : null}
+
+              {isOwner ? (
                 <button
                   type="button"
                   className="btn btn-ghost"
-                  onClick={() => navigate("/dashboard/business")}
+                  onClick={() => navigate(`/business/${business.id}/settings`)}
                 >
-                  View my businesses
+                  Owner settings
                 </button>
-              )}
+              ) : null}
             </div>
           </section>
 
-          <section className="card business-workspace__panel">
-            <div className="card-header">
-              <div>
-                <h3 className="card-title">Workspace notes</h3>
-                <p className="card-subtitle">
-                  Planned modules for this business.
-                </p>
-              </div>
+          <section className="card business-workspace__panel business-workspace__access-panel">
+            <div>
+              <p className="business-workspace__section-kicker">Access</p>
+              <h2 className="business-workspace__section-title">Your permissions</h2>
             </div>
 
-            <ul className="business-workspace__list">
-              <li>Posts and updates</li>
-              <li>Membership requests</li>
-              <li>Business analytics</li>
-              <li>Verification workflow</li>
-              <li>Trust and activity history</li>
-            </ul>
+            <div className="business-workspace__permission-list">
+              <div className="business-workspace__permission-row">
+                <span>Current role</span>
+                <strong>{formatLabel(membershipRole)}</strong>
+              </div>
+
+              <div className="business-workspace__permission-row">
+                <span>Status</span>
+                <strong>{formatLabel(membershipStatus)}</strong>
+              </div>
+
+              <div className="business-workspace__permission-row">
+                <span>Can edit profile</span>
+                <strong>{canManage ? "Yes" : "No"}</strong>
+              </div>
+
+              <div className="business-workspace__permission-row">
+                <span>Can manage members</span>
+                <strong>{canManage ? "Yes" : "No"}</strong>
+              </div>
+            </div>
           </section>
         </aside>
       </div>

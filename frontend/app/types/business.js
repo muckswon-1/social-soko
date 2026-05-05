@@ -135,4 +135,67 @@
  * }} data
  */
 
+
+
+/**
+ * @typedef {Object} BusinessMemberUser
+ * @property {string|null} id
+ * @property {string|null} email
+ * @property {string|null} firstName
+ * @property {string|null} lastName
+ * @property {string|null} fullName
+ */
+
+/**
+ * @typedef {Object} BusinessMembership
+ * @property {string|null} id
+ * @property {string|null} businessId
+ * @property {string|null} userId
+ * @property {"owner"|"admin"|"member"|null} role
+ * @property {"active"|"banned"|null} status
+ * @property {string|null} createdAt
+ * @property {string|null} updatedAt
+ * @property {BusinessMemberUser|null} user
+ */
+
+/**
+ * @typedef {Object} NormalisedBusinessMembershipListResponse
+ * @property {boolean} success
+ * @property {{
+ *   rows: BusinessMembership[],
+ *   count: number,
+ *   page: number,
+ *   limit: number,
+ * }} data
+ */
+
+
+/**
+ * @typedef {Object} BusinessSearchBusiness
+ * @property {string | null} id
+ * @property {string} name
+ * @property {string} username
+ * @property {string} slug
+ * @property {string | null} logoUrl
+ * @property {string | null} verificationStatus
+ * @property {string | null} city
+ * @property {string | null} state
+ * @property {string | null} country
+ */
+
+/**
+ * @typedef {Object} BusinessSearchRelationship
+ * @property {"member" | "pending_request" | "none" | string} type
+ * @property {"owner" | "admin" | "member" | string | null} role
+ * @property {string | null} status
+ * @property {string | null} requestedAt
+ */
+
+/**
+ * @typedef {Object} BusinessSearchListItem
+ * @property {BusinessSearchBusiness} business
+ * @property {BusinessSearchRelationship} relationship
+ * @property {boolean} canRequestMembership
+ */
+
 export {}

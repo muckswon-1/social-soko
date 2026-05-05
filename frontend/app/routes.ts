@@ -22,10 +22,14 @@ export default [
   route("business","routes/business/layout.jsx",[
     index("routes/business/my-businesses.jsx"),
     route("create-business","routes/business/create-business.jsx"),
-    route(":businessId","routes/business/$businessId.jsx")
+    route("join","routes/business/search.jsx"),
+    route(":businessId","routes/business/$businessId.jsx"),
+    route(":businessId/profile", "routes/business/profile.jsx")
+  ]),
+  route("business-memberships/:businessId","routes/businessMemberships/layout.jsx",[
+    index("routes/businessMemberships/index.jsx"),
+    route("requests", "routes/businessMemberships/requests.jsx")
   ])
-
-
 
 
   // ...prefix("dashboard", [

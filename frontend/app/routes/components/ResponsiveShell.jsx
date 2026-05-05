@@ -1,12 +1,18 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useViewportBucket } from '../../hooks/design/useViewPortBucket';
-import { VIEWPORT_BUCKETS } from '../../hooks/design/viewPortUtils';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useViewportBucket } from "../../hooks/design/useViewPortBucket";
+import { VIEWPORT_BUCKETS } from "../../hooks/design/viewPortUtils";
 import "../../styles/posts/post-detail.css";
 import "../../styles/posts/post-card.css";
 
 import { ReactComponent as Close } from "../../assets/svg/cross.svg";
-import { useDispatch } from 'react-redux';
-import { verifySession } from '../../features/auth/authThunk';
+import { useDispatch } from "react-redux";
+import { verifySession } from "../../features/auth/authThunk";
 /**
  * @typedef {"mobile"|"tablet"|"mdDesktop"|"lgDesktop"} ViewPortBucket
  */
@@ -30,35 +36,43 @@ import { verifySession } from '../../features/auth/authThunk';
  */
 
 /**@type {React.Context<ShellLayoutContextValue>} */
-const ShellLayoutContext = createContext((null));
-
+const ShellLayoutContext = createContext(null);
 
 export function useShellLayout() {
-    const ctx = useContext(ShellLayoutContext);
-    if(!ctx){
-        throw new Error("useShellLayout must be used within a <ResponsiveShell />");
-    }
+  const ctx = useContext(ShellLayoutContext);
+  if (!ctx) {
+    throw new Error("useShellLayout must be used within a <ResponsiveShell />");
+  }
 
-    return ctx
+  return ctx;
 }
 
-function Drawer({open, title, onClose, side = "left", children}){
-     useEffect(() => {
-        if(!open) return;
+function Drawer({ open, title, onClose, side = "left", children }) {
+  useEffect(() => {
+    if (!open) return;
 
-        const onKeyDown = (e) => {
-            if(e.key === "Escape") onClose?.()
-        };
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
 
-        window.addEventListener("keydown",onKeyDown);
+    window.addEventListener("keydown", onKeyDown);
 
-        return () => window.removeEventListener("keydown", onKeyDown);
-     },[open, onClose]);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
 
-     if(!open) return null;
+  if (!open) return null;
 
+  const onBodyClick = (e) => {
+    const target = e.target;
+    const link = target instanceof Element ? target.closest("a[href]") : null;
 
-     return (
+    if (!link) return;
+    if (link.target && link.target !== "_self") return;
+
+    onClose?.();
+  };
+
+  return (
     <div className="drawer-root" data-open={open ? "true" : "false"}>
       {/* Backdrop */}
       <button
@@ -83,15 +97,13 @@ function Drawer({open, title, onClose, side = "left", children}){
           </button>
         </div>
 
-        <div className="drawer-body">{children}</div>
+        <div className="drawer-body" onClick={onBodyClick}>
+          {children}
+        </div>
       </section>
     </div>
   );
-
-
 }
- 
-
 
 /**
  * Responsive app shell that mimics Reddit layout behavior.
@@ -111,144 +123,149 @@ function Drawer({open, title, onClose, side = "left", children}){
  * }} props
  */
 const ResponsiveShell = ({
-    header = null,
-    leftRail = null,
-    rightRail = null,
-    children,
-    className = ""
+  header = null,
+  leftRail = null,
+  rightRail = null,
+  children,
+  className = "",
 }) => {
+  const { bucket, isMobile, isTablet, isMdDesktop, isLgDesktop } =
+    useViewportBucket();
+  const dispatch = useDispatch();
 
+  const [leftRailOpen, setLeftRailOpen] = useState(false);
+  const [rightRailOpen, setRightRailOpen] = useState(false);
 
-   const {bucket, isMobile, isTablet, isMdDesktop, isLgDesktop} = useViewportBucket();
-   const dispatch = useDispatch();
+  useEffect(() => void dispatch(verifySession()), [dispatch]);
 
-   
+  //when switching into desktop buckers, drawsers should close
+  useEffect(() => {
+    if (
+      bucket === VIEWPORT_BUCKETS.mdDesktop ||
+      bucket === VIEWPORT_BUCKETS.lgDesktop
+    ) {
+      setLeftRailOpen(false);
+      setRightRailOpen(false);
+    }
+  }, [bucket]);
 
-    const [leftRailOpen, setLeftRailOpen] = useState(false);
-    const [rightRailOpen, setRightRailOpen] = useState(false);
+  const ctxValue = useMemo(() => {
+    return {
+      bucket,
+      isMobile,
+      isTablet,
+      isMdDesktop,
+      isLgDesktop,
+      leftRailOpen,
+      rightRailOpen,
+      openLeftRail: () => setLeftRailOpen(true),
+      closeLeftRail: () => setLeftRailOpen(false),
+      toggleLeftRail: () => setLeftRailOpen((v) => !v),
+      openRightRail: () => setRightRailOpen(true),
+      closeRightRail: () => setRightRailOpen(false),
+      toggleRightRail: () => setRightRailOpen((v) => !v),
+    };
+  }, [
+    bucket,
+    isMobile,
+    isTablet,
+    isMdDesktop,
+    isLgDesktop,
+    leftRailOpen,
+    rightRailOpen,
+  ]);
 
-    useEffect(() => void dispatch(verifySession()),[dispatch]);
+  const showLeftPinned = isLgDesktop || isMdDesktop;
+  const showRightPinned = isLgDesktop;
 
-    //when switching into desktop buckers, drawsers should close
-    useEffect(() => {
-        if(bucket === VIEWPORT_BUCKETS.mdDesktop || bucket === VIEWPORT_BUCKETS.lgDesktop){
-            setLeftRailOpen(false);
-            setRightRailOpen(false);
-        }
-    },[bucket]);
+  const showLeftDrawer = (isMobile || isTablet) && (!!leftRail || !!rightRail);
 
-    const ctxValue = useMemo(() => {
-        return {
-            bucket,
-            isMobile,
-            isTablet,
-            isMdDesktop,
-            isLgDesktop,
-            leftRailOpen,
-            rightRailOpen,
-            openLeftRail: () => setLeftRailOpen(true),
-            closeLeftRail: () => setLeftRailOpen(false),
-            toggleLeftRail: () => setLeftRailOpen((v) => !v),
-            openRightRail: () => setRightRailOpen(true),
-            closeRightRail: () => setRightRailOpen(false),
-            toggleRightRail: () => setRightRailOpen((v) => !v),
+  const mobileDrawerContent = (
+    <>
+      {leftRail ? (
+        <div className="responsive-shell__left responsive-shell__left--mobile">
+          {leftRail}
+        </div>
+      ) : null}
 
-            
-        }
-    },[bucket, isMobile, isTablet, isMdDesktop, isLgDesktop, leftRailOpen, rightRailOpen]);
+      {rightRail ? (
+        <div className="responsive-shell__right responsive-shell__right--mobile">
+          {rightRail}
+        </div>
+      ) : null}
+    </>
+  );
 
-    const showLeftPinned = isLgDesktop || isMdDesktop;
-    const showRightPinned = isLgDesktop;
-   
+  const mergedRailContent = (
+    <>
+      {leftRail ? (
+        <div className="responsive-shell__left responsive-shell__left--merged">
+          {leftRail}
+        </div>
+      ) : null}
 
-    const showLeftDrawer = (isMobile || isTablet) && (!!leftRail || !!rightRail);
-   
+      {rightRail ? (
+        <div className="responsive-shell__right responsive-shell__right--merged">
+          {rightRail}
+        </div>
+      ) : null}
+    </>
+  );
 
+  return (
+    <ShellLayoutContext.Provider value={ctxValue}>
+      <div
+        className={[
+          "responsive-shell",
+          `responsive-shell--${bucket}`,
+          className,
+        ].join(" ")}
+        data-bucket={bucket}
+      >
+        {header ? (
+          <div className="responsive-shell__header">{header}</div>
+        ) : null}
 
-    const mobileDrawerContent = (
-        <>
-        {leftRail ? <div className="responsive-shell__left responsive-shell__left--mobile">{leftRail}</div> : null}
+        {/* Pinned Left Rail (mdDesktop+) */}
+        {showLeftPinned ? (
+          <aside
+            className="responsive-shell__left"
+            aria-label="Primary navigation"
+          >
+            {isMdDesktop ? mergedRailContent : leftRail}
+          </aside>
+        ) : null}
 
-        {rightRail ? <div className="responsive-shell__right responsive-shell__right--mobile">{rightRail}</div> : null}
-        </>
-    )
+        {/* Center Stage */}
+        <main className="responsive-shell__center" aria-label="Main content">
+          {children}
+        </main>
 
+        {/* Pinned right Rail (lgDesktop+) */}
+        {showRightPinned ? (
+          <aside
+            className="responsive-shell__right"
+            aria-label="Secondary Navigation"
+          >
+            {rightRail}
+          </aside>
+        ) : null}
 
-const mergedRailContent = (
-  <>
-    {leftRail ? (
-      <div className="responsive-shell__left responsive-shell__left--merged">
-        {leftRail}
-      </div>
-    ) : null}
+        {/* Drawers for smaller buckets */}
+        {showLeftDrawer ? (
+          <Drawer
+            open={leftRailOpen}
+            title="Menu"
+            side="left"
+            onClose={() => setLeftRailOpen(false)}
+          >
+            <div className="responsive-shell__left responsive-shell__left--mobile">
+              {mergedRailContent}
+            </div>
+          </Drawer>
+        ) : null}
 
-    {rightRail ? (
-      <div className="responsive-shell__right responsive-shell__right--merged">
-        {rightRail}
-      </div>
-    ) : null}
-  </>
-);
-
-   
-
-
-    return (
-        <ShellLayoutContext.Provider value={ctxValue}>
-            <div className= {[
-                "responsive-shell",
-                `responsive-shell--${bucket}`,
-                className,
-            ].join(" ")}
-            data-bucket={bucket}
-            >
-                {header ? <div className='responsive-shell__header'>{header}</div> : null}
-
-                {/* Pinned Left Rail (mdDesktop+) */}
-                {
-                    showLeftPinned ? (
-                        <aside className='responsive-shell__left' aria-label="Primary navigation">
-                            {isMdDesktop ? mergedRailContent :leftRail}
-                        </aside>
-                    ): null
-                }
-
-
-                {/* Center Stage */}
-                <main className='responsive-shell__center' aria-label='Main content'>
-                    {children}
-                </main>
-
-
-
-
-                {/* Pinned right Rail (lgDesktop+) */}
-                {
-                    showRightPinned ? (
-                        <aside className='responsive-shell__right' aria-label='Secondary Navigation'>
-                            {rightRail}
-                        </aside>
-                    ): null
-                }
-
-                {/* Drawers for smaller buckets */}
-                {
-                    showLeftDrawer ? (
-                        <Drawer
-                        open={leftRailOpen}
-                        title="Menu"
-                        side="left"
-                        onClose={() => setLeftRailOpen(false)}
-                        >
-                             <div className="responsive-shell__left responsive-shell__left--mobile">
-      {mergedRailContent}
-    </div>
-    
-                        </Drawer>
-                    ): null
-                }
-
-                   {/* {
+        {/* {
                     showRightDrawer ? (
                         <Drawer
                         open={rightRailOpen}
@@ -260,12 +277,9 @@ const mergedRailContent = (
                         </Drawer>
                     ): null
                 } */}
-
-            
-
-            </div>
-        </ShellLayoutContext.Provider>
-    );
-}
+      </div>
+    </ShellLayoutContext.Provider>
+  );
+};
 
 export default ResponsiveShell;

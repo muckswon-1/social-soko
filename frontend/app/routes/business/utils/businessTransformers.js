@@ -3,12 +3,12 @@
  * @typedef {import("../../../types/business").BusinessMembershipListItem} BusinessMembershipListItem
  * @typedef {import("../../../types/business").NormalisedFetchMyBusinessesResponse} NormalisedFetchMyBusinessesResponse
  * @typedef {import("../.././../types/business").BusinessForm} BusinessForm
- * * @typedef {import("axios").AxiosResponse<any>} AxiosResponse
+ * @typedef {import("axios").AxiosResponse<any>} AxiosResponse
+ * @typedef {import("../../../types/business").BusinessMembershipListItem} BusinessMembershipListItem
+ * 
  */
 
 import BUSINESS_UTILS from "./utils";
-
-
 
 
 
@@ -87,15 +87,19 @@ export function mapUiBusinessToApiBusiness(business) {
  */
 export function normalisedBusinessResponse(response) {
 
+    //TODO:  update return type in JSDoc
+
     if(!response) throw new Error("normalisedBusinessResponse: Response is required");
+
+    
    
 
-    const {success, business, message} = response;
+    const {success, business, membership, membershipRole, membershipStatus, permissions, message} = response;
 
     const normalisedBusiness = mapAPiBusinessToUiBusiness(business);
 
 
-    return {success, business: normalisedBusiness, message}
+    return {success, business: normalisedBusiness, membership, membershipRole, membershipStatus, permissions, message }
 }
 
 
@@ -155,4 +159,157 @@ export function normaliseFetchMyBusinessesResponse(response){
 }
 
 
+/**
+ * Maps one raw public-safe business object from search route to UI shape.
+ *
+ * Raw API shape:
+ * {
+ *   id: string,
+ *   name: string,
+ *   username: string,
+ *   slug: string,
+ *   logo_url: string | null,
+ *   verification_status: string,
+ *   city: string | null,
+ *   state: string | null,
+ *   country: string | null
+ * }
+ *
+ * @param {any} business
+ * @returns {{
+ *   id: string | null,
+ *   name: string,
+ *   username: string,
+ *   slug: string,
+ *   logoUrl: string | null,
+ *   verificationStatus: string | null,
+ *   city: string | null,
+ *   state: string | null,
+ *   country: string | null
+ * }}
+ */
+export function mapApiBusinessSearchBusinessToUiBusiness(business) {
+  return {
+    id: business?.id || null,
+    name: business?.name || "",
+    username: business?.username || "",
+    slug: business?.slug || "",
+    logoUrl: business?.logo_url || null,
+    verificationStatus: business?.verification_status || null,
+    city: business?.city || null,
+    state: business?.state || null,
+    country: business?.country || null,
+  };
+}
 
+/**
+ * Maps one raw relationship object from business search route to UI shape.
+ *
+ * Raw API shape:
+ * {
+ *   type: "member" | "pending_request" | "none",
+ *   role: "owner" | "admin" | "member" | null,
+ *   status: "active" | "banned" | "pending" | null,
+ *   requested_at?: string | null
+ * }
+ *
+ * @param {any} relationship
+ * @returns {{
+ *   type: string,
+ *   role: string | null,
+ *   status: string | null,
+ *   requestedAt: string | null
+ * }}
+ */
+export function mapApiBusinessSearchRelationshipToUiRelationship(relationship) {
+  return {
+    type: relationship?.type || "none",
+    role: relationship?.role || null,
+    status: relationship?.status || null,
+    requestedAt: relationship?.requested_at || null,
+  };
+}
+
+/**
+ * Normalises one business search row returned from:
+ * GET /business/search?query=&page=&limit=
+ *
+ * Raw shape:
+ * {
+ *   business: {...},
+ *   relationship: {
+ *     type: "member" | "pending_request" | "none",
+ *     role: "owner" | "admin" | "member" | null,
+ *     status: string | null,
+ *     requested_at?: string | null
+ *   },
+ *   canRequestMembership: boolean
+ * }
+ *
+ * @param {any} row
+ * @returns {BusinessSearchListItem}
+ */
+export function mapApiBusinessSearchRowToUiRow(row) {
+  return {
+    business: mapApiBusinessSearchBusinessToUiBusiness(row?.business),
+    relationship: mapApiBusinessSearchRelationshipToUiRelationship(
+      row?.relationship,
+    ),
+    canRequestMembership: Boolean(row?.canRequestMembership),
+  };
+}
+
+/**
+ * Normalises business search response returned from:
+ * GET /business/search?query=&page=&limit=
+ *
+ * Raw response shape:
+ * {
+ *   success: true,
+ *   message: "Businesses fetched",
+ *   data: {
+ *     rows: [
+ *       {
+ *         business: {...},
+ *         relationship: {...},
+ *         canRequestMembership: true
+ *       }
+ *     ],
+ *     count: 4,
+ *     page: 1,
+ *     limit: 20
+ *   }
+ * }
+ *
+ * @param {any} response
+ * @returns {{
+ *   success: boolean,
+ *   message: string | null,
+ *   data: {
+ *     rows: BusinessSearchListItem[],
+ *     count: number,
+ *     page: number,
+ *     limit: number
+ *   }
+ * }}
+ */
+export function normaliseSearchBusinessesResponse(response) {
+  if (!response) {
+    throw new Error("normaliseSearchBusinessesResponse: Response is required");
+  }
+
+  const rows = Array.isArray(response?.data?.rows)
+    ? response.data.rows.map(mapApiBusinessSearchRowToUiRow)
+    : [];
+
+  return {
+    success: Boolean(response?.success),
+    message: response?.message || null,
+    data: {
+      rows,
+      count: Number(response?.data?.count ?? 0),
+      page: Number(response?.data?.page ?? 1),
+      limit: Number(response?.data?.limit ?? rows.length ?? 0),
+    },
+  };
+}

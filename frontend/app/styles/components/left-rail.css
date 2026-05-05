@@ -1,40 +1,77 @@
 .left-rail {
-    width: 100%;
-
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .left-rail__section {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
 
+.left-rail__title {
+  padding: 0 var(--spacing-sm);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .left-rail__link {
-    width: 100%;
-    display: flex;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm);
-    text-decoration: none !important;
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-height: 42px;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-md);
+  color: var(--text-color);
+  font-weight: 800;
+  text-decoration: none !important;
 
-    transition:
-            background-color 160ms ease,
-            color 120ms ease,
-            transform 120ms ease;
-    
+  transition:
+    background-color 160ms ease,
+    color 120ms ease,
+    transform 120ms ease;
 }
 
 .left-rail__link:hover {
-    background: var(--border-color);
-    border-radius: var(--spacing-sm);
-    padding: var(--spacing-sm);
+  background: rgba(0, 123, 255, 0.08);
+  color: var(--accent-color);
+  transform: translateX(2px);
 }
 
 .left-rail__link--active {
-    background-color: var(--color-yellow);
-    border-radius: var(--spacing-sm);
-    font-weight: 900;
-    
+  background: linear-gradient(
+    90deg,
+    rgba(255, 204, 0, 0.95),
+    rgba(255, 204, 0, 0.78)
+  );
+  color: var(--color-black);
+  font-weight: 900;
+  box-shadow: inset 4px 0 0 var(--accent-color);
+}
 
+.left-rail__link--active:hover {
+  color: var(--color-black);
+  transform: translateX(0);
+}
+
+[data-theme="dark"] .left-rail__link:hover {
+  background: rgba(255, 204, 0, 0.12);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .left-rail__link--active {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 204, 0, 0.95),
+    rgba(255, 204, 0, 0.76)
+  );
+  color: var(--color-black);
 }

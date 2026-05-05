@@ -7,6 +7,7 @@ const uploadLogoRoute = require("./uploadLogoRoute");
 const updateBusinessRoute = require("./updateBusinessRoute");
 const fetchBusinessByIdRoute = require("./fetchBusinessByIdRoute");
 const fetchMyBusinessesRoute = require("./fetchMyBusinessesRoute");
+const searchBusinessesForJoinRoute = require("./searchBusinessesRoute");
 const businessRoutes = express.Router();
 
 
@@ -18,5 +19,6 @@ businessRoutes.use(checkSlugRoute);
 businessRoutes.use(uploadLogoRoute);
 businessRoutes.use(updateBusinessRoute);
 businessRoutes.use(fetchBusinessByIdRoute);
+businessRoutes.use(searchBusinessesForJoinRoute)
 
 module.exports = businessRoutes;
