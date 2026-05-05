@@ -6,28 +6,72 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  width: 100%;
+  margin-inline: auto;
 }
 
 /* Header layout inside card */
 .profile-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
+}
+
+/* Avatar + wrapper for change link */
+.pf-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* center avatar + link */
+  gap: 0.4rem;
+  min-width: 4.5rem;
 }
 
 /* Avatar circle using initials */
 .pf-avatar {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 999px;
+  width: 6rem;
+  /* was 3rem – a bit bigger */
+  height: 6rem;
+  border-radius: 50%;
   background-color: var(--accent-color);
   color: var(--color-white);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.04),
+    0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Direct img inside avatar */
+.pf-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Fallback initials wrapper (optional, if using a child div) */
+.pf-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Change / upload profile link under avatar */
+.pf-avatar-change {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: center;
 }
 
 /* Right side chips container */
@@ -43,12 +87,20 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-xs);
-  margin-top: -0.4rem;
+  margin-top: -0.25rem;
 }
 
 /* Full-width field when editing */
 .profile-field-full {
   grid-column: 1 / -1;
+}
+
+/* Memberships block spacing */
+.profile-memberships {
+  margin-top: var(--spacing-xl);
+  /* space above */
+  margin-bottom: var(--spacing-md);
+  /* and below, to separate sections */
 }
 
 /* ==========================
@@ -66,9 +118,18 @@
 
 @media (max-width: 768px) {
   .profile-header {
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    /* stack avatar + title + chips */
+    align-items: flex-start;
     gap: var(--spacing-sm);
+  }
+
+  .pf-avatar-wrap {
+    align-items: center;
+  }
+
+  .section-titles {
+    width: 100%;
   }
 
   .profile-chips {

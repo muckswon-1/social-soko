@@ -1,0 +1,158 @@
+/* ==========================
+   Canvas Layout Shell
+   Reusable for all app layouts
+   ========================== */
+
+/* Header height token (must match your header css) */
+:root {
+  --header-height: 64px;
+}
+
+/* When a layout shell is present, let main-content be full width */
+.main-content > .layout-shell {
+  width: 100%;
+  padding: 0;
+}
+
+/* Root shell:
+   - sidebar pinned left
+   - canvas fills remaining width
+   - under global header
+*/
+.layout-shell {
+  display: flex;
+  gap: var(--spacing-md);
+  width: 100%;
+  margin-top: var(--spacing-md);
+  min-height: calc(100vh - var(--header-height));
+  background-color: var(--bg-color);
+}
+
+/* ==========================
+   Sidebar Region
+   ========================== */
+
+.layout-sidebar {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  /* sidebar itself is styled by sidebar.css */
+}
+
+/* Expanded / collapsed widths (used by layout state) */
+.layout-sidebar--expanded {
+  width: 260px;
+}
+
+.layout-sidebar--collapsed {
+  width: 80px;
+}
+
+/* ==========================
+   Canvas Region
+   ========================== */
+
+.layout-canvas {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  /* padding: var(--spacing-lg);
+    padding-left: var(--spacing-lg); */
+}
+
+/* Inner surface that pages render into.
+   This ensures a professional, full-height body even if empty.
+*/
+.layout-canvas-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  margin-right: var(--radius-md);
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  background-color: var(--card-bg-color);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  min-height: 100%;
+}
+
+/* Optional: if a page wants its own header/tabs inside canvas */
+.layout-canvas-inner > .layout-header {
+  margin-bottom: var(--spacing-sm);
+}
+
+.layout-canvas-inner > .layout-tabs {
+  margin-bottom: var(--spacing-md);
+}
+
+/* ==========================
+   Shared Empty States
+   ========================== */
+
+.layout-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.95rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.layout-empty__inner {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  background-color: rgba(0, 0, 0, 0.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+}
+
+/* ==========================
+   Dark Mode
+   ========================== */
+
+[data-theme="dark"] .layout-shell {
+  background-color: var(--bg-color);
+}
+
+[data-theme="dark"] .layout-canvas-inner {
+  background-color: var(--card-bg-color);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .layout-empty {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .layout-empty__inner {
+  background-color: rgba(255, 255, 255, 0.03);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+}
+
+/* ==========================
+   Responsive
+   ========================== */
+
+@media (max-width: 900px) {
+  .layout-shell {
+    flex-direction: column;
+    min-height: calc(100vh - var(--header-height));
+  }
+
+  .layout-sidebar,
+  .layout-sidebar--expanded,
+  .layout-sidebar--collapsed {
+    width: 100%;
+  }
+
+  .layout-canvas {
+    padding: var(--spacing-md);
+  }
+
+  .layout-canvas-inner {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+  }
+}

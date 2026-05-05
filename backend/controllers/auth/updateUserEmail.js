@@ -1,5 +1,4 @@
-const { User, VerificationToken } = require("../../models");
-const { sendTemplatedEmail } = require("../../services/email/emailService");
+const { User, VerificationToken, EmailJob } = require("../../models");
 const verificationTokenService = require("../../services/verificationTokenService");
 const crypto = require("crypto");
 const UTILS = require("../../utils/utils");
@@ -40,17 +39,25 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   );
 
   // Notify both addresses about the change
-  await sendTemplatedEmail({
-    to: oldEmail,
-    template: "emailUpdated",
-    props: { email: oldEmail },
-  });
 
-  await sendTemplatedEmail({
-    to: email,
-    template: "emailUpdated",
-    props: { email: email },
-  });
+  try {
+    await EmailJob.bulkCreate([
+      {
+        to: oldEmail,
+        template: "emailUpdated",
+        payload: { email: oldEmail },
+
+      },
+      {
+        to: email,
+        template: "emailUpdated",
+        payload: {email}
+      }
+      
+    ])
+  } catch (error) {
+    console.log("[EmailJob]: Could not create email job")
+  }
 
   // Invalidate any existing email verification tokens for this user
   await VerificationToken.destroy({
@@ -72,12 +79,17 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     token_type: "email_verification",
   });
 
-  // Send verification email to the NEW email
-  await sendTemplatedEmail({
-    to: email,
-    template: "verifyEmail",
-    props: { email: email, token: verificationToken, expiresInMinutes: 60 },
-  });
+
+
+  try {
+    await EmailJob.create({
+      to: email,
+      template: "verifyEmail",
+      payload: { email: email, token: verificationToken, expiresInMinutes: 60 },
+    })
+  } catch (error) {
+      console.log("[EmailJob]: Could not create email job");
+  }
 
   return res.status(200).json({
     success: true,

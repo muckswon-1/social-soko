@@ -1,8 +1,12 @@
 // controllers/business/createBusiness.js
 const createError = require("http-errors");
-const { User, Business } = require("../../models");
-const { sendTemplatedEmail } = require("../../services/email/emailService");
+const { User, Business, EmailJob, BusinessMember } = require("../../models");
 const UTILS = require("../../utils/utils");
+const { accessTokenCookieOptions, refreshTokenCookieOptions, CSRFTokenCookieOptions } = require("../auth/tokens.cookies");
+const { generateUniqueUsername } = require("../../utils/generateUniqueUsername.js");
+const { default: phone } = require("phone");
+const { generateUniqueSlug } = require("../../utils/generateUniqueSlug.js");
+
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -13,13 +17,39 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     throw createError(400, "Missing businessData payload or name");
   }
 
+
   // Check user exists
   const existingUser = await User.findOne({ where: { id: userId } });
   if (!existingUser) throw createError(404, "User not found");
 
+
+
+
+
+  // Generate unique username
+  const username = await generateUniqueUsername(businessData.username, businessData.name);
+
+
+
+  //phone validation if available
+let normalizedPhone = businessData.phone || "";
+if (normalizedPhone) {
+  const {isValid, phoneNumber} = phone(normalizedPhone, {country: null});
+
+  if(!isValid) throw UTILS.httpError(400, "Invalid phone number");
+  normalizedPhone = phoneNumber;
+}
+
+
+// Generate unique slug
+const slug = await generateUniqueSlug(businessData.slug, businessData.name);
+
+
   // Create business
   const business = await Business.create({
+
     user_id: userId,
+    username,
     name: businessData.name,
     description: businessData.description || "",
     address: businessData.address || "",
@@ -27,36 +57,53 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     state: businessData.state || "",
     country: businessData.country || "",
     postal_code: businessData.postal_code || "",
-    phone: businessData.phone || "",
+    phone: normalizedPhone || "",
     email: businessData.email || "",
     website: businessData.website || "",
-    slug: businessData.slug || "",
+    slug,
     logo_url: businessData.logo_url || "",
   });
 
+    
   //update user from customer role to user role
-   await User.update(
+ if(existingUser.role !== "business") {
+   await existingUser.update( { role: "business" } );
 
-    { role: "business" },
-    { where: { id: userId } }
-  );
+   await BusinessMember.findOrCreate({
+    where: { business_id: business.id, user_id: existingUser.id},
+    defaults: {
+      role: "owner",
+      invitation_status: "accepted",
+      invited_by: existingUser.id,
+      joined_at: new Date()
+    }
+   })
+ }
 
 
+  
+  const data = UTILS.normalizedUserAuthData(existingUser);
 
+  // Generate tokens + user payload
+  const accessToken = UTILS.generateAccessToken(data);
+  const refreshToken = UTILS.generateRefreshToken(data);
+  const csrfToken = UTILS.generateCSRFToken();
+ 
+  // Set cookies
+  res.cookie("access_token", accessToken, accessTokenCookieOptions);
+  res.cookie("refresh_token", refreshToken, refreshTokenCookieOptions);
+  res.cookie("XSRF-TOKEN", csrfToken, CSRFTokenCookieOptions);
 
-  // Send email (await so failures hit the error middleware)
-  await sendTemplatedEmail({
-    to: existingUser.email,
-    template: "businessCreated",
-    props: { email: existingUser.email },
-  }).catch((err) => {
-    console.error("Failed to send email:", err);
-    // Don't throw here, just log the error
-    // This is a non-critical failure
-    // The business was created, but the email failed to send
-    // You may want to log this to a monitoring service
-    // or add it to a retry queue
-  });
+  try {
+    await EmailJob.create({
+      to: existingUser.email,
+      template: "businessCreated",
+      payload: { email: existingUser.email },
+
+    })
+  } catch (error) {
+    console.log("[EmailJob]: Could not create email job")
+  }
 
   return res.status(201).json({
     success: true,

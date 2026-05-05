@@ -1,0 +1,615 @@
+/* ==========================
+   Design Tokens (Admin App)
+   ========================== */
+
+:root {
+  /* Core palette */
+  --color-black: #000000;
+  --color-white: #ffffff;
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2933;
+  --color-gray-900: #111827;
+
+  /* Admin accent palette (light mode) */
+  --color-red-50: #fff1f2;
+  --color-red-100: #ffe4e6;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+  --color-red-800: #991b1b;
+
+  --color-purple-400: #a855f7;
+  --color-purple-500: #8b5cf6;
+  --color-purple-600: #7c3aed;
+
+  --color-green-500: #22c55e;
+  --color-amber-500: #f59e0b;
+  --color-blue-500: #3b82f6;
+
+  /* Semantic colors (light mode defaults) */
+  --bg-color: var(--color-gray-50);
+  --bg-elevated-color: var(--color-white);
+  --text-color: var(--color-gray-900);
+  --muted-text-color: var(--color-gray-500);
+
+  --card-bg-color: var(--color-white);
+  --card-border-color: rgba(15, 23, 42, 0.06);
+
+  --accent-color: var(--color-red-700);
+  --accent-soft-bg: var(--color-red-50);
+
+  --border-color: rgba(15, 23, 42, 0.08);
+
+  --success-color: var(--color-green-500);
+  --warning-color: var(--color-amber-500);
+  --info-color: var(--color-blue-500);
+  --danger-color: var(--color-red-600);
+
+  /* Typography */
+  --font-primary: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+
+  /* Spacing scale */
+  --spacing-2xs: 0.15rem;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+  --spacing-2xl: 2rem;
+
+  /* Radius */
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 6px 20px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.14);
+  --shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.25);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease-out;
+  --transition-md: 0.22s ease;
+
+  /* Content width */
+  --content-max-width: 1200px;
+}
+
+/* ==========================
+   Dark Mode Tokens
+   ========================== */
+
+[data-theme="dark"] {
+  --bg-color: #050208;
+  --bg-elevated-color: #080210;
+  --text-color: #e5e7eb;
+  --muted-text-color: #9ca3af;
+
+  --card-bg-color: #0b0414;
+  --card-border-color: rgba(148, 163, 184, 0.25);
+
+  --accent-color: var(--color-purple-500);
+  --accent-soft-bg: rgba(124, 58, 237, 0.18);
+
+  --border-color: rgba(148, 163, 184, 0.3);
+
+  --shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.7);
+  --shadow-md: 0 16px 36px rgba(0, 0, 0, 0.82);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.95);
+}
+
+/* ==========================
+   Base Reset
+   ========================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-primary);
+  font-size: var(--font-size-md);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Make #root fill vertically */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Remove default list & heading spacing */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ==========================
+   Layout Shell
+   ========================== */
+
+/* App shell */
+.app-container {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main wrapper used in pages (admin + dashboard) */
+.main-content {
+  flex: 1;
+  width: 100%;
+  margin: 0 auto;
+
+}
+
+/* Header (if you have top nav) */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background-color: var(--card-bg-color);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-xl);
+}
+
+/* Header title block */
+.header-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+/* Header actions row */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Basic nav */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.nav-link {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--text-color);
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+  font-size: var(--font-size-sm);
+}
+
+.nav-link:hover {
+  border-bottom-color: rgba(148, 163, 184, 0.6);
+}
+
+.nav-link-active {
+  border-bottom-color: var(--accent-color);
+}
+
+/* Dark header tweaks */
+[data-theme="dark"] .header {
+  background-color: rgba(15, 23, 42, 0.92);
+}
+
+/* ==========================
+   Typography Utilities
+   ========================== */
+
+.text-muted {
+  color: var(--muted-text-color);
+}
+
+.text-xs {
+  font-size: var(--font-size-xs);
+}
+
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+
+.text-md {
+  font-size: var(--font-size-md);
+}
+
+.text-lg {
+  font-size: var(--font-size-lg);
+}
+
+.text-xl {
+  font-size: var(--font-size-xl);
+}
+
+/* Page titles for SectionLayout */
+.section-layout__title,
+.dashboard-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+.section-layout__subtitle,
+.dashboard-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--muted-text-color);
+  margin-top: var(--spacing-xs);
+}
+
+/* ==========================
+   Cards / Surfaces
+   ========================== */
+
+.card {
+  background-color: var(--card-bg-color);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border-color);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.card-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--muted-text-color);
+}
+
+/* ==========================
+   Buttons
+   ========================== */
+
+button {
+  font-family: inherit;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Primary branded */
+.btn-primary {
+  background-color: var(--accent-color);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-red-800);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary outline */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--accent-soft-bg);
+}
+
+/* Ghost button */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-color);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: rgba(148, 163, 184, 0.15);
+}
+
+/* Icon button */
+.btn-icon {
+  padding: var(--spacing-xs);
+  border-radius: 999px;
+  width: 2rem;
+  height: 2rem;
+}
+
+/* ==========================
+   Form Controls
+   ========================== */
+
+label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  padding: 0.35rem 0.6rem;
+  background-color: var(--bg-elevated-color);
+  color: var(--text-color);
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 1px rgba(185, 28, 28, 0.6);
+}
+
+/* Dark mode input tweak */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: #020617;
+}
+
+/* ==========================
+   Tables (shared)
+   ========================== */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.table thead {
+  background-color: rgba(15, 23, 42, 0.04);
+}
+
+.table th,
+.table td {
+  padding: 0.45rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.table th {
+  font-weight: 600;
+  color: var(--muted-text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: var(--font-size-xs);
+}
+
+.table tbody tr:hover {
+  background-color: rgba(249, 250, 251, 0.9);
+}
+
+[data-theme="dark"] .table thead {
+  background-color: rgba(15, 23, 42, 0.7);
+}
+
+[data-theme="dark"] .table th,
+[data-theme="dark"] .table td {
+  border-bottom-color: rgba(55, 65, 81, 0.7);
+}
+
+[data-theme="dark"] .table tbody tr:hover {
+  background-color: rgba(30, 64, 175, 0.3);
+}
+
+/* ==========================
+   Pills / Badges (for statuses)
+   ========================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.badge-soft {
+  background-color: rgba(148, 163, 184, 0.12);
+  color: var(--muted-text-color);
+}
+
+/* ==========================
+   Empty States (shared)
+   ========================== */
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--muted-text-color);
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.empty-state-inner {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  background-color: rgba(15, 23, 42, 0.02);
+  box-shadow: var(--shadow-sm);
+}
+
+.empty-state--inline {
+  flex: 0;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* Dark mode */
+[data-theme="dark"] .empty-state-inner {
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* ==========================
+   Utilities
+   ========================== */
+
+.stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.stack-md {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.stack-lg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.row-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+/* ==========================
+   Responsive
+   ========================== */
+
+@media (max-width: 1024px) {
+  .header {
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .main-content {
+    padding: var(--spacing-lg) var(--spacing-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .main-content {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+}

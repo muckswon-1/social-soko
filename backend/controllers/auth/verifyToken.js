@@ -12,7 +12,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   const data = UTILS.normalizedUserAuthData(user);
 
   return res.status(200).json({
-    valid: true,
+    success: true,
     user: data,
   });
 });

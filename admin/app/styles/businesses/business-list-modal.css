@@ -1,0 +1,266 @@
+/* ================================
+   Business Admin Modal
+   ================================ */
+
+/* Backdrop */
+.businesses-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 40;
+}
+
+/* Modal shell */
+.businesses-modal {
+    position: relative;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+    width: 100%;
+    max-width: 720px;
+    max-height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+    padding: 22px 26px 18px;
+    box-sizing: border-box;
+}
+
+/* Header */
+.businesses-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.businesses-modal-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+    letter-spacing: 0.01em;
+}
+
+.businesses-modal-subtitle {
+    margin: 0;
+    font-size: 0.82rem;
+    color: rgba(15, 23, 42, 0.6);
+}
+
+/* Body */
+.businesses-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    /* small space so scrollbar doesn't hug content */
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Sections */
+.businesses-detail-section {
+    padding: 0.5rem 0.25rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.businesses-detail-section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.businesses-detail-section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(15, 23, 42, 0.55);
+    margin: 0 0 0.35rem;
+}
+
+.businesses-detail-text {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: rgba(15, 23, 42, 0.9);
+}
+
+/* Key/value rows inside detail text */
+.businesses-detail-text>div {
+    margin-bottom: 0.18rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.businesses-detail-text>div:last-child {
+    margin-bottom: 0;
+}
+
+.businesses-detail-text strong {
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.85);
+}
+
+/* Mono text (IDs, slugs, etc.) */
+.businesses-cell-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+    font-size: 0.8rem;
+}
+
+/* System status row */
+.businesses-system-status-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0.25rem;
+}
+
+/* Tasks list */
+.businesses-tasks-list {
+    list-style: disc;
+    padding-left: 1.1rem;
+    margin: 0.1rem 0 0;
+    font-size: 0.84rem;
+    color: rgba(15, 23, 42, 0.9);
+}
+
+.businesses-tasks-list li+li {
+    margin-top: 0.18rem;
+}
+
+/* Admin actions grid */
+.businesses-actions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+}
+
+/* Footer */
+.businesses-modal-footer {
+    margin-top: 1.1rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.06);
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Pills (status) – relies on same classes as list table */
+.businesses-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.12rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* You likely already have these in your list CSS,
+   but keeping here for completeness / tweaks */
+
+.businesses-pill--verified {
+    background-color: rgba(34, 197, 94, 0.12);
+    color: rgb(22, 163, 74);
+}
+
+.businesses-pill--requested {
+    background-color: rgba(59, 130, 246, 0.12);
+    color: rgb(37, 99, 235);
+}
+
+.businesses-pill--pending {
+    background-color: rgba(234, 179, 8, 0.12);
+    color: rgb(202, 138, 4);
+}
+
+.businesses-pill--rejected {
+    background-color: rgba(248, 113, 113, 0.12);
+    color: rgb(220, 38, 38);
+}
+
+.businesses-pill--unverified,
+.businesses-pill--unknown {
+    background-color: rgba(148, 163, 184, 0.12);
+    color: rgb(100, 116, 139);
+}
+
+/* Buttons inside modal (rely on global .btn styles) */
+.businesses-actions-grid .btn-sm {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.65rem;
+}
+
+/* ================================
+   Dark mode
+   ================================ */
+
+[data-theme="dark"] .businesses-modal-backdrop {
+    background: rgba(15, 23, 42, 0.7);
+}
+
+[data-theme="dark"] .businesses-modal {
+    background: #020617;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.9);
+}
+
+[data-theme="dark"] .businesses-modal-subtitle {
+    color: rgba(148, 163, 184, 0.9);
+}
+
+[data-theme="dark"] .businesses-detail-section {
+    border-top-color: rgba(148, 163, 184, 0.2);
+}
+
+[data-theme="dark"] .businesses-detail-section-title {
+    color: rgba(148, 163, 184, 0.9);
+}
+
+[data-theme="dark"] .businesses-detail-text {
+    color: rgba(226, 232, 240, 0.96);
+}
+
+[data-theme="dark"] .businesses-cell-mono {
+    color: rgba(203, 213, 225, 0.96);
+}
+
+[data-theme="dark"] .businesses-tasks-list {
+    color: rgba(226, 232, 240, 0.96);
+}
+
+[data-theme="dark"] .businesses-modal-footer {
+    border-top-color: rgba(148, 163, 184, 0.2);
+}
+
+/* ================================
+   Responsive
+   ================================ */
+
+@media (max-width: 768px) {
+    .businesses-modal {
+        max-width: calc(100vw - 32px);
+        max-height: calc(100vh - 48px);
+        padding: 18px 18px 14px;
+    }
+
+    .businesses-modal-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .businesses-actions-grid {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .businesses-detail-text>div {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -1,89 +1,91 @@
+// backend/config/config.js
 "use strict";
 
 const fs = require("fs");
 const path = require("path");
+const dotenv = require("dotenv");
 
-// Load environment variables
 const env = process.env.NODE_ENV || "development";
+const rootDir = path.join(__dirname, "..");
 
-const configPath = path.join(__dirname, "..", ".env");
+// Prefer .env.<env>, then fallback to .env
+const envFile = path.join(rootDir, `.env.${env}`);
+const defaultEnvFile = path.join(rootDir, ".env");
 
-if (fs.existsSync(configPath)) {
-  require("dotenv").config({ path: configPath });
+if (fs.existsSync(envFile)) {
+  dotenv.config({ path: envFile });
+} else if (fs.existsSync(defaultEnvFile)) {
+  dotenv.config({ path: defaultEnvFile });
 }
 
-const config = {
-  development: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: "postgres",
-    logging: false,
-    define: {
-      timestamps: true,
-    },
-    pool: {
-      max: 5,
-      min: 0,
-      acquireTimeout: 30000,
-      idleTimeout: 10000,
-    },
-    dialectOptions: {
-      ssl:
-        process.env.DB_SSL === "true"
-          ? {
-              require: true,
-              rejectUnauthorized: false,
-            }
-          : false,
-    },
-  },
-  test: {
-    username: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "postgres",
-    database: process.env.DB_NAME || "social_soko_test",
-    host: process.env.DB_HOST || "127.0.0.1",
-    port: process.env.DB_PORT || 5432,
-    dialect: "postgres",
-    logging: false,
-    pool: {
-      max: 5,
-      min: 0,
-      acquireTimeout: 30000,
-      idleTimeout: 10000,
-    },
-    dialectOptions: {
-      ssl:
-        process.env.DB_SSL === "true"
-          ? {
-              require: true,
-              rejectUnauthorized: false,
-            }
-          : false,
-    },
-  },
-  production: {
-    use_env_variable: process.env.DATABASE_URL,
-    dialect: "postgres",
-    logging: false,
-    pool: {
-      max: 5,
-      min: 0,
-      acquireTimeout: 30000,
-      idleTimeout: 10000,
-    },
-    dialectOptions: {
-      ssl:
-        process.env.DB_SSL === "true"
-          ? {
-              require: true,
-              rejectUnauthorized: false,
-            }
-          : false,
-    },
-  },
+// helper for boolean envs
+const bool = (val, fallback = false) => {
+  if (val === undefined) return fallback;
+  return String(val).toLowerCase() === "true";
 };
 
-module.exports = config[env];
+const basePool = {
+  max: 5,
+  min: 0,
+  acquire: 30000,
+  idle: 10000,
+};
+
+const baseDialectOptions = {
+  ssl: bool(process.env.DB_SSL)
+    ? {
+        require: true,
+        rejectUnauthorized: false,
+      }
+    : false,
+};
+
+// ✅ common config used by development + docker
+const devLikeConfig = {
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  dialect: "postgres",
+  logging: false,
+  pool: basePool,
+  dialectOptions: baseDialectOptions,
+  define: {
+    underscored: true,
+    freezeTableName: true,
+  },
+  migrationStorageTableName: "sequelize_meta",
+};
+
+module.exports = {
+  // Local development (non-docker)
+  development: devLikeConfig,
+
+  // ✅ Docker environment used inside containers (NODE_ENV=docker)
+  docker: devLikeConfig,
+
+  test: {
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    dialect: "postgres",
+    logging: false,
+    pool: basePool,
+    dialectOptions: baseDialectOptions,
+  },
+
+  production: {
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT) || 5432,
+    dialect: "postgres",
+    logging: false,
+    pool: basePool,
+    dialectOptions: baseDialectOptions,
+  },
+};

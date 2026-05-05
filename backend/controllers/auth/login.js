@@ -18,13 +18,17 @@ module.exports = UTILS.catchAsync(async (req, res) => {
 
   // Find user
   const user = await User.scope("withPassword").findOne({where: {email}});
-  if (!user) throw UTILS.httpError(400, "Invalid username or password");
+  if (!user) throw UTILS.httpError(401, "Invalid username or password");
 
 
   // Check password
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid)
-    throw UTILS.httpError(400, "Invalid username or password");
+    throw UTILS.httpError(401, "Invalid username or password");
+
+  await user.update({
+    last_login_at: new Date(),
+  })
 
   // Generate tokens + user payload
   const accessToken = UTILS.generateAccessToken(user);

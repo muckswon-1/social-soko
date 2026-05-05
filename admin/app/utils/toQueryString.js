@@ -1,0 +1,1 @@
+export const toQueryString = (params = {}) => new URLSearchParams(Object.fromEntries(Object.entries(params).filter(([__, v]) => v !== undefined && v !== null && v !== ""))).toString();

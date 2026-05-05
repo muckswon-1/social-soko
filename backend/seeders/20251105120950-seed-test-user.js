@@ -1,5 +1,7 @@
 "use strict";
 const bcrypt = require("bcrypt");
+const { USER_MUCKS_ID, USER_BETTY_ID, USER_CYRIL_ID } = require("../seed_helpers/seed-ids");
+
 
 require("dotenv");
 
@@ -16,28 +18,68 @@ module.exports = {
      * }], {});
      */
     const hashedPassword = await bcrypt.hash(
-      process.env.TEST_USER_PASSWORD,
+      process.env.TEST_ALL_PASSWORD,
       10,
     );
-    const testUserEmail = process.env.TEST_USER_EMAIL;
 
-    await queryInterface.bulkInsert("Users", [
+    const testBusinessRoleEmail = process.env.TEST_BUSINESS_ROLE_EMAIL;
+    const testAdminRoleEmail = process.env.TEST_ADMIN_ROLE_EMAIL;
+    const testCustomerRoleEmail = process.env.TEST_CUSTOMER_ROLE_EMAIL;
+
+    
+
+    await queryInterface.bulkInsert("users", [
       {
-        email: testUserEmail,
+        id: USER_MUCKS_ID,
+        email: testBusinessRoleEmail,
         password: hashedPassword,
         first_name: "Mucks",
         last_name: "Won",
         email_verified: true,
         phone_verified: true,
-        email_verifed_at: new Date(),
-        phone_verified_at: new Date(),
+        email_verified_at: new Date(),
         created_at: new Date(),
         updated_at: new Date(),
         role: "business",
-        phone: "08012345678",
+        phone: "+254101348264",
         
       },
+
+        {
+        id: USER_BETTY_ID,
+        email: testAdminRoleEmail,
+        password: hashedPassword,
+        first_name: "Betty",
+        last_name: "Won",
+        email_verified: true,
+        phone_verified: true,
+        email_verified_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        role: "admin",
+        phone: "+254114020974",
+        
+      },
+
+           {
+        id: USER_CYRIL_ID,
+        email: testCustomerRoleEmail,
+        password: hashedPassword,
+        first_name: "Cyril",
+        last_name: "Mukabwa",
+        email_verified: true,
+        phone_verified: true,
+        email_verified_at: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        role: "customer",
+        phone: "+254729439194",
+        
+      },
+
+      
     ]);
+
   },
 
   async down(queryInterface, Sequelize) {
@@ -48,6 +90,6 @@ module.exports = {
      * await queryInterface.bulkDelete('People', null, {});
      */
 
-    await queryInterface.bulkDelete("Users", { email: testUserEmail });
+    await queryInterface.bulkDelete("users", null, {});
   },
 };

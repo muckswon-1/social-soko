@@ -1,0 +1,197 @@
+/* styles/business/logo-upload.css */
+
+/* Wrapper for the second step */
+.logo-step {
+    row-gap: var(--spacing-md);
+}
+
+/* Intro text spanning full width */
+.logo-step-intro {
+    grid-column: 1 / -1;
+    margin-bottom: 0.25rem;
+}
+
+/* ==========================
+   Dropzone
+   ========================== */
+
+.logo-dropzone {
+    grid-column: 1 / span 1;
+    border-radius: 16px;
+    border: 1px dashed rgba(148, 163, 184, 0.6);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    background: linear-gradient(135deg,
+            rgba(248, 250, 252, 0.96),
+            rgba(241, 245, 249, 0.96));
+    transition:
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.06s ease;
+}
+
+.logo-dropzone:hover {
+    border-color: rgba(59, 130, 246, 0.85);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+    transform: translateY(-1px);
+}
+
+.logo-dropzone--active {
+    border-color: var(--accent-color);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+    background: radial-gradient(circle at 0 0, #fee2e2, #e0f2fe);
+}
+
+.logo-dropzone__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--accent-color);
+}
+
+.logo-dropzone__icon-svg {
+    width: 28px;
+    height: 28px;
+}
+
+.logo-dropzone__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.1rem;
+    text-align: center;
+}
+
+.logo-dropzone__subtitle {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    text-align: center;
+}
+
+.logo-dropzone__subtitle span {
+    text-decoration: underline;
+}
+
+.logo-dropzone__meta {
+    margin-top: 0.4rem;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    text-align: center;
+}
+
+/* ==========================
+   Preview + file meta
+   ========================== */
+
+.logo-preview {
+    grid-column: 2 / span 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.logo-preview-change {
+    margin-top: 0.25rem;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    text-decoration: underline;
+    cursor: pointer;
+    align-self: flex-start;
+}
+
+.logo-preview-change:hover {
+    opacity: 0.85;
+}
+
+
+.logo-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-preview-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    background: radial-gradient(circle at 30% 30%, #fef9c3, #fee2e2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.logo-preview-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.logo-preview-empty {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.logo-preview-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+}
+
+.logo-preview-meta__name {
+    font-weight: 600;
+}
+
+.logo-preview-meta__size {
+    opacity: 0.75;
+}
+
+/* Actions row */
+.logo-step-actions {
+    grid-column: 1 / -1;
+    margin-top: 0.75rem;
+}
+
+/* ==========================
+   Dark mode tweaks
+   ========================== */
+
+[data-theme="dark"] .logo-dropzone {
+    border-color: rgba(148, 163, 184, 0.6);
+    background: linear-gradient(135deg,
+            rgba(15, 23, 42, 0.9),
+            rgba(15, 23, 42, 0.95));
+}
+
+[data-theme="dark"] .logo-dropzone:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="dark"] .logo-dropzone--active {
+    border-color: var(--accent-color);
+    background: radial-gradient(circle at 0 0, #4b5563, #020617);
+}
+
+[data-theme="dark"] .logo-preview-avatar {
+    border-color: rgba(148, 163, 184, 0.8);
+}

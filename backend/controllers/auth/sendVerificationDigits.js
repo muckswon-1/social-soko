@@ -1,5 +1,4 @@
-const { User, VerificationToken } = require("../../models");
-const { sendTemplatedEmail } = require("../../services/email/emailService");
+const { User, VerificationToken, EmailJob } = require("../../models");
 const UTILS = require("../../utils/utils"); // provides catchAsync + httpError
 
 // Send a six-digit code for sensitive operations (e.g., reset password)
@@ -39,11 +38,18 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   });
 
   // Send code via email
-  await sendTemplatedEmail({
-    to: email,
-    template: "sixDigitCode",
-    props: { email, code, expiresInMinutes },
-  });
+
+  try {
+    await EmailJob.create({
+      to: email,
+      template: "sixDigitCode",
+      payload: { email, code, expiresInMinutes },
+    })
+  } catch (error) {
+    console.log("[EmailJob]:Failed to send six digit code email to user ")
+  }
+
+
 
   return res.status(200).json({
     success: true,

@@ -5,7 +5,8 @@ const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
 const digitsCodegenerator = require("node-code-generator");
 
-require("dotenv").config();
+
+
 
 /**
  * Utility methods for Social Soko API
@@ -47,7 +48,7 @@ const UTILS = {
         role: user.role,
       },
       process.env.JWT_ACCESS_SECRET,
-      { expiresIn: "10m" },
+      { expiresIn: "1h" },
     );
   },
 
@@ -64,7 +65,7 @@ const UTILS = {
         role: user.role,
       },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "30d" },
     );
   },
 
@@ -186,6 +187,60 @@ const UTILS = {
     err.status = status;
     return err;
   },
-};
+
+  pagination: (rawPage, rawLimit) => {
+
+    const page = Math.max(parseInt(rawPage,10) || 1,1);
+    const limit = Math.max(Math.min(parseInt(rawLimit,10) || 50, 200), 1);
+
+    const offset = (page - 1) * limit;
+
+    return {
+      page, limit, offset
+    }
+  },
+
+  checkBusinessVerificationEligibility: (business, ownerUser) => {
+    const reasons = [];
+
+    if(!business.phone || !business.phone.toString().trim()) {
+      reasons.push("Business phone number is missing")
+    }
+
+    if(!business.address || !business.address.toString().trim()) {
+      reasons.push("Business address is missing")
+    }
+
+    if(!ownerUser) {
+      reasons.push("Business owner user not found")
+    }else if (!ownerUser.email_verified) {
+      reasons.push("Business owner email is not verified")
+
+    }
+
+    return {
+      eligible: reasons.length === 0,
+      reasons
+      
+    }
+
+  },
+
+
+  // Get server uptime in hours eg 22.5
+  getServerUptime: () => {
+    const uptimeInSeconds = process.uptime();
+    const uptimeInHours = uptimeInSeconds / 3600;
+
+    return uptimeInHours;
+  },
+
+
+  // get current timestamp
+  getCurrentTimestamp: () => {
+    return Math.floor(Date.now() / 1000);
+
+  },
+}
 
 module.exports = UTILS;

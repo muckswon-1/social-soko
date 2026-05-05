@@ -1,14 +1,18 @@
-/* Business overview / dashboard
+/* ==========================================================================
+   BUSINESS OVERVIEW / DASHBOARD STYLES
    Uses global tokens from app.css + forms.css
-*/
+   ========================================================================== */
 
+/* Container layout */
 .business-card {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
 }
 
-/* ========== Header ========== */
+/* ==========================================================================
+   HEADER SECTION
+   ========================================================================== */
 
 .business-header {
     display: flex;
@@ -23,9 +27,17 @@
     gap: var(--spacing-md);
 }
 
+/* Avatar + wrapper for change link */
+.business-avatar-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
 .business-avatar {
-    width: 56px;
-    height: 56px;
+    width: 6rem;
+    height: 6rem;
     border-radius: 50%;
     background: rgba(0, 0, 0, 0.04);
     display: inline-flex;
@@ -43,6 +55,21 @@
     object-fit: cover;
 }
 
+/* Change logo link under avatar */
+.business-avatar-change {
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 0.75rem;
+    color: var(--accent-color);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.business-avatar-change:hover {
+    opacity: 0.85;
+}
+
 .business-title {
     font-family: var(--font-display);
     font-size: 1.4rem;
@@ -56,6 +83,7 @@
     color: rgba(0, 0, 0, 0.6);
 }
 
+/* Right header block */
 .business-header-right {
     display: flex;
     flex-direction: column;
@@ -84,7 +112,9 @@
     color: rgba(0, 0, 0, 0.8);
 }
 
-/* ========== Grid groups ========== */
+/* ==========================================================================
+   GRID GROUPS
+   ========================================================================== */
 
 .business-grid {
     display: grid;
@@ -114,8 +144,7 @@
     color: rgba(0, 0, 0, 0.55);
 }
 
-/* definition list styling used inside groups */
-
+/* Key-value definition list (reused across sections) */
 .business-kv {
     margin: var(--spacing-sm) 0 0;
     display: grid;
@@ -139,6 +168,7 @@
     color: rgba(0, 0, 0, 0.9);
 }
 
+/* Link styling (for website + inline links) */
 .business-link {
     color: var(--accent-color);
     text-decoration: none;
@@ -149,10 +179,27 @@
     text-decoration: underline;
 }
 
+.business-inline-link {
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.business-inline-link:hover {
+    opacity: 0.85;
+}
+
 .kv-muted {
     color: rgba(0, 0, 0, 0.4);
 }
 
+/* ==========================================================================
+   EDIT FORM
+   ========================================================================== */
 
 .business-edit-form.full-width,
 .business-edit-form .full-width {
@@ -165,7 +212,163 @@
     gap: var(--spacing-sm);
 }
 
-/* ========== Responsive ========== */
+/* ==========================================================================
+   VERIFICATION STATUS BAR
+   ========================================================================== */
+
+.business-verification-bar {
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.02);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.business-verification-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.business-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Status variants */
+.business-status-pill--verified {
+    background-color: rgba(22, 163, 74, 0.12);
+    color: rgb(22, 163, 74);
+}
+
+.business-status-pill--pending {
+    background-color: rgba(148, 163, 184, 0.15);
+    color: rgba(15, 23, 42, 0.75);
+}
+
+.business-status-pill--requested {
+    background-color: rgba(59, 130, 246, 0.12);
+    color: rgb(37, 99, 235);
+}
+
+.business-status-pill--rejected {
+    background-color: rgba(220, 38, 38, 0.12);
+    color: rgb(220, 38, 38);
+}
+
+.business-verification-text {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.6);
+    max-width: 520px;
+}
+
+.business-verification-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.business-verification-note {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* Feedback messages */
+.business-verification-feedback {
+    margin-top: -0.5rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.business-verification-feedback--success {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgb(22, 163, 74);
+}
+
+.business-verification-feedback--error {
+    margin: 0;
+    font-size: 0.8rem;
+    color: rgb(220, 38, 38);
+}
+
+.business-verification-feedback--error-detail {
+    opacity: 0.85;
+}
+
+/* ==========================================================================
+   LOGO REMINDER BANNER (NEW)
+   ========================================================================== */
+
+.business-logo-banner {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0.5rem 0 var(--spacing-md);
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.75rem;
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.18);
+}
+
+.business-logo-banner__icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: var(--accent-color);
+}
+
+.business-logo-banner__icon-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.business-logo-banner__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.business-logo-banner__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.business-logo-banner__text {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.business-logo-banner__actions {
+    display: flex;
+    align-items: center;
+}
+
+/* Inline logo editor section */
+.business-logo-editor {
+    margin-bottom: var(--spacing-md);
+}
+
+/* ==========================================================================
+   RESPONSIVE + DARK MODE
+   ========================================================================== */
 
 @media (max-width: 900px) {
     .business-header {
@@ -180,9 +383,16 @@
     .business-grid {
         grid-template-columns: 1fr;
     }
-}
 
-/* Dark mode tweaks */
+    .business-verification-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .business-verification-actions {
+        align-items: flex-start;
+    }
+}
 
 [data-theme="dark"] .business-section {
     background: rgba(255, 255, 255, 0.02);
@@ -201,4 +411,18 @@
 
 [data-theme="dark"] .business-kv dd {
     color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .business-verification-bar {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .business-verification-text,
+[data-theme="dark"] .business-verification-note {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .business-logo-banner {
+    background: rgba(15, 23, 42, 0.85);
+    border-color: rgba(148, 163, 184, 0.4);
 }

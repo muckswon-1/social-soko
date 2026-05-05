@@ -1,5 +1,4 @@
-const { User, VerificationToken } = require("../../models");
-const { sendTemplatedEmail } = require("../../services/email/emailService");
+const { User, VerificationToken, EmailJob } = require("../../models");
 const UTILS = require("../../utils/utils");
 const crypto = require("crypto");
 
@@ -46,11 +45,16 @@ module.exports = UTILS.catchAsync(async (req, res) => {
   });
 
   // Send verification email with the raw token
-  await sendTemplatedEmail({
-    to: user.email,
-    template: "verifyEmail",
-    props: { email: user.email, token: rawToken, expiresInMinutes },
-  });
+
+  try {
+    await EmailJob.create({
+      to: user.email,
+      template: "verifyEmail",
+      payload: {email: user.email, token: rawToken, expiresInMinutes}
+    })
+  } catch (error) {
+    console.log("[EmailJob] Could not create email job")
+  }
 
   return res.status(200).json({
     success: true,

@@ -135,7 +135,65 @@
    Responsive
    ========================== */
 
-@media (max-width: 900px) {
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+.mobile-sidebar-backdrop {
+  display: none;
+  position: fixed;  
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 19;
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 600px) {
+  .layout-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: 260px !important;
+    height: 100vh;
+    background-color: var(--card-bg-color);
+
+    transform: translateX(-100%);
+    transition: transform 0.3 ease;
+    z-index: 20;
+    border-radius: 0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+
+
+  .layout-sidebar--expanded {
+    transform: translateX(0);
+  }
+
+  .layout-sidebar--collapsed {
+    transform: translateX(-100%);
+  }
+
+  .layout-shell {
+    padding-left: 0 !important;
+  }
+
+  .mobile-sidebar-backdrop {
+    display: block;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+}
+
+
+
+/* @media (max-width: 900px) {
   .layout-shell {
     flex-direction: column;
     min-height: calc(100vh - var(--header-height));
@@ -155,4 +213,4 @@
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
   }
-}
+} */

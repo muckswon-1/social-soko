@@ -4,7 +4,7 @@ const UTILS = require("../../utils/utils");
 
 module.exports = UTILS.catchAsync(async (req, res) => {
   const { id, userId } = req.params;
-  if (!id || !userId) {
+  if (!id ) {
     throw createError(400, "User ID and business ID required");
   }
 
@@ -22,7 +22,6 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     email,
     website,
     slug,
-    logo_url,
   } = businessData;
 
   //Enusre atleast one filed to updaate
@@ -37,8 +36,7 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     phone !== undefined ||
     email !== undefined ||
     website !== undefined ||
-    slug !== undefined ||
-    logo_url !== undefined;
+    slug !== undefined;
 
   if (!hasUpdates) {
     throw createError(400, "No fields to update");
@@ -67,7 +65,6 @@ module.exports = UTILS.catchAsync(async (req, res) => {
     ...(email !== undefined && { email }),
     ...(website !== undefined && { website }),
     ...(slug !== undefined && { slug }),
-    ...(logo_url !== undefined && { logo_url }),
   });
 
   // return updated business

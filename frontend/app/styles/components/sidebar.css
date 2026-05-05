@@ -120,6 +120,10 @@
 }
 
 /* ==========================
+   Overlay Backdrop (mobile)
+   ========================== */
+
+/* ==========================
    Dark Mode
    ========================== */
 
@@ -144,8 +148,48 @@
 /* ==========================
    Responsive
    ========================== */
+@media (max-width: 600px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
 
-@media (max-width: 900px) {
+    width:260px;
+    height: 100vh;
+    border-radius: 0;
+    padding: var(--spacing-md);
+    transform: translateX(-100%);
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    z-index: 20;
+  }
+  .sidebar-expanded {
+    transform: translateX(0);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  }
+
+  .sidebar-collapsed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-nav {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: 0 var(--spacing-sm);
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding: var(--spacing-sm) var(--spacing-sm) 0;
+  }
+}
+
+
+/* Tablets */
+@media (min-width: 601px) and (max-width: 900pxpx){
   .sidebar {
     flex-direction: row;
     height: auto;
@@ -153,7 +197,7 @@
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-sm);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
   }
 
   .sidebar-nav {

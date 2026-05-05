@@ -1,0 +1,152 @@
+/* ==========================
+   Admin Home ("/") Page
+   ========================== */
+
+.admin-home {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    /* increased spacing between sections */
+    padding: 0 var(--spacing-xl);
+    /* NEW: proper side gutters */
+    padding-bottom: var(--spacing-xxxl);
+    /* larger bottom padding */
+}
+
+/* Header / hero */
+
+.admin-home__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+    padding-top: var(--spacing-xl);
+    /* NEW: breathing room from header */
+    padding-bottom: var(--spacing-lg);
+    /* NEW: clear separation */
+    border-bottom: 1px solid var(--border-color);
+    /* NEW: subtle separation */
+}
+
+.admin-home__header-main {
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.admin-home__title {
+    font-size: 2rem;
+    /* slightly larger hero title */
+    line-height: 1.3;
+    margin: 0;
+}
+
+.admin-home__subtitle {
+    font-size: var(--font-size-md);
+    color: var(--muted-text-color);
+    margin-top: var(--spacing-xxs);
+}
+
+/* Header meta (env + build) floating right */
+.admin-home__header-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxs);
+    align-items: flex-end;
+    font-size: var(--font-size-xs);
+    color: var(--muted-text-color);
+}
+
+/* Primary tiles */
+
+.admin-home__primary {
+    margin-top: var(--spacing-xl);
+    /* NEW: smoother flow */
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-lg);
+    /* bigger gaps between cards */
+}
+
+.admin-home__primary-card {
+    padding: var(--spacing-lg);
+    /* more interior card padding */
+    border-radius: var(--radius-lg);
+    /* smoother corners */
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Lower section grid */
+
+.admin-home__lower {
+    margin-top: var(--spacing-lg);
+    /* spacing before lower grid */
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
+    gap: var(--spacing-lg);
+}
+
+.admin-home__recent-card,
+.admin-home__status-card {
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+}
+
+/* Section header general */
+
+.admin-home__section-header {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Footer section */
+
+.admin-home__footer {
+    margin-top: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+}
+
+.admin-home__links-card {
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+}
+
+/* Responsive improvements */
+
+@media (max-width: 960px) {
+    .admin-home {
+        padding: 0 var(--spacing-lg);
+    }
+
+    .admin-home__primary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-home__lower {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-home__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .admin-home__header-meta {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-home {
+        padding: 0 var(--spacing-md);
+    }
+
+    .admin-home__primary {
+        grid-template-columns: 1fr;
+    }
+}
