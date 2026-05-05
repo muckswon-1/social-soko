@@ -48,6 +48,7 @@ backend/data/
 backend/logs/
 backend/coverage
 backend/migrations_unused
+backend/nocodb
 
 # ----------------------------------------
 # Continue.dev rules folder
