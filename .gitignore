@@ -81,4 +81,4 @@ USER.md
 coverage/
 **/coverage/
 
-
+.aider.*
