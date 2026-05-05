@@ -1,0 +1,57 @@
+/* ==========================
+   Session Info (Privacy index)
+   ========================== */
+
+.session-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Email row + actions */
+.session-inline-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.session-email {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+
+.session-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Make tiny buttons look balanced */
+.btn-xxs {
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .session-inline-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .session-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* Dark mode */
+[data-theme="dark"] .session-inline-actions {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}

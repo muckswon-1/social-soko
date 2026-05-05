@@ -1,93 +1,56 @@
-// After account registration a user can now update thier information like names, phone number etc. 
+const { User } = require("../../models");
+const UTILS = require("../../utils/utils"); // provides catchAsync + httpError
 
-const {User} = require("../../models");
-const UTILS = require("../../utils/utils");
+// Update Profile Information
+const updateUser = UTILS.catchAsync(async (req, res) => {
+  const { userId } = req.params || {};
+  if (!userId) throw UTILS.httpError(400, "userId is required");
 
-const updateUser = async (req,res) => {
+  const user = await User.findByPk(userId);
+  if (!user) throw UTILS.httpError(404, "User not found");
 
-    try {
+  const patch = req.body?.patch || {};
 
-        const {userId} = req.params;
-       
-      const user = await User.findByPk(userId);
+  const { first_name, last_name, phone } = patch;
+
+  // Ensure at least one field to update
+  const hasUpdates =
+    first_name !== undefined || last_name !== undefined || phone !== undefined;
+  if (!hasUpdates) throw UTILS.httpError(400, "No fields provided to update");
 
 
-        if(!user) {
 
-            return res.status(404).json({message: "User not found"});
-
-        }
-        
-         const {first_name, last_name, phone} = req.body.patch;
-       
-
-        //update user information then return the new user
-     await user.update({
-        ...(first_name !== undefined && {first_name}),
-        ...(last_name !== undefined && {last_name}),
-        ...(phone !== undefined && {phone})
-    });
-
-    const normalized = UTILS.normalizedUserProfileData(user)
-    
-        res.status(200).json({
-            message: "User information updated successfully",
-            updatedUser: normalized
-        });
-
-    } catch (error) {
-        console.error('Error updating user information:', error);
-        res.status(500).json({
-            error: {
-                code: 'INTERNAL_ERROR',
-                message: 'Error updating user information',
-                details: error.message
-
-            }
-
-        });
-
-    }
-
-}
-
+  await user.update({
+    ...(first_name !== undefined && { first_name }),
+    ...(last_name !== undefined && { last_name }),
+    ...(phone !== undefined && { phone }),
+  });
+  
+  return res.status(200).json({
+    success: true,
+    message: "User information updated successfully",
+    user,
+  });
+});
 
 // Fetch Profile Information
-const fetchProfile = async (req,res) => {
-   try {
-    const {userId} = req.params;
+const fetchProfile = UTILS.catchAsync(async (req, res) => {
+  const { userId } = req.params || {};
+  if (!userId) throw UTILS.httpError(400, "userId is required");
 
-    console.log(userId);
+  const user = await User.findOne({ where: { id: userId } });
+  if (!user) throw UTILS.httpError(404, "User not found");
 
-    const user = await User.findOne({where: {id: userId}});
+  
 
-    if(!user) {
-        return res.status(400).json({message: "User was not found"})
-    }
-
-
-    const normalizedProfile = UTILS.normalizedUserProfileData(user);
-
-    res.status(200).json(normalizedProfile);
-
-
-   } catch (error) {
-    // An error happended while fetching user profile info
-    console.error("Error fetching user profile info: ",error);
-     res.status(500).json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Token verification error',
-        details: error.message
-      }
-    });
-
-
-   }
-}
+  return res.status(200).json({
+    success: true,
+    message: "User profile fetched successfully",
+    user,
+  });
+});
 
 module.exports = {
-    updateUser,
-    fetchProfile
-
-}
+  updateUser,
+  fetchProfile,
+};

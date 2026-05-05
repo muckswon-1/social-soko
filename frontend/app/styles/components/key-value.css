@@ -1,0 +1,89 @@
+/* ==========================
+   Key-Value / Data Inspectors
+   ========================== */
+
+.kv-grid {
+  display: grid;
+  grid-template-columns: minmax(160px, 260px) minmax(0, 1fr);
+  gap: 0.4rem 1rem;
+  margin-top: var(--spacing-sm);
+}
+
+.kv-key {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-color);
+}
+
+.kv-val {
+  font-size: 0.85rem;
+  color: var(--text-color);
+  word-break: break-word;
+}
+
+.kv-mono {
+  font-family: "Courier New", Courier, monospace;
+  letter-spacing: 0.02em;
+}
+
+.kv-muted {
+  opacity: 0.6;
+}
+
+/* Long text block */
+.kv-pre {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+  background-color: rgba(0, 0, 0, 0.03);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Arrays / nested structures */
+.kv-array {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kv-array-item {
+  font-size: 0.8rem;
+}
+
+.kv-details {
+  font-size: 0.78rem;
+}
+
+.kv-summary {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.kv-nested {
+  margin-top: 0.25rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Nested grid for object entries */
+.kv-nested-grid {
+  display: grid;
+  grid-template-columns: minmax(120px, 200px) minmax(0, 1fr);
+  gap: 0.35rem 0.75rem;
+}
+
+/* Dark mode */
+[data-theme="dark"] .kv-key,
+[data-theme="dark"] .kv-val {
+  color: var(--color-white);
+}
+
+[data-theme="dark"] .kv-pre {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .kv-nested {
+  border-left-color: rgba(255, 255, 255, 0.16);
+}

@@ -1,55 +1,78 @@
-const db = require('../models');
-const crypto = require('crypto');
+const db = require("../models");
+const crypto = require("crypto");
 
-const {User, VerificationToken} = db;
+const { User, VerificationToken } = db;
 
+module.exports = async (providedToken, tokenType, opts = {}) => {
+  const { inputFormat = "plain" } = opts;
 
-module.exports = async (token, token_type) =>  {
- 
+  if (!providedToken || !tokenType) {
+    return { valid: false, reason: "Token and token type are required" };
+  }
 
-  if(!token || !token_type) {
-    throw new Error('Token and token type are required')
+  let hashedToken;
+
+  if (inputFormat === "sha256") {
+    hashedToken = crypto
+      .createHash("sha256")
+      .update(providedToken)
+      .digest("hex");
+  }else {
+    hashedToken = providedToken;
   }
 
   // Find token record
   const tokenRecord = await VerificationToken.findOne({
-    where: {token, token_type},
-    include: [{model: User, as: 'user'}]
+    where: { token: hashedToken, token_type: tokenType },
+    include: [{ 
+      model: User.scope("withPassword"), 
+      
+      as: "user"
+     }],
   });
 
 
-  if(!tokenRecord) {
-    throw new Error('Invalid or expired token.')
+  if (!tokenRecord) {
+    return { valid: false, reason: "Invalid or expired token." };
   }
 
-  
-  if(tokenRecord.expires_at < new Date()) {
-    await tokenRecord.destroy();
-    throw new Error('Token has expired.')
+  const now = new Date();
+
+  if (tokenRecord.expires_at === now || tokenRecord.expires_at <= now) {
+    try {
+      await tokenRecord.destroy();
+    } catch {}
+
+    return { valid: false, reason: "Token has expired" };
   }
 
- 
-  
+  // // //Timing safe compare
+  // const isValid = crypto.timingSafeEqual(Buffer.from(token), Buffer.from(tokenRecord.token));
 
-  // //Timing safe compare
-  const isValid = crypto.timingSafeEqual(Buffer.from(token), Buffer.from(tokenRecord.token));
+  // if(!isValid) {
+  //   throw new Error('Invalid token')
+  // }
 
-  if(!isValid) {
-    throw new Error('Invalid token')
+  const a = Buffer.from(String(hashedToken));
+  const b = Buffer.from(String(tokenRecord.token));
+
+  const sameLength = a.length === b.length;
+  const constantTimeMatch = sameLength && crypto.timingSafeEqual(a, b);
+
+  if (!constantTimeMatch) {
+    return { valid: false, reason: "Invalid Token" };
   }
+  const user = tokenRecord.user;
 
-
-   const user = tokenRecord.user;
-  
-
-  const returnTokenRecord = tokenRecord
+  const returnTokenRecord = tokenRecord;
   // Delete token after use
-  await tokenRecord.destroy();
-
+  try {
+    await tokenRecord.destroy();
+  } catch {}
 
   return {
-    
-    token:returnTokenRecord,
-    user
-  }
-}
+    valid: true,
+    token: returnTokenRecord,
+    user,
+  };
+};

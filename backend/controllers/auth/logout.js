@@ -1,25 +1,15 @@
-module.exports = async (req,res) => {
+const UTILS = require("../../utils/utils");
 
-  try {
+module.exports = UTILS.catchAsync(async (req, res) => {
+  // Since we're using JWT tokens, we can't invalidate them on the server side.
+  // The frontend should clear tokens from localStorage/sessionStorage as well.
 
-     // Since we're using JWT tokens, we can't invalidate them on the server side
-    // The simplest approach is to return a success response
-    // Frontend should clear tokens from localStorage/sessionStorage
-    res.clearCookie('access_token', {path: '/'});
-    res.clearCookie('refresh_token', {path: '/'});
-    res.clearCookie('XSRF-TOKEN', {path: '/'});
+  res.clearCookie("access_token", { path: "/" });
+  res.clearCookie("refresh_token", { path: "/" });
+  res.clearCookie("XSRF-TOKEN", { path: "/" });
 
-   return  res.json({
-      message: 'Logout successful',
-      success: true
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Logout error',
-        details: error.message
-      }
-    });
-  }
-}
+  return res.status(200).json({
+    success: true,
+    message: "Logout successful",
+  });
+});

@@ -1,90 +1,86 @@
-const {User, VerificationToken} = require("../../models");
-const { sendTemplatedEmail } = require("../../services/emailService");
+const { User, VerificationToken } = require("../../models");
+const { sendTemplatedEmail } = require("../../services/email/emailService");
 const verificationTokenService = require("../../services/verificationTokenService");
-const crypto = require('crypto');
+const crypto = require("crypto");
 const UTILS = require("../../utils/utils");
 
+module.exports = UTILS.catchAsync(async (req, res) => {
+  const { email, digitCodes } = req.body || {};
 
-module.exports = async (req, res) => {
-    try {
-        const {newEmail, digitCodes} = req.body;
+  // Validate input
+  if (!digitCodes) throw UTILS.httpError(400, "digitCodes is required");
+  if (!email) throw UTILS.httpError(400, "email is required");
 
-        //TODO Consider verifying passsword
-        const {user} = await verificationTokenService(digitCodes,"verification_digits");
+  // Optional: very light email format check
+  const looksLikeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email));
+  if (!looksLikeEmail)
+    throw UTILS.httpError(400, "email must be a valid email");
 
-        //
+  // Verify code and get user
+  const { valid, user, reason } = await verificationTokenService(
+    digitCodes,
+    "verification_digits",
+  );
 
-        //check if user alrady updated email
-        if(user.email === newEmail) {
-            return res.status(400).json({message: "Email already exists"})
-        }
+  if (!valid || !user) throw UTILS.httpError(400, reason);
 
-        //check if email is already in use
-        const existingUser = await User.findOne({where: {email: newEmail}});
-        if(existingUser) {
-            return res.status(400).json({message: "Email already in use"});
-        }
+  // If user is already using this email
+  if (user.email === email) throw UTILS.httpError(409, "Email already exists");
 
+  // Ensure the new email isn't used by someone else
+  const existingUser = await User.findOne({ where: { email: email } });
+  if (existingUser) throw UTILS.httpError(409, "Email already in use");
 
-           if(!user) {
-            return res.status(400).json({message: "Invalid or expired token"})
-        }
+  const oldEmail = user.email;
 
-        // we will need to verify the email by sending a code to the new email
+  // Update email and mark unverified
+  await User.update(
+    { email: email, email_verified: false },
+    { where: { id: user.id } },
+  );
 
-        const oldEmail = user.email;
+  // Notify both addresses about the change
+  await sendTemplatedEmail({
+    to: oldEmail,
+    template: "emailUpdated",
+    props: { email: oldEmail },
+  });
 
-        await User.update({email: newEmail, email_verified:false},
-            {where: {id: user.id}}
-        );
+  await sendTemplatedEmail({
+    to: email,
+    template: "emailUpdated",
+    props: { email: email },
+  });
 
-        //send email to old email 
-        await sendTemplatedEmail({
-            to: oldEmail,
-            subject: "Email Updated",
-            template: "sendEmailUpdated",
-            props: {email: oldEmail}
-        });
+  // Invalidate any existing email verification tokens for this user
+  await VerificationToken.destroy({
+    where: { user_id: user.id, token_type: "email_verification" },
+  });
 
-        //send email to new email
-        await sendTemplatedEmail({
-            to: newEmail,
-            subject: "Email Updated",
-            template: "sendEmailUpdated",
-            props: {email: newEmail}
-        });
+  // Generate a fresh verification token for the new email
+  const verificationToken = UTILS.generateVerifyToken();
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(verificationToken)
+    .digest("hex");
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-       //Generate token to verify new email
-    const verificationToken  = UTILS.generateVerifyToken();
-    const tokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
-     // Token expiry
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+  await VerificationToken.create({
+    user_id: user.id,
+    token: tokenHash,
+    expires_at: expiresAt,
+    token_type: "email_verification",
+  });
 
-    
-    // Store token
-    await VerificationToken.create({
-      user_id: user.id,
-      token:tokenHash,
-      expires_at: expiresAt, 
-      token_type: "email_verification"
-    });
+  // Send verification email to the NEW email
+  await sendTemplatedEmail({
+    to: email,
+    template: "verifyEmail",
+    props: { email: email, token: verificationToken, expiresInMinutes: 60 },
+  });
 
-
-
-    await sendTemplatedEmail({
-      to: newEmail,
-      template: "sendVerifyEmail",
-      props:{email: newEmail, token: verificationToken, expiresInMinutes: 60}
-    });
-
-        
-
-     res.status(200).json({message: "Email updated successfully"})
-
-
-    } catch (error) {
-         console.error('Error updating email:', error);
-        res.status(500).json({ error: 'Internal server error' });
-
-    }
-}
+  return res.status(200).json({
+    success: true,
+    message: "Email updated successfully. Please verify your new email.",
+  });
+});

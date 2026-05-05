@@ -1,0 +1,82 @@
+/* ==========================
+   Profile Card
+   ========================== */
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Header layout inside card */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Avatar circle using initials */
+.pf-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background-color: var(--accent-color);
+  color: var(--color-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Right side chips container */
+.profile-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+/* Inline actions row under header */
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+  margin-top: -0.4rem;
+}
+
+/* Full-width field when editing */
+.profile-field-full {
+  grid-column: 1 / -1;
+}
+
+/* ==========================
+   Dark Mode
+   ========================== */
+
+[data-theme="dark"] .pf-avatar {
+  background-color: var(--accent-color);
+  color: var(--color-white);
+}
+
+/* ==========================
+   Responsive
+   ========================== */
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .profile-chips {
+    margin-left: 0;
+    margin-top: var(--spacing-xs);
+  }
+
+  .profile-actions {
+    justify-content: flex-start;
+  }
+}

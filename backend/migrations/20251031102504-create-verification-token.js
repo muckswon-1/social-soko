@@ -1,47 +1,45 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('VerificationTokens', {
+    await queryInterface.createTable("VerificationTokens", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('gen_random_uuid()')
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
       user_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'Users',
-          key: 'id'
+          model: "Users",
+          key: "id",
         },
-        onDelete: 'CASCADE'
-        
-        
+        onDelete: "CASCADE",
       },
       token: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       expires_at: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       token_type: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('VerificationTokens');
-  }
+    await queryInterface.dropTable("VerificationTokens");
+  },
 };

@@ -1,32 +1,22 @@
-const {User} = require("../../models");
+const { User } = require("../../models");
 const UTILS = require("../../utils/utils");
 
+module.exports = UTILS.catchAsync(async (req, res) => {
+  const email = req.user?.email;
 
+  // Validate auth context
+  if (!email) throw UTILS.httpError(401, "Unauthorized");
 
-module.exports = async (req,res) => {
-  try {
-    const {email} = req.user
+  // Find user
+  const user = await User.findOne({ where: { email } });
+  if (!user) throw UTILS.httpError(404, "User not found");
 
-    //search user by email
-    const user = await User.findOne({ where: {email} });
+  // Normalize and respond
+  const data = UTILS.normalizedUserAuthData(user);
 
-    // check if there is no user
-    if(!user) {
-      return res.status(404).json({message: "User not found"})
-    }
-  
-      const data = UTILS.normalizedUserAuthData(user);
-    
-    res.status(200).json({data});
-
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Token verification error',
-        details: error.message
-      }
-    });
-  }
-}
+  return res.status(200).json({
+    success: true,
+    message: "User fetched successfully",
+    data,
+  });
+});

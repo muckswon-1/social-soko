@@ -1,55 +1,88 @@
-'use strict';
-/** @type {import('sequelize-cli').Migration} */
+"use strict";
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Businesses', {
+    await queryInterface.createTable("Businesses", {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.literal("gen_random_uuid()"),
       },
-      owner_user_id: {
-        type: Sequelize.UUID
+
+      user_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "Users", // name of the target table
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
+
       name: {
-        type: Sequelize.STRING
-      },
-      industry: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       description: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+      },
+      address: {
+        type: Sequelize.STRING,
+      },
+      city: {
+        type: Sequelize.STRING,
+      },
+      state: {
+        type: Sequelize.STRING,
+      },
+      country: {
+        type: Sequelize.STRING,
+      },
+      postal_code: {
+        type: Sequelize.STRING,
+      },
+      phone: {
+        type: Sequelize.STRING,
+      },
+      email: {
+        type: Sequelize.STRING,
       },
       website: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       logo_url: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
-      verified_at: {
-        type: Sequelize.DATE
+      slug: {
+        type: Sequelize.STRING,
+        unique: true,
       },
-      plan: {
-        type: Sequelize.STRING
+      is_verified: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
       },
+
       created_at: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       updated_at: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      }
     });
+
+    // Recommended indexes for performance and search
+    await queryInterface.addIndex("Businesses", ["user_id"]);
+    await queryInterface.addIndex("Businesses", ["city"]);
+    await queryInterface.addIndex("Businesses", ["state"]);
+    await queryInterface.addIndex("Businesses", ["country"]);
+    await queryInterface.addIndex("Businesses", ["postal_code"]);
+    await queryInterface.addIndex("Businesses", ["is_verified"]);
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Businesses');
-  }
+    await queryInterface.dropTable("Businesses");
+  },
 };

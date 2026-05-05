@@ -1,60 +1,52 @@
-const {User, VerificationToken} = require("../../models");
-const { sendTemplatedEmail } = require("../../services/emailService");
-const UTILS = require("../../utils/utils");
+const { User, VerificationToken } = require("../../models");
+const { sendTemplatedEmail } = require("../../services/email/emailService");
+const UTILS = require("../../utils/utils"); // provides catchAsync + httpError
 
+// Send a six-digit code for sensitive operations (e.g., reset password)
+module.exports = UTILS.catchAsync(async (req, res) => {
+  const { email } = req.body || {};
 
+  // Validate input
+  if (!email) throw UTILS.httpError(400, "email is required");
 
-// Send a six digit code for unsafe operations like reset password
-module.exports = async (req, res) => {
-    const { email } = req.body;
-    try {
-        // Check if user exists
-           //Find user by email
-      const user  = await User.findOne({where: {email}});
+  // Find user by email
+  const user = await User.findOne({ where: { email } });
 
-
-     if(!user) {
-       // Return success even if user not found for security reasons
-      return res.status(200).json({message: "Password reset code sent to your email"});
-     }
-
-
-     // delete any exisiting codes for the user
-     await VerificationToken.destroy({
-      where: {
-        user_id: user.id,
-        token_type: 'verification_digits'
-      }
-    }
-     )
-
-       
-        const expiresInMinutes = 60; // 1 hour from
-        const resetTokenExpiry = new Date();
-        resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1); 
-        const code = UTILS.generateDigitsCode(1);
-       
-
-       await VerificationToken.create({
-      user_id: user.id,
-      token: code,
-      expires_at: resetTokenExpiry,
-      token_type: 'verification_digits'
+  // Always return success to avoid account enumeration
+  if (!user) {
+    return res.status(200).json({
+      success: true,
+      message: "Password reset code sent to your email",
     });
+  }
 
-        // Send code via email
-        sendTemplatedEmail({
-            to: email,
-            template: "sendSixDigitCodeEmail",
-            props: {email, code, expiresInMinutes},
-        })
+  // Remove any existing verification digit codes for this user
+  await VerificationToken.destroy({
+    where: { user_id: user.id, token_type: "verification_digits" },
+  });
 
-  res.json({message: "Verification code sent to your email"});
+  // Generate a new 6-digit code
+  const expiresInMinutes = 60;
+  const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
+  const code = UTILS.generateDigitsCode(6); // ensure 6 digits
 
-    }catch(error) {
-        console.error(error);
-      res.status(500).json({message: "Internal server error"});
-    }
-}
+  // Store the code (plaintext if your verification service expects plaintext)
+  await VerificationToken.create({
+    user_id: user.id,
+    token: code,
+    expires_at: expiresAt,
+    token_type: "verification_digits",
+  });
 
-     
+  // Send code via email
+  await sendTemplatedEmail({
+    to: email,
+    template: "sixDigitCode",
+    props: { email, code, expiresInMinutes },
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Password reset code sent to your email",
+  });
+});

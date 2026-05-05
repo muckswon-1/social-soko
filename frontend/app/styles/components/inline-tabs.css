@@ -1,0 +1,102 @@
+/* ==========================
+   Inline Tabs
+   ========================== */
+
+.inline-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* Tabs row */
+.inline-tabs__list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  padding: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Individual tab button */
+.inline-tabs__tab {
+  position: relative;
+  padding: 0.4rem 0.9rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.05s ease;
+}
+
+.inline-tabs__tab:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--accent-color);
+}
+
+/* Active tab */
+.inline-tabs__tab--active {
+  background-color: var(--action-bg-color);
+  color: var(--color-black);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* Optional bottom indicator */
+.inline-tabs__tab--active::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -3px;
+  height: 2px;
+  border-radius: 999px;
+  background-color: var(--accent-color);
+}
+
+/* Panels wrapper */
+.inline-tabs__panels {
+  margin-top: var(--spacing-sm);
+}
+
+/* Panel */
+.inline-tabs__panel {
+  padding-top: var(--spacing-xs);
+}
+
+/* Hidden panels (keep layout clean) */
+.inline-tabs__panel--hidden {
+  display: none;
+}
+
+/* ==========================
+   Dark Mode
+   ========================== */
+
+[data-theme="dark"] .inline-tabs__list {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .inline-tabs__tab {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .inline-tabs__tab:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .inline-tabs__tab--active {
+  background-color: var(--accent-color);
+  color: var(--color-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .inline-tabs__tab--active::after {
+  background-color: var(--action-bg-color);
+}

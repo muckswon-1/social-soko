@@ -1,0 +1,163 @@
+/* ==========================
+   Landing Page Styles
+   ========================== */
+
+.page-landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  gap: var(--spacing-xl);
+}
+
+/* The wrapper inside the app’s main <main> */
+.page-landing-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1280px;
+  gap: var(--spacing-xl);
+}
+
+/* HERO SECTION */
+.hero-landing {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: var(--spacing-xl);
+  background: var(--surface-elevated);
+  gap: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+}
+
+.hero-content {
+  flex: 1 1 55%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.hero-eyebrow {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hero-text {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: var(--spacing-sm);
+}
+
+.trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: var(--spacing-md);
+}
+
+.trust-pill {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--surface-accent);
+  font-size: 0.85rem;
+  color: var(--accent-color);
+}
+
+/* Sidebar section */
+.hero-aside {
+  flex: 1 1 35%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.hero-aside-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.hero-aside-text {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* FEATURES */
+.features-section {
+  width: 100%;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.feature-card {
+  text-align: center;
+  padding: var(--spacing-lg);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.feature-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature-title {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.feature-text {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* FOOTER */
+.landing-footer {
+  width: 100%;
+  text-align: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero-landing {
+    flex-direction: column;
+    padding: var(--spacing-lg);
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-aside {
+    margin-top: var(--spacing-md);
+  }
+}
